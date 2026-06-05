@@ -283,6 +283,7 @@ nav {
   padding: 3.5rem; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line);
   overflow: hidden; cursor: pointer; position: relative;
   transition: background 0.25s;
+  display: flex; flex-direction: column;
 }
 .side-card:nth-child(even) { border-right: none; }
 .side-card:hover { background: rgba(13,13,13,0.018); }
@@ -296,8 +297,8 @@ nav {
   transition: transform 0.35s cubic-bezier(.25,.46,.45,.94), color 0.2s, border-color 0.2s;
 }
 .side-card.open .side-btn { transform: rotate(45deg); color: var(--ink); border-color: var(--ink); }
-.sname { font-family: 'Syne', sans-serif; font-weight: 800; font-size: clamp(1rem, 2.2vw, 1.55rem); letter-spacing: -0.015em; line-height: 1.12; margin-bottom: 0.9rem; }
-.sbrief { font-size: 0.69rem; color: var(--ink-2); line-height: 1.78; }
+.sname { font-family: 'Syne', sans-serif; font-weight: 800; font-size: clamp(1rem, 2.2vw, 1.55rem); letter-spacing: -0.015em; line-height: 1.12; margin-bottom: 1.2rem; }
+.sbrief { font-size: 0.69rem; color: var(--ink-2); line-height: 1.78; margin-bottom: 2rem; flex: 1; }
 .sbody {
   display: block; max-height: 0; overflow: hidden;
   opacity: 0; margin-left: -3.5rem; margin-right: -3.5rem; margin-bottom: -3.5rem; padding: 0 3.5rem;
