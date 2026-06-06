@@ -298,15 +298,15 @@ nav {
 }
 .side-card.open .side-btn { transform: rotate(45deg); color: var(--ink); border-color: var(--ink); }
 .sname { font-family: 'Syne', sans-serif; font-weight: 800; font-size: clamp(1rem, 2.2vw, 1.55rem); letter-spacing: -0.015em; line-height: 1.12; margin-bottom: 1.2rem; }
-.sbrief { font-size: 0.69rem; color: var(--ink-2); line-height: 1.78; margin-bottom: 2rem; }
+.sbrief { font-size: 0.69rem; color: var(--ink-2); line-height: 1.78; margin-bottom: 3rem; }
 .sbody {
   display: block; max-height: 0; overflow: hidden;
   opacity: 0; margin-left: -3.5rem; margin-right: -3.5rem; margin-bottom: -3.5rem; padding: 0 3.5rem;
   background: #ebe9e0;
   transition: max-height 0.75s cubic-bezier(.16,1,.3,1), opacity 0.45s ease 0.1s, padding-bottom 0.75s cubic-bezier(.16,1,.3,1);
 }
-.side-card.open .sbody { opacity: 1; padding: 2.5rem 3.5rem 3.5rem; border-top: 1px solid rgba(13,13,13,0.15); }
-.side-card.open { background: #ebe9e0; }
+.side-card.open .sbody { opacity: 1; padding: 2rem 3.5rem 2.5rem; border-top: 1px solid rgba(13,13,13,0.15); }
+.side-card.open { background: var(--bg); }
 
 /* ─── SKILLS ─── */
 #skills { border-bottom: 1px solid var(--line); }
@@ -687,7 +687,7 @@ footer { padding: 1.5rem 3.5rem; display: flex; justify-content: space-between; 
       <p class="sbrief">A detailed Product Requirements Document for a digital card game, covering full game logic, scoring formulas, user flows and match lifecycle design.</p>
       <div class="sbody" onclick="event.stopPropagation()">
         <div class="blabel">Overview</div>
-        <p class="btext" style="margin-bottom:1.2rem">A comprehensive game design document for Dou Di Zhu (鬥地主), the popular Chinese card game. This PRD demonstrates rigorous product thinking applied to game mechanics — defining player roles, card hierarchy, scoring formulas, multiplier systems, special combos, and the complete match flow from room selection to settlement.</p>
+        <p class="btext" style="margin-bottom:0.6rem">A comprehensive game design document for Dou Di Zhu (鬥地主), the popular Chinese card game. This PRD demonstrates rigorous product thinking applied to game mechanics — defining player roles, card hierarchy, scoring formulas, multiplier systems, special combos, and the complete match flow from room selection to settlement.</p>
         <button class="dbtn" onclick="openPdfDou()">📄 鬥地主 — Game Design PRD <span class="da">↗</span></button>
       </div>
     </div>
@@ -703,7 +703,7 @@ footer { padding: 1.5rem 3.5rem; display: flex; justify-content: space-between; 
         <div class="blabel">Overview</div>
         <p class="btext" style="margin-bottom:0.4rem">A full product design project for a live streaming platform. The scope covered both the broadcaster (streamer) side and the viewer (user) side, including broadcaster onboarding flows, live room UI specifications, design system header conventions, and the PC streaming assistant setup process.</p>
         <div class="blabel" style="margin-top:1.2rem">Scope &amp; Deliverables</div>
-        <p class="btext" style="margin-bottom:1.2rem">Platform overview &amp; feature spec · Live room UI (user-side) wireframes &amp; flows · Header &amp; design system conventions · PC broadcaster onboarding flow · Streaming assistant setup documentation</p>
+        <p class="btext" style="margin-bottom:0.6rem">Platform overview &amp; feature spec · Live room UI (user-side) wireframes &amp; flows · Header &amp; design system conventions · PC broadcaster onboarding flow · Streaming assistant setup documentation</p>
         <div style="display:flex;flex-direction:column;gap:0.35rem">
           <button class="dbtn" onclick="openPdfLive2()">📄 Design Spec — Header Conventions <span class="da">↗</span></button>
           <button class="dbtn" onclick="openPdfLive3()">📄 PC Broadcaster Flow <span class="da">↗</span></button>
