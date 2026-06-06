@@ -284,7 +284,6 @@ nav {
   padding: 3.5rem; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line);
   overflow: hidden; cursor: pointer; position: relative;
   transition: background 0.25s;
-  display: flex; flex-direction: column;
 }
 .side-card:nth-child(even) { border-right: none; }
 .side-card:hover { background: rgba(13,13,13,0.018); }
@@ -306,7 +305,7 @@ nav {
   background: #ebe9e0;
   transition: max-height 0.75s cubic-bezier(.16,1,.3,1), opacity 0.45s ease 0.1s, padding-bottom 0.75s cubic-bezier(.16,1,.3,1);
 }
-.side-card.open .sbody { opacity: 1; padding: 2.5rem 3.5rem 3.5rem; }
+.side-card.open .sbody { opacity: 1; padding: 2.5rem 3.5rem 3.5rem; border-top: 1px solid rgba(13,13,13,0.15); }
 .side-card.open { background: #ebe9e0; }
 
 /* ─── SKILLS ─── */
@@ -923,10 +922,13 @@ function staggerIn(parent){
 }
 
 function openBody(body){
+  body.style.overflow='hidden';
   body.style.maxHeight=body.scrollHeight+'px';
   staggerIn(body);
+  setTimeout(()=>{ body.style.overflow='visible'; }, 800);
 }
 function closeBody(body){
+  body.style.overflow='hidden';
   body.style.maxHeight=body.scrollHeight+'px';
   requestAnimationFrame(()=>requestAnimationFrame(()=>{ body.style.maxHeight='0'; }));
 }
