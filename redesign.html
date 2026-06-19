@@ -52,7 +52,7 @@
 
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html{scroll-behavior:smooth;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+html{scroll-behavior:smooth;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;background:var(--bg);overflow-x:clip;transition:background .5s ease}
 .lenis.lenis-smooth{scroll-behavior:auto!important}
 .lenis.lenis-stopped{overflow:hidden}
 
@@ -71,7 +71,7 @@ html{scroll-behavior:smooth;-webkit-font-smoothing:antialiased;text-rendering:op
   --shadow:0 1px 0 rgba(0,0,0,.4),0 24px 60px -30px rgba(0,0,0,.7);
 }
 
-body{background:var(--bg);color:var(--ink);font-family:'Space Grotesk',-apple-system,BlinkMacSystemFont,sans-serif;font-weight:400;line-height:1.5;overflow-x:hidden;transition:background .5s ease,color .5s ease}
+body{background:var(--bg);color:var(--ink);font-family:'Space Grotesk',-apple-system,BlinkMacSystemFont,sans-serif;font-weight:400;line-height:1.5;width:100%;max-width:100%;overflow-x:clip;transition:background .5s ease,color .5s ease}
 @media (pointer:fine){body{cursor:none}a,button,[data-cursor]{cursor:none}}
 ::selection{background:var(--accent);color:#fff}
 img{max-width:100%;display:block}
