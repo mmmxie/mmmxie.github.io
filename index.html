@@ -29,7 +29,7 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Instrument+Serif:ital@1&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 
 <script type="application/ld+json">
 {
@@ -266,6 +266,8 @@ footer{border-top:1px solid var(--line);padding:26px 0;display:flex;justify-cont
 
 .skip{position:absolute;left:-999px}.skip:focus{left:16px;top:16px;z-index:99999;background:var(--ink);color:var(--bg);padding:10px 14px;border-radius:8px}
 [hidden]{display:none!important}
+/* keyboard focus visibility (custom cursor hides the system one) */
+a:focus-visible,button:focus-visible,.visual:focus-visible,.theme-btn:focus-visible,.lb-docs a:focus-visible{outline:2px solid var(--accent);outline-offset:4px;border-radius:8px}
 </style>
 </head>
 <body>
@@ -373,13 +375,13 @@ footer{border-top:1px solid var(--line);padding:26px 0;display:flex;justify-cont
       </div>
       <button class="visual clickable" data-open data-cta="View artefacts">
         <div class="frame"><i></i><i></i><i></i><span class="cap">RoBard — Full Function Map</span></div>
-        <div class="shot"><img src="assets/img_1.png" alt="RoBard SaaS full feature specification map across modules" loading="lazy"></div>
+        <div class="shot"><img src="assets/img_1.jpg" alt="RoBard SaaS full feature specification map across modules" loading="lazy"></div>
         <span class="v-badge">Enlarge →</span>
         <span class="v-cta"><span>View artefacts <em style="font-style:normal">↗</em></span></span>
       </button>
     </div>
     <div class="case-more" hidden>
-      <div class="more-media"><img src="assets/img_1.png" alt="RoBard full function map"><img src="assets/img_2.jpg" alt="RoBard SaaS PRD"></div>
+      <div class="more-media"><img src="assets/img_1.jpg" alt="RoBard full function map"><img src="assets/img_2.jpg" alt="RoBard SaaS PRD"></div>
       <div class="more-text"><div class="dl">
         <div><h4>Problem</h4><p>JUKSY's editorial and marketing teams were bottlenecked by manual press-release workflows — hours of back-and-forth between writers, editors, finance and channel managers, with no unified platform to track orders, payments or publication status.</p></div>
         <div><h4>Solution</h4><p>A 3-sided marketplace connecting brands, media channels and JUKSY as operator, automating the full order-to-publication journey: brand submits brief → AI drafts content → editor reviews → one-click publish → auto payment settle.</p></div>
@@ -485,13 +487,13 @@ footer{border-top:1px solid var(--line);padding:26px 0;display:flex;justify-cont
       </div>
       <button class="visual clickable" data-open data-cta="View document">
         <div class="frame"><i></i><i></i><i></i><span class="cap">Dou Di Zhu — design doc</span></div>
-        <div class="shot"><img src="assets/img_4.png" alt="Dou Di Zhu game design document with scoring formula and user flow" loading="lazy"></div>
+        <div class="shot"><img src="assets/img_4.jpg" alt="Dou Di Zhu game design document with scoring formula and user flow" loading="lazy"></div>
         <span class="v-badge">Enlarge →</span>
         <span class="v-cta"><span>View document <em style="font-style:normal">↗</em></span></span>
       </button>
     </div>
     <div class="case-more" hidden>
-      <div class="more-media"><img src="assets/img_4.png" alt="Dou Di Zhu game design document"></div>
+      <div class="more-media"><img src="assets/img_4.jpg" alt="Dou Di Zhu game design document"></div>
       <div class="more-text"><div class="dl">
         <div><h4>Overview</h4><p>A comprehensive game design document for Dou Di Zhu (鬥地主) — rigorous product thinking applied to game mechanics: player roles, card hierarchy, scoring formulas, multiplier systems, special combos and the complete match flow from room selection to settlement.</p></div>
       </div></div>
@@ -573,8 +575,6 @@ footer{border-top:1px solid var(--line);padding:26px 0;display:flex;justify-cont
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.14/dist/lenis.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
 <script>
 (function(){
   var reduce = window.matchMedia('(prefers-reduced-motion:reduce)').matches;
@@ -596,7 +596,6 @@ footer{border-top:1px solid var(--line);padding:26px 0;display:flex;justify-cont
     lenis=new Lenis({lerp:.1,smoothWheel:true});
     function raf(t){ lenis.raf(t); requestAnimationFrame(raf); }
     requestAnimationFrame(raf);
-    if(window.ScrollTrigger) lenis.on('scroll',ScrollTrigger.update);
   }
   document.querySelectorAll('a[href^="#"]').forEach(function(a){
     a.addEventListener('click',function(e){
