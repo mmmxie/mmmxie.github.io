@@ -81,12 +81,12 @@ a{color:inherit;text-decoration:none}
 section{position:relative}
 
 /* ---------- cursor ---------- */
-.cur-dot,.cur-ring{position:fixed;top:0;left:0;z-index:10000;border-radius:50%;pointer-events:none;transform:translate(-50%,-50%);mix-blend-mode:difference}
+.cur-dot,.cur-ring{position:fixed;top:0;left:0;z-index:100000;border-radius:50%;pointer-events:none;transform:translate(-50%,-50%);mix-blend-mode:difference}
 .cur-dot{width:7px;height:7px;background:#fff}
 .cur-ring{width:38px;height:38px;border:1.4px solid rgba(255,255,255,.6);transition:width .25s,height .25s,background .25s,border-color .25s,opacity .25s}
 .cur-ring.hov{width:62px;height:62px;background:rgba(255,255,255,.12);border-color:transparent}
 .cur-ring.view{width:84px;height:84px;background:var(--accent);border-color:transparent;mix-blend-mode:normal}
-.cur-label{position:fixed;top:0;left:0;z-index:10001;pointer-events:none;transform:translate(-50%,-50%);font-family:'DM Mono',monospace;font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;color:#fff;opacity:0;transition:opacity .2s}
+.cur-label{position:fixed;top:0;left:0;z-index:100001;pointer-events:none;transform:translate(-50%,-50%);font-family:'DM Mono',monospace;font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;color:#fff;opacity:0;transition:opacity .2s}
 .cur-label.on{opacity:1}
 @media (pointer:coarse){.cur-dot,.cur-ring,.cur-label{display:none}}
 
