@@ -34,19 +34,47 @@
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
-  "@type": "Person",
-  "name": "Mark Hsieh",
-  "alternateName": "謝承恩 (Cheng En, Hsieh)",
-  "jobTitle": "AI Product Manager",
-  "url": "https://chennxie.com/",
-  "image": "https://chennxie.com/assets/og-cover.png",
-  "email": "mailto:chengen.hsieh197@gmail.com",
-  "telephone": "+447352134838",
-  "address": { "@type": "PostalAddress", "addressLocality": "London", "addressCountry": "GB" },
-  "sameAs": [ "https://www.linkedin.com/in/markhsieh1997/" ],
-  "knowsLanguage": ["en", "zh-Hant"],
-  "knowsAbout": ["AI Product Management", "LLM & GenAI", "B2B2C SaaS", "Machine Learning Products", "Growth", "A/B Experimentation", "Go-to-Market Strategy"],
-  "description": "Data-driven AI Product Manager in London with 6+ years of end-to-end AI/ML SaaS product ownership across APAC and the UK."
+  "@graph": [
+    {
+      "@type": "WebSite",
+      "@id": "https://chennxie.com/#website",
+      "url": "https://chennxie.com/",
+      "name": "Mark Hsieh — AI Product Manager",
+      "inLanguage": "en",
+      "about": { "@id": "https://chennxie.com/#person" }
+    },
+    {
+      "@type": "ProfilePage",
+      "@id": "https://chennxie.com/#profilepage",
+      "url": "https://chennxie.com/",
+      "name": "Mark Hsieh — AI Product Manager in London",
+      "isPartOf": { "@id": "https://chennxie.com/#website" },
+      "mainEntity": { "@id": "https://chennxie.com/#person" },
+      "primaryImageOfPage": "https://chennxie.com/assets/og-cover.png"
+    },
+    {
+      "@type": "Person",
+      "@id": "https://chennxie.com/#person",
+      "name": "Mark Hsieh",
+      "givenName": "Cheng En",
+      "familyName": "Hsieh",
+      "alternateName": ["謝承恩", "Cheng En Hsieh", "Cheng En, Hsieh"],
+      "jobTitle": "AI Product Manager",
+      "description": "Mark Hsieh (謝承恩) is a data-driven AI Product Manager based in London with 6+ years building AI/ML SaaS products across APAC and the UK — from discovery and PRD through to GTM. Open to new product roles in London.",
+      "url": "https://chennxie.com/",
+      "image": "https://chennxie.com/assets/og-cover.png",
+      "email": "mailto:chengen.hsieh197@gmail.com",
+      "telephone": "+447352134838",
+      "homeLocation": { "@type": "Place", "name": "London, United Kingdom" },
+      "address": { "@type": "PostalAddress", "addressLocality": "London", "addressCountry": "GB" },
+      "knowsLanguage": ["en", "zh-Hant"],
+      "knowsAbout": ["AI Product Management", "LLM & GenAI products", "B2B2C SaaS", "Machine Learning products", "Recommendation systems", "Growth", "A/B experimentation", "Go-to-Market strategy", "Product discovery", "PRD writing"],
+      "sameAs": [
+        "https://www.linkedin.com/in/markhsieh1997/",
+        "https://github.com/mmmxie"
+      ]
+    }
+  ]
 }
 </script>
 
