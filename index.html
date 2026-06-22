@@ -180,7 +180,7 @@ nav.scrolled{background:color-mix(in srgb,var(--bg) 72%,transparent);backdrop-fi
 .metrics{display:flex;flex-wrap:wrap;gap:clamp(18px,3vw,40px)}
 .metric .v{font-size:clamp(1.7rem,3.2vw,2.5rem);font-weight:600;letter-spacing:-.03em;line-height:1;display:flex;align-items:baseline}
 .metric .v .s{color:var(--accent)}
-.metric .k{font-family:'DM Mono',monospace;font-size:.66rem;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-2);margin-top:12px;max-width:18ch}
+.metric .k{font-family:'DM Mono',monospace;font-size:.66rem;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-2);margin-top:12px;white-space:nowrap}
 
 /* clickable visual */
 .visual{position:relative;display:block;width:100%;min-width:0;text-align:left;border:1px solid var(--line);border-radius:16px;overflow:hidden;background:var(--card);box-shadow:var(--shadow);transition:transform .5s cubic-bezier(.2,.8,.2,1),box-shadow .5s,border-color .3s;-webkit-tap-highlight-color:transparent}
@@ -339,7 +339,7 @@ a:focus-visible,button:focus-visible,.visual:focus-visible,.theme-btn:focus-visi
         <h3>Rosetta.ai — AI Recommendation Engine</h3>
         <p class="case-lead">Owned the product lifecycle for an ML personalisation engine deployed across 1,000+ e-commerce clients — turning generic "bestseller" widgets into real-time, per-user recommendations.</p>
         <div class="metrics">
-          <div class="metric"><div class="v" data-count="660" data-suffix="%"><span class="s">+</span>0%</div><div class="k">Revenue increase (avg, 1 yr)</div></div>
+          <div class="metric"><div class="v" data-count="660" data-suffix="%"><span class="s">+</span>0%</div><div class="k">Revenue increase</div></div>
           <div class="metric"><div class="v" data-count="350" data-suffix="%"><span class="s">+</span>0%</div><div class="k">CVR improvement</div></div>
           <div class="metric"><div class="v" data-count="250" data-suffix="%"><span class="s">+</span>0%</div><div class="k">AOV growth</div></div>
           <div class="metric"><div class="v" data-count="99" data-suffix="%">0%</div><div class="k">Model accuracy</div></div>
@@ -370,9 +370,9 @@ a:focus-visible,button:focus-visible,.visual:focus-visible,.theme-btn:focus-visi
         <h3>RoBard — Marketing Automation SaaS</h3>
         <p class="case-lead">Sole PM owning end-to-end build of a B2B2C SaaS — press-release automation, influencer marketing and multi-channel publishing — shipped MVP to production with a cross-functional team of 5+.</p>
         <div class="metrics">
-          <div class="metric"><div class="v" data-count="80" data-suffix="%"><span class="s">+</span>0%</div><div class="k">Ops efficiency improvement</div></div>
-          <div class="metric"><div class="v">MVP<span class="s">→</span>v2</div><div class="k">Shipped iteratively in &lt;6 months</div></div>
-          <div class="metric"><div class="v" data-count="5" data-suffix=" teams">0</div><div class="k">Cross-functional teams led</div></div>
+          <div class="metric"><div class="v" data-count="80" data-suffix="%"><span class="s">+</span>0%</div><div class="k">Ops efficiency</div></div>
+          <div class="metric"><div class="v">MVP<span class="s">→</span>v2</div><div class="k">Shipped in &lt;6 months</div></div>
+          <div class="metric"><div class="v" data-count="5" data-suffix=" teams">0</div><div class="k">Cross-functional</div></div>
         </div>
       </div>
       <button class="visual clickable" data-open data-cta="View artefacts">
@@ -401,9 +401,9 @@ a:focus-visible,button:focus-visible,.visual:focus-visible,.theme-btn:focus-visi
         <h3>AI-Powered SEO Content Pipeline</h3>
         <p class="case-lead">An end-to-end automation that scaled editorial output 7× by combining Google Trends data with a fine-tuned internal ML model trained on JUKSY's brand voice.</p>
         <div class="metrics">
-          <div class="metric"><div class="v" data-count="7" data-suffix="×">0×</div><div class="k">Output (3 → 20+ articles/day)</div></div>
-          <div class="metric"><div class="v" data-count="85" data-suffix="%"><span class="s">−</span>0%</div><div class="k">Reduction in time-to-draft</div></div>
-          <div class="metric"><div class="v" data-count="60" data-suffix=" days">0</div><div class="k">Concept → measurable SEO gains</div></div>
+          <div class="metric"><div class="v" data-count="7" data-suffix="×">0×</div><div class="k">Editorial output</div></div>
+          <div class="metric"><div class="v" data-count="85" data-suffix="%"><span class="s">−</span>0%</div><div class="k">Time-to-draft</div></div>
+          <div class="metric"><div class="v" data-count="60" data-suffix=" days">0</div><div class="k">To SEO results</div></div>
         </div>
       </div>
       <button class="visual clickable" data-open data-cta="View pipeline">
@@ -432,8 +432,8 @@ a:focus-visible,button:focus-visible,.visual:focus-visible,.theme-btn:focus-visi
         <h3>LINE OA Member Marketing &amp; Influencer Campaign</h3>
         <p class="case-lead">A full-funnel LINE OA ecosystem — member segmentation, automated messaging and a branded B2B2C campaign for 八耐舜子 (Taiwan Banai), an illustrator with 4,000+ crowdfunding supporters.</p>
         <div class="metrics">
-          <div class="metric"><div class="v">3-track</div><div class="k">Lifecycle segmentation built</div></div>
-          <div class="metric"><div class="v">1st-party</div><div class="k">Data capture & owned channel</div></div>
+          <div class="metric"><div class="v">3-track</div><div class="k">Lifecycle segmentation</div></div>
+          <div class="metric"><div class="v">1st-party</div><div class="k">Owned-channel data</div></div>
         </div>
       </div>
       <button class="visual clickable" data-open data-cta="Open documents">
@@ -465,8 +465,8 @@ a:focus-visible,button:focus-visible,.visual:focus-visible,.theme-btn:focus-visi
         <h3>JUKSY Plus VOL.2 — Paris Olympics 2024</h3>
         <p class="case-lead">A special-edition digital publication spotlighting Taiwanese athletes with editorial interviews and brand advertising, timed to the Paris 2024 Olympics moment.</p>
         <div class="metrics">
-          <div class="metric"><div class="v">Multi-device</div><div class="k">Responsive web delivery</div></div>
-          <div class="metric"><div class="v">UTM</div><div class="k">Tracked owned + paid distribution</div></div>
+          <div class="metric"><div class="v">Multi-device</div><div class="k">Responsive delivery</div></div>
+          <div class="metric"><div class="v">UTM</div><div class="k">Tracked distribution</div></div>
         </div>
       </div>
       <a class="visual clickable" href="https://events.juksy.com/juksy-plus-issue-02/" target="_blank" rel="noopener" data-cta="Visit site">
