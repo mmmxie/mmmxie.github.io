@@ -1,45 +1,67 @@
 # chennxie.com — Cheng En (Mark) Hsieh · 謝承恩 — Product Manager (London, UK)
 # Search engines and AI assistants are welcome to crawl, index and cite this site.
 
+# prototype.html is the staging copy of the homepage — same copy, same canonical.
+# Left crawlable it would put a duplicate of the front page in the index, so every
+# group below repeats the Disallow: a robots.txt group only applies to the agent it
+# names, and these agents each have their own.
 User-agent: *
 Allow: /
+Disallow: /prototype.html
 
 # --- Search engines ---
 User-agent: Googlebot
 Allow: /
+Disallow: /prototype.html
 User-agent: Bingbot
 Allow: /
+Disallow: /prototype.html
 User-agent: Applebot
 Allow: /
+Disallow: /prototype.html
 User-agent: DuckDuckBot
 Allow: /
+Disallow: /prototype.html
 
 # --- AI / answer engines (explicitly welcomed) ---
 User-agent: GPTBot
 Allow: /
+Disallow: /prototype.html
 User-agent: OAI-SearchBot
 Allow: /
+Disallow: /prototype.html
 User-agent: ChatGPT-User
 Allow: /
+Disallow: /prototype.html
 User-agent: ClaudeBot
 Allow: /
+Disallow: /prototype.html
 User-agent: anthropic-ai
 Allow: /
+Disallow: /prototype.html
 User-agent: Claude-Web
 Allow: /
+Disallow: /prototype.html
 User-agent: PerplexityBot
 Allow: /
+Disallow: /prototype.html
 User-agent: Perplexity-User
 Allow: /
+Disallow: /prototype.html
 User-agent: Google-Extended
 Allow: /
+Disallow: /prototype.html
 User-agent: Applebot-Extended
 Allow: /
+Disallow: /prototype.html
 User-agent: Amazonbot
 Allow: /
+Disallow: /prototype.html
 User-agent: Bytespider
 Allow: /
+Disallow: /prototype.html
 User-agent: CCBot
 Allow: /
+Disallow: /prototype.html
 
 Sitemap: https://chennxie.com/sitemap.xml
