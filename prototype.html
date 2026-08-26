@@ -1292,14 +1292,11 @@ a:focus-visible,button:focus-visible,.visual:focus-visible,.theme-btn:focus-visi
       beat=now2();
       if(!t0) t0=now;
       var t=introOn?now-t0:P_OUT+1;
-      /* The intro runs full rate. Once it has settled the field only drifts a
-         couple of pixels a second, so 30fps is already generous — and past the
-         hero, where it is a texture behind body copy rather than the thing you
-         are looking at, 12fps is indistinguishable and a third of the fill. This
-         is a full-viewport clear plus a few thousand rects, forever, on a page
-         nine thousand pixels tall; it is worth being mean about. */
+      /* The intro runs full rate; once settled the field drifts a couple of
+         pixels a second and 30fps is already generous. Past the hero it stops
+         altogether — see the scroll handler. */
       if(t>P_OUT){
-        if(now-lastDraw<(pastHero?84:32)){ raf=requestAnimationFrame(frame); return; }
+        if(now-lastDraw<32){ raf=requestAnimationFrame(frame); return; }
         lastDraw=now;
       }
       var cx=W/2, cy=H*0.44, sec=(now-t0)/1000/SLOW;
@@ -1404,6 +1401,12 @@ a:focus-visible,button:focus-visible,.visual:focus-visible,.theme-btn:focus-visi
       if(away===pastHero) return;
       pastHero=away;
       document.documentElement.classList.toggle('past-hero',away);
+      /* Stop outright rather than draw slowly. The field is a full-viewport clear
+         plus a few thousand rects; past the hero it is texture behind body copy
+         and it drifts about two pixels a second, so the last frame standing still
+         is indistinguishable from it running — at no cost at all. The canvas keeps
+         its pixels, so nothing disappears. */
+      hold('away',away);
     },{passive:true});
     /* debounced: rebuilding samples the glyphs again, which is far too expensive
        to run on every resize event while a window is being dragged */
@@ -1425,15 +1428,24 @@ a:focus-visible,button:focus-visible,.visual:focus-visible,.theme-btn:focus-visi
        stop — a modal on top and the tab in the background — and one boolean let
        whichever cleared first restart the loop while the other still applied, so
        the field would run full tilt behind an open case study. */
-    var holds={modal:false,hidden:false};
-    function held(){ return holds.modal||holds.hidden; }
+    var holds={modal:false,hidden:false,away:false},shrunk=false;
+    function held(){ return holds.modal||holds.hidden||holds.away; }
     function settle(){
       if(held()){ if(!paused){ paused=true; cancelAnimationFrame(raf); } }
-      else if(paused){ paused=false; lastDraw=0; beat=now2(); raf=requestAnimationFrame(frame); }
+      else if(paused){ paused=false; if(shrunk){ shrunk=false; size(); } lastDraw=0; beat=now2(); raf=requestAnimationFrame(frame); }
     }
-    function hold(k,v){ holds[k]=v; settle(); }
+    function hold(k,v){ if(holds[k]===v) return; holds[k]=v; settle(); }
     window.__field={pause:function(){ hold('modal',true); },resume:function(){ hold('modal',false); }};
-    document.addEventListener('visibilitychange',function(){ hold('hidden',document.hidden); });
+
+    /* A hidden tab is the one moment we can give the memory back without anyone
+       seeing it. A full-viewport 2D canvas is a real allocation — tens of
+       megabytes at this size — and on a machine already swapping, the tab that
+       is holding one is the tab whose next allocation fails and takes the
+       renderer down with it. Zero the backing store while nobody is looking. */
+    document.addEventListener('visibilitychange',function(){
+      hold('hidden',document.hidden);
+      if(document.hidden && !shrunk){ shrunk=true; cv.width=cv.height=1; }
+    });
 
     /* Watchdog. A requestAnimationFrame chain has no owner: if one link is ever
        dropped — a tab Chrome froze and thawed, a lost GPU context, a frame that
@@ -1501,12 +1513,14 @@ a:focus-visible,button:focus-visible,.visual:focus-visible,.theme-btn:focus-visi
     var y=window.scrollY||window.pageYOffset;
     secTops=secs.map(function(s){ return [s.id,s.getBoundingClientRect().top+y]; });
     pageH=document.documentElement.scrollHeight-window.innerHeight;
+    cacheRv();
   }
   function onScroll(){
     var y=window.scrollY||window.pageYOffset;
     nav.classList.toggle('scrolled',y>40);
     toTop.classList.toggle('show',y>window.innerHeight*0.8);
     prog.style.width=(pageH>0?(y/pageH*100):0)+'%';
+    sweepRv();
     var cur='';
     for(var i=0;i<secTops.length;i++) if(secTops[i][1]-y<=120) cur=secTops[i][0];
     if(cur===active) return;                               // nothing to write most frames
@@ -1520,12 +1534,36 @@ a:focus-visible,button:focus-visible,.visual:focus-visible,.theme-btn:focus-visi
   window.addEventListener('load',remeasure);              // late images shift everything below them
   measure(); onScroll();
 
-  /* reveals */
+  /* ---------- reveals ----------
+     This was an IntersectionObserver keyed on isIntersecting, which quietly fails
+     the moment anyone arrives anywhere except the top. Jump to the footer, follow
+     a #contact link, or reload half way down, and every block you skipped goes
+     from "below the viewport" (ratio 0) to "above the viewport" (ratio 0) without
+     ever crossing the threshold — so no callback fires, and twenty of the
+     twenty-eight blocks on this page stay at opacity 0 for the rest of the visit.
+     Testing boundingClientRect in the callback does not help: the callback never
+     runs. Comparing cached offsets on scroll cannot miss, costs one number per
+     block, and reads no layout — the tops are measured once alongside the section
+     offsets and only again when something actually moves. */
   var rvs=[].slice.call(document.querySelectorAll('.rv'));
-  if('IntersectionObserver' in window && !reduce){
-    var io=new IntersectionObserver(function(en){ en.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } }); remeasure(); },{threshold:.12,rootMargin:'0px 0px -8% 0px'});
-    rvs.forEach(function(el){ io.observe(el); });
-  } else rvs.forEach(function(el){ el.classList.add('in'); });
+  var pend=reduce?[]:rvs.slice(), rvTops=[];
+  if(reduce) rvs.forEach(function(el){ el.classList.add('in'); });
+  function cacheRv(){
+    if(!pend||!pend.length) return;                        // measure() runs before this block
+    var y=window.scrollY||window.pageYOffset;
+    rvTops=pend.map(function(el){ return el.getBoundingClientRect().top+y; });
+  }
+  function sweepRv(){
+    if(!pend||!pend.length||rvTops.length!==pend.length) return;
+    var line=(window.scrollY||window.pageYOffset)+window.innerHeight*0.92;
+    var keep=[],tops=[];
+    for(var i=0;i<pend.length;i++){
+      if(rvTops[i]<=line) pend[i].classList.add('in');
+      else { keep.push(pend[i]); tops.push(rvTops[i]); }
+    }
+    pend=keep; rvTops=tops;
+  }
+  cacheRv(); sweepRv();                                    // whatever is on screen right now
 
   /* Case covers run only while they are on screen. Several of their loops animate
      width and flex-grow, so all seven together were re-laying-out the whole
