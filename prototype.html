@@ -1671,13 +1671,26 @@ a:focus-visible,button:focus-visible,.visual:focus-visible,.theme-btn:focus-visi
   /* ---------- cursor + view label ---------- */
   if(fine && !reduce){
     var dot=document.querySelector('.cur-dot'),ring=document.querySelector('.cur-ring'),lab=document.querySelector('.cur-label');
-    var mx=-200,my=-200,px=-1,py=-1,seen=false;
+    var mx=-200,my=-200,px=-1,py=-1,seen=false,armed=false;
+    /* This watches class on <html> and its callback writes class on <html>, which
+       is a loop: classList.add() runs the update steps and re-sets the attribute
+       even when the token is already there, so adding 'cursor-on' a second time
+       still queues another record. Observer callbacks are microtasks, so each one
+       queued the next and the queue never drained — the event loop stopped for
+       good on the first mouse move, taking the pointer, scrolling and every click
+       with it. It only ever bit desktop, because this whole block is behind
+       pointer:fine and a phone never sends a mousemove.
+       Do the work once, then stop listening. */
+    var obs;
     function maybeShow(){
-      if(seen && !document.documentElement.classList.contains('intro-running'))
-        document.documentElement.classList.add('cursor-on');
+      if(armed||!seen||document.documentElement.classList.contains('intro-running')) return;
+      armed=true;
+      if(obs) obs.disconnect();
+      document.documentElement.classList.add('cursor-on');
     }
     window.addEventListener('mousemove',function(e){ mx=e.clientX; my=e.clientY; seen=true; maybeShow(); },{passive:true});
-    new MutationObserver(maybeShow).observe(document.documentElement,{attributes:true,attributeFilter:['class']});
+    obs=new MutationObserver(maybeShow);
+    obs.observe(document.documentElement,{attributes:true,attributeFilter:['class']});
     (function cursorLoop(){
       if(mx!==px||my!==py){
         px=mx; py=my;
