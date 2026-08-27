@@ -7,7 +7,7 @@
 
 <!-- SEO -->
 <title>Cheng En Hsieh — Product Manager, London | AI &amp; ML Products, B2B SaaS</title>
-<meta name="description" content="Cheng En Hsieh is a Product Manager in London with six years across AI/ML products, B2B SaaS and e-commerce. Right to work in the UK, no sponsorship required. Owns products end to end — discovery, PRD, delivery and GTM. Open to Product Manager roles in London.">
+<meta name="description" content="Cheng En Hsieh is a Product Manager in London with six years across AI/ML products, B2B SaaS and e-commerce. Right to work in the UK, no sponsorship required. Owns products end to end, from discovery and PRD through delivery and GTM. Open to Product Manager roles in London.">
 <meta name="author" content="Cheng En Hsieh">
 <meta name="robots" content="index, follow">
 <link rel="canonical" href="https://chennxie.com/">
@@ -18,7 +18,7 @@
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://chennxie.com/">
 <meta property="og:title" content="Cheng En Hsieh — Product Manager, London">
-<meta property="og:description" content="Product Manager, London. Six years across AI/ML, B2B SaaS and e-commerce — recommendation engines, LLM workflows, B2B2C platforms. Right to work in the UK.">
+<meta property="og:description" content="Product Manager, London. Six years across AI/ML, B2B SaaS and e-commerce, covering recommendation engines, LLM workflows and B2B2C platforms. Right to work in the UK.">
 <meta property="og:image" content="https://chennxie.com/assets/og-cover.png">
 <meta property="og:image:alt" content="Cheng En Hsieh — Product Manager portfolio">
 <meta name="twitter:card" content="summary_large_image">
@@ -30,7 +30,7 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Instrument+Serif:ital@1&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Outfit:wght@900&family=Instrument+Serif:ital@1&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 
 <script type="application/ld+json">
 {
@@ -61,7 +61,7 @@
       "familyName": "Hsieh",
       "alternateName": ["Mark Hsieh", "Mark", "Cheng En, Hsieh"],
       "jobTitle": "Product Manager",
-      "description": "Cheng En Hsieh is a Product Manager based in London with six years across AI/ML products, B2B SaaS and e-commerce in APAC and the UK — owning products end to end from discovery and PRD through delivery and GTM. Holds the right to work in the UK and requires no visa sponsorship. Open to Product Manager roles in London.",
+      "description": "Cheng En Hsieh is a Product Manager based in London with six years across AI/ML products, B2B SaaS and e-commerce in APAC and the UK, owning products end to end from discovery and PRD through delivery and GTM. Holds the right to work in the UK and requires no visa sponsorship. Open to Product Manager roles in London.",
       "url": "https://chennxie.com/",
       "image": "https://chennxie.com/assets/og-cover.png",
       "email": "mailto:chengen.hsieh197@gmail.com",
@@ -85,7 +85,12 @@
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;background:var(--bg);overflow-x:hidden;transition:background .5s ease}
-.lenis.lenis-smooth{scroll-behavior:auto!important}
+/* Lenis only carries .lenis-smooth WHILE a smooth scroll is in flight, so scoping
+   the override to it leaves native smooth-scroll fighting Lenis the rest of the
+   time — every scrollTop it writes starts a second, competing animation. Scope to
+   .lenis instead: if the library is live, native smooth scrolling stays off. */
+html.lenis{scroll-behavior:auto!important}
+html.lenis,html.lenis body{height:auto}
 .lenis.lenis-stopped{overflow:hidden}
 
 :root{
@@ -104,7 +109,9 @@ html{scroll-behavior:smooth;-webkit-font-smoothing:antialiased;text-rendering:op
 }
 
 body{background:var(--bg);color:var(--ink);font-family:'Space Grotesk',-apple-system,BlinkMacSystemFont,sans-serif;font-weight:400;line-height:1.5;width:100%;max-width:100%;overflow-x:hidden;transition:background .5s ease,color .5s ease}
-@media (pointer:fine){body{cursor:none}a,button,[data-cursor]{cursor:none}}
+/* only hide the real pointer once the custom one is actually on screen — otherwise
+   any failure in the cursor script leaves the page with no visible pointer at all */
+@media (pointer:fine){html.cursor-on body{cursor:none}html.cursor-on a,html.cursor-on button,html.cursor-on [data-cursor]{cursor:none}}
 ::selection{background:var(--accent);color:#fff}
 img{max-width:100%;display:block}
 a{color:inherit;text-decoration:none}
@@ -114,10 +121,12 @@ section{position:relative}
 
 
 /* ---------- cursor ---------- */
-.cur-dot,.cur-ring{position:fixed;top:0;left:0;z-index:100000;border-radius:50%;pointer-events:none;transform:translate3d(-50%,-50%,0);will-change:transform;mix-blend-mode:difference}
-.cur-dot{width:7px;height:7px;background:#fff}
-.cur-ring{width:38px;height:38px;border:1.4px solid rgba(255,255,255,.6);transition:width .25s,height .25s,background .25s,border-color .25s,opacity .25s}
-.cur-ring.hov{width:62px;height:62px;background:rgba(255,255,255,.12);border-color:transparent}
+.cur-dot,.cur-ring{position:fixed;top:0;left:0;z-index:100000;border-radius:50%;pointer-events:none;transform:translate3d(-50%,-50%,0);will-change:transform;opacity:0;transition:opacity .3s ease}
+/* the cursor only exists once the intro is over and the pointer has actually moved */
+html.cursor-on .cur-dot,html.cursor-on .cur-ring{opacity:1}
+.cur-dot{width:7px;height:7px;background:var(--ink)}
+.cur-ring{width:38px;height:38px;border:1.4px solid var(--line);transition:width .25s,height .25s,background .25s,border-color .25s,opacity .25s}
+.cur-ring.hov{width:62px;height:62px;background:var(--accent-soft);border-color:transparent}
 .cur-ring.view{width:84px;height:84px;background:var(--accent);border-color:transparent;mix-blend-mode:normal}
 .cur-label{position:fixed;top:0;left:0;z-index:100001;pointer-events:none;transform:translate3d(-50%,-50%,0);will-change:transform;width:62px;text-align:center;line-height:1.2;white-space:normal;overflow-wrap:break-word;font-family:'DM Mono',monospace;font-size:.5rem;letter-spacing:.03em;text-transform:uppercase;color:#fff;opacity:0;transition:opacity .2s}
 .cur-label.on{opacity:1}
@@ -125,8 +134,9 @@ section{position:relative}
 .progress{position:fixed;top:0;left:0;height:2px;width:0;background:var(--accent);z-index:9995}
 
 /* ---------- nav ---------- */
-nav{position:fixed;top:0;left:0;right:0;z-index:9990;display:flex;align-items:center;justify-content:space-between;padding:18px clamp(22px,4.5vw,96px);transition:background .4s,backdrop-filter .4s,border-color .4s;border-bottom:1px solid transparent}
-nav.scrolled{background:color-mix(in srgb,var(--bg) 72%,transparent);backdrop-filter:blur(14px) saturate(1.4);border-bottom:1px solid var(--line)}
+nav{position:fixed;top:0;left:0;right:0;z-index:9990;display:flex;align-items:center;justify-content:space-between;padding:18px clamp(22px,4.5vw,96px);transition:background .4s,border-color .4s;border-bottom:1px solid transparent}
+/* no backdrop-filter: re-blurring a per-frame canvas underneath pegged the GPU */
+nav.scrolled{background:color-mix(in srgb,var(--bg) 94%,transparent);border-bottom:1px solid var(--line)}
 .brand{font-weight:700;letter-spacing:.04em;font-size:.95rem;display:flex;align-items:center;gap:.5rem}
 .brand b{display:inline-grid;place-items:center;width:26px;height:26px;background:var(--ink);color:var(--bg);border-radius:7px;font-size:.8rem;transition:.4s}
 .nav-r{display:flex;align-items:center;gap:clamp(14px,2vw,30px)}
@@ -156,11 +166,20 @@ nav.scrolled{background:color-mix(in srgb,var(--bg) 72%,transparent);backdrop-fi
 .btn .ar{transition:transform .3s}.btn:hover .ar{transform:translateY(3px)}
 
 .ticker{width:100%;max-width:100%;align-self:stretch;margin-top:clamp(40px,5vw,64px);border-top:1px solid var(--line);border-bottom:1px solid var(--line);overflow:hidden;position:relative}
-.ticker-track{display:flex;gap:0;white-space:nowrap;animation:scrollx 26s linear infinite}
+/* The track is a block-level flex container, so without this its width was the
+   width of the ticker, not of its contents -- and translateX(-50%) moved it by
+   half a viewport, which has nothing to do with where the second copy starts.
+   That is the jump. Sized to its content, one step is exactly one copy. */
+.ticker-track{display:flex;gap:0;white-space:nowrap;width:max-content;
+  animation:scrollx 46s linear infinite}
+.ticker-track .ti{flex:0 0 auto}
 .ticker-track .ti{display:inline-flex;align-items:baseline;gap:.6rem;padding:14px clamp(20px,3vw,40px);border-right:1px solid var(--line-2)}
 .ticker .num{font-size:1.45rem;font-weight:600;letter-spacing:-.02em}
 .ticker .lbl{font-family:'DM Mono',monospace;font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-2)}
-@keyframes scrollx{to{transform:translateX(-50%)}}
+/* three copies, so a full pass shows a long run of figures before anything
+   repeats; calc keeps the step exact where -33.3333% would drift a subpixel
+   every cycle and eventually show a seam */
+@keyframes scrollx{to{transform:translateX(calc(-100% / 3))}}
 .ticker:hover .ticker-track{animation-play-state:paused}
 
 /* ---------- section heading (centered) ---------- */
@@ -178,15 +197,23 @@ nav.scrolled{background:color-mix(in srgb,var(--bg) 72%,transparent);backdrop-fi
 .case-meta{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
 .case-no{font-family:'DM Mono',monospace;font-size:.74rem;color:var(--ink-3)}
 .tag{font-family:'DM Mono',monospace;font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-2)}
-.tag::before{content:"·";margin-right:12px;color:var(--ink-3)}
+.tag::before{content:"｜";margin-right:12px;color:var(--ink-3)}
 .case h3{font-size:clamp(1.5rem,3.2vw,2.4rem);font-weight:500;letter-spacing:-.025em;line-height:1.08}
 .case-lead{color:var(--ink-2);font-size:1rem;line-height:1.6;max-width:54ch}
 .metrics{display:flex;flex-direction:column;gap:clamp(14px,1.8vw,20px)}
-.metric-row{display:grid;grid-auto-flow:column;grid-auto-columns:1fr;justify-content:start;align-items:start;width:max-content;max-width:100%;gap:clamp(14px,2.2vw,30px)}
-@media(max-width:520px){.metric-row{grid-auto-flow:row;grid-template-columns:repeat(2,minmax(0,1fr));width:auto}}
-.metric .v{font-size:clamp(1.32rem,2.15vw,1.95rem);font-weight:600;letter-spacing:-.03em;line-height:1;display:flex;align-items:baseline;white-space:nowrap}
+/* Every column used to be 1fr, so all of them took the width of the widest and
+   the content sat left inside it: the figures and their labels drifted off each
+   other's centre, and the gaps between groups came out visibly unequal because
+   what you read as the gap is the space between the *text*, not between the
+   columns. Sizing each column to its own content and centring the two lines
+   against each other fixes both at once: a figure sits on the same axis as its
+   label, and the space between one group and the next is always the gap. */
+.metric-row{display:flex;flex-wrap:wrap;justify-content:flex-start;align-items:flex-start;max-width:100%;gap:clamp(20px,2.4vw,30px) clamp(18px,2.6vw,38px)}
+.metric-row>.metric{flex:0 0 auto}
+.metric{display:flex;flex-direction:column;align-items:center;text-align:center}
+.metric .v{font-size:clamp(1.32rem,2.15vw,1.95rem);font-weight:600;letter-spacing:-.03em;line-height:1;display:flex;align-items:baseline;justify-content:center;white-space:nowrap}
 .metric .v .s{color:var(--accent)}
-.metric .k{font-family:'DM Mono',monospace;font-size:.55rem;letter-spacing:.02em;line-height:1.4;text-transform:uppercase;color:var(--ink-2);margin-top:11px}
+.metric .k{font-family:'DM Mono',monospace;font-size:.55rem;letter-spacing:.02em;line-height:1.4;text-transform:uppercase;color:var(--ink-2);margin-top:11px;text-align:center}
 
 /* clickable visual */
 .visual{position:relative;display:block;width:100%;min-width:0;text-align:left;border:1px solid var(--line);border-radius:16px;overflow:hidden;background:var(--card);box-shadow:var(--shadow);transition:transform .5s cubic-bezier(.2,.8,.2,1),box-shadow .5s,border-color .3s;-webkit-tap-highlight-color:transparent}
@@ -383,8 +410,10 @@ footer{border-top:1px solid var(--line);padding:26px 0;display:flex;justify-cont
 @media (prefers-reduced-motion:reduce){.rv{opacity:1;transform:none}.ticker-track,.dot{animation:none}}
 
 /* ---------- lightbox ---------- */
-.lb{position:fixed;inset:0;z-index:10050;display:flex;align-items:center;justify-content:center;padding:clamp(12px,3vw,40px);background:rgba(8,8,9,.6);backdrop-filter:blur(8px);opacity:0;visibility:hidden;transition:opacity .4s,visibility .4s}
-.lb.open{opacity:1;visibility:visible}
+.lb{position:fixed;inset:0;z-index:10050;display:flex;align-items:center;justify-content:center;padding:clamp(12px,3vw,40px);background:rgba(8,8,9,.6);opacity:0;visibility:hidden;transition:opacity .4s,visibility .4s}
+/* the blur exists only while the panel is up — a full-viewport backdrop-filter
+   sitting over a canvas that redraws every frame is the same trap noted above */
+.lb.open{opacity:1;visibility:visible;backdrop-filter:blur(8px)}
 .lb-panel{position:relative;width:min(1120px,100%);max-height:90svh;display:grid;grid-template-columns:1.25fr 1fr;grid-template-rows:minmax(0,1fr);background:var(--bg);border:1px solid var(--line);border-radius:18px;overflow:hidden;transform:translateY(18px) scale(.98);transition:transform .45s cubic-bezier(.2,.8,.2,1)}
 .lb.open .lb-panel{transform:none}
 @media(max-width:820px){.lb-panel{grid-template-columns:1fr;grid-template-rows:none;max-height:92svh;overflow:auto}}
@@ -406,7 +435,7 @@ footer{border-top:1px solid var(--line);padding:26px 0;display:flex;justify-cont
 .lb-body .dl{display:grid;gap:20px;border-left:2px solid var(--accent);padding-left:20px}
 .lb-stack{display:flex;flex-wrap:wrap;gap:8px 14px;margin-top:2px}
 .lb-stack span{font-family:'DM Mono',monospace;font-size:.66rem;color:var(--ink-3);letter-spacing:.04em}
-.lb-stack span+span::before{content:"·";margin-right:14px}
+.lb-stack span+span::before{content:"｜";margin-right:14px}
 .lb-docs{display:grid;gap:8px;margin-top:4px}
 .lb-docs a{display:flex;align-items:center;justify-content:space-between;gap:10px;border:1px solid var(--line);border-radius:12px;padding:.85rem 1.1rem;font-size:.92rem;font-weight:500;transition:.25s}
 .lb-docs a:hover{background:var(--ink);color:var(--bg);border-color:var(--ink)}
@@ -424,8 +453,59 @@ footer{border-top:1px solid var(--line);padding:26px 0;display:flex;justify-cont
 .zoom-close{position:fixed;top:16px;right:16px;z-index:10061;width:40px;height:40px;border-radius:50%;border:1px solid rgba(243,241,235,.3);background:rgba(11,11,12,.7);color:#F3F1EB;display:grid;place-items:center;font-size:1.1rem;transition:.25s}
 .zoom-close:hover{background:var(--accent);border-color:var(--accent);color:#fff}
 
+/* ---------- film grain (picks up the reference sites' texture) ---------- */
+/* Static on purpose. This layer is a tiled SVG turbulence filter covering the whole
+   viewport, so every shift of it re-ran the noise across the full screen — five
+   times every eight seconds, forever, on top of a canvas that is already redrawing
+   each frame. An earlier attempt to move it as an oversized composited layer
+   crashed the renderer outright; holding it still costs nothing and the texture
+   reads the same, because grain is felt rather than watched. */
+.grain{position:fixed;inset:0;z-index:9994;pointer-events:none;opacity:.03;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E")}
+[data-theme="dark"] .grain{opacity:.045}
+
+/* section titles wipe up rather than simply fading */
+.sec-title{clip-path:inset(0 0 110% 0);transform:translateY(.28em);transition:clip-path 1s cubic-bezier(.2,.7,.2,1),transform 1s cubic-bezier(.2,.7,.2,1)}
+.rv.in .sec-title,.sec-head.in .sec-title{clip-path:inset(0 0 -20% 0);transform:none}
+@media (prefers-reduced-motion:reduce){.sec-title{clip-path:none;transform:none}}
+
+/* ---------- the case covers only run while they are on screen ----------
+   Several of these loops animate width and flex-grow, which re-lays-out a 9000px
+   document on every frame, and they were running for all seven covers at once —
+   including the six nowhere near the viewport. Held paused, they cost nothing
+   until an observer marks the cover live.
+   !important is load-bearing here: every one of those rules sets the `animation`
+   shorthand, which resets animation-play-state to running, and each of them
+   out-ranks a descendant selector. */
+.cover:not(.live),.cover:not(.live) *,
+.cover:not(.live) *::before,.cover:not(.live) *::after{animation-play-state:paused!important}
+/* the hero ticker scrolls forever; it has nothing to say once it is off screen */
+html.past-hero .ticker-track{animation-play-state:paused!important}
+
+/* ---------- particle field ---------- */
+.field-canvas{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:0;transition:opacity .8s ease}
+.field-canvas.on{opacity:1}
+main{position:relative;z-index:1}
+.hero{position:relative;z-index:1}
+
+/* hero pieces wait for the intro, then stagger in */
+.hero-name,.hero-statement,.hero-sub,.hero-cta-row,.hero .ticker{
+  opacity:0;transform:translateY(16px);
+  transition:opacity .95s cubic-bezier(.2,.7,.2,1),transform .95s cubic-bezier(.2,.7,.2,1)}
+html.intro-done .hero-name{opacity:1;transform:none}
+html.intro-done .hero-statement{opacity:1;transform:none;transition-delay:.14s}
+html.intro-done .hero-sub{opacity:1;transform:none;transition-delay:.3s}
+html.intro-done .hero-cta-row{opacity:1;transform:none;transition-delay:.44s}
+html.intro-done .hero .ticker{opacity:1;transform:none;transition-delay:.58s}
+html.intro-running nav,html.intro-running .totop{opacity:0;transition:opacity .6s ease}
+html.intro-done nav{opacity:1;transition:opacity .8s ease .3s}
+@media (prefers-reduced-motion:reduce){
+  .hero-name,.hero-statement,.hero-sub,.hero-cta-row,.hero .ticker{opacity:1;transform:none;transition:none}
+  .field-canvas{display:none}
+}
+
 /* ---------- back to top ---------- */
-.totop{position:fixed;right:clamp(18px,3vw,34px);bottom:clamp(18px,3vw,34px);z-index:9992;width:46px;height:46px;border-radius:50%;border:1px solid var(--line);background:color-mix(in srgb,var(--bg) 84%,transparent);backdrop-filter:blur(10px);color:var(--ink);display:grid;place-items:center;box-shadow:var(--shadow);opacity:0;visibility:hidden;transform:translateY(10px);transition:opacity .3s,visibility .3s,transform .3s,background .3s,border-color .3s,color .3s}
+.totop{position:fixed;right:clamp(18px,3vw,34px);bottom:clamp(18px,3vw,34px);z-index:9992;width:46px;height:46px;border-radius:50%;border:1px solid var(--line);background:color-mix(in srgb,var(--bg) 96%,transparent);color:var(--ink);display:grid;place-items:center;box-shadow:var(--shadow);opacity:0;visibility:hidden;transform:translateY(10px);transition:opacity .3s,visibility .3s,transform .3s,background .3s,border-color .3s,color .3s}
 .totop.show{opacity:1;visibility:visible;transform:none}
 .totop:hover{background:var(--accent);border-color:var(--accent);color:#fff}
 .totop svg{transition:transform .3s}
@@ -440,7 +520,7 @@ a:focus-visible,button:focus-visible,.visual:focus-visible,.theme-btn:focus-visi
 .avail{list-style:none;display:flex;flex-wrap:wrap;justify-content:center;gap:10px 20px;margin-top:clamp(20px,2.4vw,28px)}
 .avail li{display:inline-flex;align-items:center;gap:.5rem;font-family:'DM Mono',monospace;font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-2)}
 .avail li.key{color:var(--ink)}
-.avail li+li::before{content:"·";margin-right:.9rem;color:var(--ink-3)}
+.avail li+li::before{content:"｜";margin-right:.9rem;color:var(--ink-3)}
 
 .nav-cv{font-family:'DM Mono',monospace;font-size:.64rem;letter-spacing:.1em;text-transform:uppercase;border:1px solid var(--ink);border-radius:30px;padding:.42rem .8rem;transition:.3s;white-space:nowrap}
 .nav-cv:hover{background:var(--ink);color:var(--bg)}
@@ -469,7 +549,10 @@ a:focus-visible,button:focus-visible,.visual:focus-visible,.theme-btn:focus-visi
 .tl-note b{color:var(--ink);font-weight:500}
 .tl-foot{display:flex;flex-wrap:wrap;gap:10px 14px;padding-top:24px}
 .tl-foot span{font-family:'DM Mono',monospace;font-size:.66rem;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-2)}
-.tl-foot span+span::before{content:"·";margin-right:14px;color:var(--ink-3)}
+.tl-foot span+span::before{content:"｜";margin-right:14px;color:var(--ink-3)}
+/* the credentials line now sits under the Capabilities standfirst, where it
+   reads as part of the claim rather than as a footnote to the CV */
+.creds{justify-content:center;padding-top:clamp(14px,1.6vw,20px)}
 
 /* ---------- metric footnote ---------- */
 .metrics .metrics-note{grid-column:1/-1;font-size:.78rem;color:var(--ink-3);line-height:1.58;max-width:62ch;margin-top:2px}
@@ -480,6 +563,9 @@ a:focus-visible,button:focus-visible,.visual:focus-visible,.theme-btn:focus-visi
 </style>
 </head>
 <body>
+<noscript><style>.hero-name,.hero-statement,.hero-sub,.hero-cta-row,.hero .ticker,.rv{opacity:1!important;transform:none!important}.sec-title{clip-path:none!important;transform:none!important}.field-canvas{display:none}</style></noscript>
+<canvas class="field-canvas" id="fieldCanvas" aria-hidden="true"></canvas>
+<div class="grain" aria-hidden="true"></div>
 <a href="#work" class="skip">Skip to work</a>
 <div class="cur-dot" aria-hidden="true"></div>
 <div class="cur-ring" aria-hidden="true"></div>
@@ -507,30 +593,37 @@ a:focus-visible,button:focus-visible,.visual:focus-visible,.theme-btn:focus-visi
 <!-- ============ HERO ============ -->
 <header class="hero wrap">
   <h1>
-    <span class="hero-name">Cheng En Hsieh — Product Manager · London</span>
-    <span class="hero-statement rv">I ship <span class="em">AI products</span> that move real numbers.</span>
+    <span class="hero-name">Cheng En Hsieh ｜ Product Manager ｜ London</span>
+    <span class="hero-statement">I ship <span class="em">AI products</span> that move real numbers.</span>
   </h1>
-  <p class="hero-sub rv">Six years across AI/ML, B2B SaaS and e-commerce in APAC and the UK — recommendation engines, LLM workflows and B2B2C platforms, owned end to end from discovery to GTM.</p>
-  <div class="hero-cta-row rv">
+  <p class="hero-sub">Six years across AI/ML, B2B SaaS and e-commerce in APAC and the UK. Recommendation engines, LLM workflows and B2B2C platforms, owned end to end from discovery to GTM.</p>
+  <div class="hero-cta-row">
     <a href="#work" class="btn solid">View selected work <span class="ar">↓</span></a>
     <a href="mailto:chengen.hsieh197@gmail.com" class="btn ghost">Get in touch</a>
   </div>
-  <div class="ticker rv" aria-hidden="true">
+  <div class="ticker" aria-hidden="true">
     <div class="ticker-track">
-      <span class="ti"><span class="num">127k+</span><span class="lbl">MAU · UK platform</span></span>
-      <span class="ti"><span class="num">+660%</span><span class="lbl">Revenue · adopter cohort</span></span>
-      <span class="ti"><span class="num">7×</span><span class="lbl">Editorial output · JUKSY</span></span>
-      <span class="ti"><span class="num">+80%</span><span class="lbl">Ops efficiency · RoBard</span></span>
+      <span class="ti"><span class="num">127k+</span><span class="lbl">MAU ｜ UK platform</span></span>
+      <span class="ti"><span class="num">+660%</span><span class="lbl">Revenue ｜ adopter cohort</span></span>
+      <span class="ti"><span class="num">7×</span><span class="lbl">Editorial output ｜ JUKSY</span></span>
+      <span class="ti"><span class="num">+80%</span><span class="lbl">Ops efficiency ｜ RoBard</span></span>
       <span class="ti"><span class="num">1,000+</span><span class="lbl">Merchants deployed</span></span>
-      <span class="ti"><span class="num">99%</span><span class="lbl">ML model accuracy</span></span>
-      <span class="ti"><span class="num">EN · ZH</span><span class="lbl">Bilingual PM</span></span>
-      <span class="ti"><span class="num">127k+</span><span class="lbl">MAU · UK platform</span></span>
-      <span class="ti"><span class="num">+660%</span><span class="lbl">Revenue · adopter cohort</span></span>
-      <span class="ti"><span class="num">7×</span><span class="lbl">Editorial output · JUKSY</span></span>
-      <span class="ti"><span class="num">+80%</span><span class="lbl">Ops efficiency · RoBard</span></span>
+      <span class="ti"><span class="num">−43%</span><span class="lbl">Response time ｜ Rosetta.ai</span></span>
+      <span class="ti"><span class="num">EN ｜ ZH</span><span class="lbl">Bilingual PM</span></span>
+      <span class="ti"><span class="num">127k+</span><span class="lbl">MAU ｜ UK platform</span></span>
+      <span class="ti"><span class="num">+660%</span><span class="lbl">Revenue ｜ adopter cohort</span></span>
+      <span class="ti"><span class="num">7×</span><span class="lbl">Editorial output ｜ JUKSY</span></span>
+      <span class="ti"><span class="num">+80%</span><span class="lbl">Ops efficiency ｜ RoBard</span></span>
       <span class="ti"><span class="num">1,000+</span><span class="lbl">Merchants deployed</span></span>
-      <span class="ti"><span class="num">99%</span><span class="lbl">ML model accuracy</span></span>
-      <span class="ti"><span class="num">EN · ZH</span><span class="lbl">Bilingual PM</span></span>
+      <span class="ti"><span class="num">−43%</span><span class="lbl">Response time ｜ Rosetta.ai</span></span>
+      <span class="ti"><span class="num">EN ｜ ZH</span><span class="lbl">Bilingual PM</span></span>
+      <span class="ti"><span class="num">127k+</span><span class="lbl">MAU ｜ UK platform</span></span>
+      <span class="ti"><span class="num">+660%</span><span class="lbl">Revenue ｜ adopter cohort</span></span>
+      <span class="ti"><span class="num">7×</span><span class="lbl">Editorial output ｜ JUKSY</span></span>
+      <span class="ti"><span class="num">+80%</span><span class="lbl">Ops efficiency ｜ RoBard</span></span>
+      <span class="ti"><span class="num">1,000+</span><span class="lbl">Merchants deployed</span></span>
+      <span class="ti"><span class="num">−43%</span><span class="lbl">Response time ｜ Rosetta.ai</span></span>
+      <span class="ti"><span class="num">EN ｜ ZH</span><span class="lbl">Bilingual PM</span></span>
     </div>
   </div>
 </header>
@@ -545,14 +638,14 @@ a:focus-visible,button:focus-visible,.visual:focus-visible,.theme-btn:focus-visi
   </div>
   <div class="about-grid">
     <div class="about-copy rv">
-      <p>I'm a Product Manager based in London. Six years across AI/ML, B2B SaaS and e-commerce — three of them owning an <strong>ML recommendation product running in production for 1,000+ merchants</strong>, then eighteen months taking a B2B2C SaaS platform from problem definition to a live MVP as the only PM on it. Most recently I led growth and AI automation for a UK platform with 127k+ monthly active users.</p>
-      <p>What I actually do is <strong>find the constraint</strong>. At Rosetta.ai the interesting question was never whether the model was accurate — it was which client segment personalisation would pay off for, before we spent a year rolling it out to everyone. At JUKSY the growth ceiling wasn't traffic, it was how many articles an editor could physically write in a day.</p>
-      <p>I work hands-on with data, model evaluation and agentic tooling (Claude Code, Codex) to de-risk decisions before engineering time gets committed — and I ship my own products on the side to keep that honest. <strong>Most AI products fail in the translation to commercial outcomes, not in the modelling.</strong> That translation is the part I do.</p>
+      <p>I'm a Product Manager based in London. Six years across AI/ML, B2B SaaS and e-commerce, three of them owning an <strong>ML recommendation product running in production for 1,000+ merchants</strong>, then eighteen months taking a B2B2C SaaS platform from problem definition to a live MVP as the only PM on it. Most recently I led growth and AI automation for a UK platform with 127k+ monthly active users.</p>
+      <p>What I actually do is <strong>find the constraint</strong>. At Rosetta.ai the interesting question was never whether the model was accurate. It was which client segment personalisation would pay off for, before we spent a year rolling it out to everyone. At JUKSY the growth ceiling wasn't traffic, it was how many articles an editor could physically write in a day.</p>
+      <p>I work hands-on with data, model evaluation and agentic tooling (Claude Code, Codex) to de-risk decisions before engineering time gets committed, and I ship my own products on the side to keep that honest. <strong>Most AI products fail in the translation to commercial outcomes, not in the modelling.</strong> That translation is the part I do.</p>
     </div>
     <ul class="princ rv">
       <li>
         <h4><i>01</i>Find the constraint before writing the spec</h4>
-        <p>Every roadmap I've owned started by naming the one thing actually capping the business — throughput, margin, activation — rather than working down the longest feature request list. It's what stops a team shipping the wrong thing beautifully.</p>
+        <p>Every roadmap I've owned started by naming the one thing actually capping the business, whether that was throughput, margin or activation, rather than working down the longest feature request list. It's what stops a team shipping the wrong thing beautifully.</p>
       </li>
       <li>
         <h4><i>02</i>De-risk before engineering time is committed</h4>
@@ -560,7 +653,7 @@ a:focus-visible,button:focus-visible,.visual:focus-visible,.theme-btn:focus-visi
       </li>
       <li>
         <h4><i>03</i>Ship to a number, not to a date</h4>
-        <p>Every launch I've run had a metric attached before it shipped and an honest read on it after — conversion, AOV, output per editor-day, engagement time. If nothing moved, that is also a finding, and it changes the next decision.</p>
+        <p>Every launch I've run had a metric attached before it shipped and an honest read on it after: conversion, AOV, output per editor-day, engagement time. If nothing moved, that is also a finding, and it changes the next decision.</p>
       </li>
     </ul>
   </div>
@@ -578,9 +671,9 @@ a:focus-visible,button:focus-visible,.visual:focus-visible,.theme-btn:focus-visi
   <article class="case rv">
     <div class="case-grid">
       <div class="case-info">
-        <div class="case-meta"><span class="case-no">01</span><span class="tag">AI Automation</span><span class="tag">Growth</span><span class="tag">London · 2026</span></div>
+        <div class="case-meta"><span class="case-no">01</span><span class="tag">AI Automation</span><span class="tag">Growth</span><span class="tag">London ｜ 2026</span></div>
         <h3>Banyan Digital — AI Automation &amp; Growth</h3>
-        <p class="case-lead">Owned the growth roadmap for a UK platform with 127k+ monthly active users, then removed the thing actually holding it back — shipping five AI automation workflows that doubled output per editor-day without adding a single hire.</p>
+        <p class="case-lead">Owned the growth roadmap for a UK platform with 127k+ monthly active users, then removed the thing actually holding it back by shipping five AI automation workflows that doubled output per editor-day without adding a single hire.</p>
         <div class="metrics">
           <div class="metric-row">
             <div class="metric"><div class="v">127k<span class="s">+</span></div><div class="k">Monthly active users</div></div>
@@ -602,11 +695,11 @@ a:focus-visible,button:focus-visible,.visual:focus-visible,.theme-btn:focus-visi
             <div class="screen">
               <div class="scene sc">
                 <div class="film"><span class="play"></span><span class="rec"><i></i>REC</span><span class="dur">04:12</span></div>
-                <div class="frame-note">Raw footage uploaded — one file, nothing else</div>
+                <div class="frame-note">Raw footage uploaded, one file and nothing else</div>
               </div>
               <div class="scene sc">
                 <div class="tlstrip"><i></i><i class="cut"></i><i></i><i></i><i class="cut"></i><i></i><i></i><i class="cut"></i><i></i><i></i><span class="head"></span></div>
-                <div class="sc-stat"><b>04:12</b> <span class="ar">→</span> <b>00:48</b> <span>14 cuts · silences and retakes removed</span></div>
+                <div class="sc-stat"><b>04:12</b> <span class="ar">→</span> <b>00:48</b> <span>14 cuts ｜ silences and retakes removed</span></div>
                 <div class="frame-note">Auto-cut to the moments that hold attention</div>
               </div>
               <div class="scene sc">
@@ -616,17 +709,17 @@ a:focus-visible,button:focus-visible,.visual:focus-visible,.theme-btn:focus-visi
               </div>
               <div class="scene sc">
                 <div class="lines"><i></i><i></i><i></i></div>
-                <div class="sc-stat"><span>Hook · caption · title · alt text</span></div>
+                <div class="sc-stat"><span>Hook ｜ caption ｜ title ｜ alt text</span></div>
                 <div class="frame-note">Copy drafted in brand voice, editor approves</div>
               </div>
               <div class="scene sc">
                 <div class="chans"><span class="ch">Reels</span><span class="ch">Shorts</span><span class="ch">TikTok</span><span class="ch">Web</span></div>
-                <div class="sc-stat"><b>4 formats</b> <span>from one shoot · scheduled 07:00</span></div>
+                <div class="sc-stat"><b>4 formats</b> <span>from one shoot ｜ scheduled 07:00</span></div>
                 <div class="frame-note">Published, then measured in the feedback loop</div>
               </div>
             </div>
           </div>
-          <div class="demo-foot"><span>One upload · zero manual steps</span><span>10 pieces / editor-day</span></div>
+          <div class="demo-foot"><span>One upload ｜ zero manual steps</span><span>10 pieces / editor-day</span></div>
         </div>
         <span class="v-badge">View case →</span>
         <span class="v-cta"><span>View case <em style="font-style:normal">↗</em></span></span>
@@ -634,9 +727,9 @@ a:focus-visible,button:focus-visible,.visual:focus-visible,.theme-btn:focus-visi
     </div>
     <div class="case-more" hidden>
       <div class="more-text"><div class="dl">
-        <div><h4>Challenge</h4><p>Publishing velocity was capped by manual content production — not by demand, and not by traffic. Hiring more editors was the obvious answer and the expensive one, and it would have scaled cost linearly with output.</p></div>
+        <div><h4>Challenge</h4><p>Publishing velocity was capped by manual content production, not by demand and not by traffic. Hiring more editors was the obvious answer and the expensive one, and it would have scaled cost linearly with output.</p></div>
         <div><h4>What I did</h4><p>Diagnosed content production as the binding constraint, then designed and shipped five AI automation workflows using Claude Code and Codex, covering generation, distribution and a data feedback loop. In parallel I owned the acquisition-to-activation-to-conversion roadmap, prioritising against engagement quality rather than raw traffic.</p></div>
-        <div><h4>Outcome</h4><p>Multi-format output — copy, cover images, video, image editing — went from 5 to 10 pieces per editor-day at constant headcount. I also rebuilt SEO and analytics measurement in GA4 around behavioural funnels, which is what finally made it visible which audience segments converted rather than which ones simply arrived.</p></div>
+        <div><h4>Outcome</h4><p>Multi-format output (copy, cover images, video, image editing) went from 5 to 10 pieces per editor-day at constant headcount. I also rebuilt SEO and analytics measurement in GA4 around behavioural funnels, which is what finally made it visible which audience segments converted rather than which ones simply arrived.</p></div>
         <div class="lb-stack"><span>Claude Code</span><span>OpenAI Codex</span><span>Workflow Automation</span><span>Google Analytics 4</span><span>Technical SEO</span><span>Growth Roadmap</span></div>
       </div></div>
     </div>
@@ -648,7 +741,7 @@ a:focus-visible,button:focus-visible,.visual:focus-visible,.theme-btn:focus-visi
       <div class="case-info">
         <div class="case-meta"><span class="case-no">02</span><span class="tag">AI Recommendation</span><span class="tag">E-commerce</span><span class="tag">2021–2024</span></div>
         <h3>Rosetta.ai — AI Recommendation Engine</h3>
-        <p class="case-lead">Owned the product lifecycle for an ML personalisation engine deployed across 1,000+ e-commerce clients — turning generic "bestseller" widgets into real-time, per-user recommendations.</p>
+        <p class="case-lead">Owned the product lifecycle for an ML personalisation engine deployed across 1,000+ e-commerce clients, turning generic "bestseller" widgets into real-time, per-user recommendations.</p>
         <div class="metrics">
           <div class="metric-row">
             <div class="metric"><div class="v" data-count="660" data-suffix="%"><span class="s">+</span>660%</div><div class="k">Revenue increase</div></div>
@@ -668,9 +761,9 @@ a:focus-visible,button:focus-visible,.visual:focus-visible,.theme-btn:focus-visi
     <div class="case-more" hidden>
       <div class="more-media"><img src="assets/rosetta.jpg" alt="Rosetta.ai recommendation engine dashboard"></div>
       <div class="more-text"><div class="dl">
-        <div><h4>Challenge</h4><p>Clients relied on generic "bestseller" and "frequently bought together" widgets that ignored individual behaviour and style preference — causing poor discovery, low AOV and high product-page bounce.</p></div>
+        <div><h4>Challenge</h4><p>Clients relied on generic "bestseller" and "frequently bought together" widgets that ignored individual behaviour and style preference, causing poor discovery, low AOV and high product-page bounce.</p></div>
         <div><h4>My role</h4><p>As Product Specialist & Domain Expert I owned the lifecycle: defining model requirements with data science, managing data infrastructure, designing the A/B testing framework, and coordinating client rollouts across 1,000+ merchants.</p></div>
-        <div><h4>Outcome</h4><p>A real-time engine reading browsing patterns, style affinity and purchase intent to surface hyper-personalised recommendations — responding 43% faster than the previous solution and driving strong lifts in core commerce metrics within a year.</p></div>
+        <div><h4>Outcome</h4><p>A real-time engine reading browsing patterns, style affinity and purchase intent to surface hyper-personalised recommendations, responding 43% faster than the previous solution and driving strong lifts in core commerce metrics within a year.</p></div>
         <div class="lb-stack"><span>ML Recommendations</span><span>A/B Testing</span><span>E-commerce APIs</span><span>Data Infrastructure</span><span>Client Rollout</span></div>
       </div></div>
     </div>
@@ -682,7 +775,7 @@ a:focus-visible,button:focus-visible,.visual:focus-visible,.theme-btn:focus-visi
       <div class="case-info">
         <div class="case-meta"><span class="case-no">03</span><span class="tag">B2B2C SaaS</span><span class="tag">Sole PM</span><span class="tag">2024–2025</span></div>
         <h3>RoBard — Marketing Automation SaaS</h3>
-        <p class="case-lead">Sole PM owning end-to-end build of a B2B2C SaaS — press-release automation, influencer marketing and multi-channel publishing — shipped MVP to production with a cross-functional team of 5+.</p>
+        <p class="case-lead">Sole PM owning end-to-end build of a B2B2C SaaS covering press-release automation, influencer marketing and multi-channel publishing. Shipped MVP to production with a cross-functional team of 5+.</p>
         <div class="metrics">
           <div class="metric-row">
             <div class="metric"><div class="v" data-count="80" data-suffix="%"><span class="s">+</span>80%</div><div class="k">Ops efficiency</div></div>
@@ -692,7 +785,7 @@ a:focus-visible,button:focus-visible,.visual:focus-visible,.theme-btn:focus-visi
         </div>
       </div>
       <button class="visual clickable" data-open data-cta="View artefacts">
-        <div class="frame"><i></i><i></i><i></i><span class="cap">RoBard — Product Dashboard</span></div>
+        <div class="frame"><i></i><i></i><i></i><span class="cap">RoBard ｜ Product Dashboard</span></div>
         <div class="shot"><img src="assets/robard-dashboard.jpg" alt="RoBard marketing-automation SaaS product dashboard, designed in Figma" loading="lazy"></div>
         <span class="v-badge">Enlarge →</span>
         <span class="v-cta"><span>View artefacts <em style="font-style:normal">↗</em></span></span>
@@ -701,7 +794,7 @@ a:focus-visible,button:focus-visible,.visual:focus-visible,.theme-btn:focus-visi
     <div class="case-more" hidden>
       <div class="more-media"><img src="assets/robard-dashboard.jpg" alt="RoBard product dashboard, designed in Figma"><img src="assets/img_1.jpg" alt="RoBard full function map"><img src="assets/img_2.jpg" alt="RoBard SaaS PRD"></div>
       <div class="more-text"><div class="dl">
-        <div><h4>Problem</h4><p>JUKSY's editorial and marketing teams were bottlenecked by manual press-release workflows — hours of back-and-forth between writers, editors, finance and channel managers, with no unified platform to track orders, payments or publication status.</p></div>
+        <div><h4>Problem</h4><p>JUKSY's editorial and marketing teams were bottlenecked by manual press-release workflows that meant hours of back-and-forth between writers, editors, finance and channel managers, with no unified platform to track orders, payments or publication status.</p></div>
         <div><h4>Solution</h4><p>A 3-sided marketplace connecting brands, media channels and JUKSY as operator, automating the full order-to-publication journey: brand submits brief → AI drafts content → editor reviews → one-click publish → auto payment settle.</p></div>
         <div><h4>Shipped</h4><p>AI press-release writing, one-click multi-channel publishing, KOL/KOC influencer management, short-form video module, member & channel dashboard, and smart analytics with spend tracking. I designed the full product UI surface in Figma and owned the API integration architecture.</p></div>
         <div class="lb-stack"><span>ChatGPT API</span><span>Claude API</span><span>Google Sheets</span><span>LINE OA</span><span>Figma</span><span>Payment Gateway</span></div>
@@ -713,7 +806,7 @@ a:focus-visible,button:focus-visible,.visual:focus-visible,.theme-btn:focus-visi
   <article class="case rv">
     <div class="case-grid">
       <div class="case-info">
-        <div class="case-meta"><span class="case-no">04</span><span class="tag">AI · Content Automation</span><span class="tag">2024</span></div>
+        <div class="case-meta"><span class="case-no">04</span><span class="tag">AI ｜ Content Automation</span><span class="tag">2024</span></div>
         <h3>AI-Powered SEO Content Pipeline</h3>
         <p class="case-lead">An end-to-end automation that scaled editorial output 7× by combining Google Trends data with a fine-tuned internal ML model trained on JUKSY's brand voice.</p>
         <div class="metrics">
@@ -726,7 +819,7 @@ a:focus-visible,button:focus-visible,.visual:focus-visible,.theme-btn:focus-visi
         </div>
       </div>
       <button class="visual clickable" data-open data-cta="View pipeline">
-        <div class="frame"><i></i><i></i><i></i><span class="cap">Content automation — pipeline</span></div>
+        <div class="frame"><i></i><i></i><i></i><span class="cap">Content automation ｜ pipeline</span></div>
         <div class="shot"><img src="assets/img_3.jpg" alt="AI SEO content automation pipeline diagram" loading="lazy"></div>
         <span class="v-badge">Enlarge →</span>
         <span class="v-cta"><span>View pipeline <em style="font-style:normal">↗</em></span></span>
@@ -735,9 +828,9 @@ a:focus-visible,button:focus-visible,.visual:focus-visible,.theme-btn:focus-visi
     <div class="case-more" hidden>
       <div class="more-media"><img src="assets/img_3.jpg" alt="AI SEO content automation pipeline"></div>
       <div class="more-text"><div class="dl">
-        <div><h4>Problem</h4><p>The SEO content team produced just 3 articles per editor per day — manually sourcing trends, drafting copy and chasing approvals. Growth targets required far higher output without proportional headcount.</p></div>
+        <div><h4>Problem</h4><p>The SEO content team produced just 3 articles per editor per day, manually sourcing trends, drafting copy and chasing approvals. Growth targets required far higher output without proportional headcount.</p></div>
         <div><h4>What I did</h4><p>Defined product requirements and success metrics; scoped the ML training dataset and evaluation criteria with data science; built the integration layer connecting Google Trends API, the internal model and the editorial CMS; and ran A/B testing to validate output quality before rollout.</p></div>
-        <div><h4>Outcome</h4><p>Time-to-draft fell ~85%, letting editors focus on quality control instead of blank-page writing — with measurable SEO performance gains within 60 days of launch.</p></div>
+        <div><h4>Outcome</h4><p>Time-to-draft fell ~85%, letting editors focus on quality control instead of blank-page writing, with measurable SEO performance gains within 60 days of launch.</p></div>
         <div class="lb-stack"><span>Google Trends API</span><span>ML Fine-tuning</span><span>Workflow Automation</span><span>CMS Integration</span><span>A/B Testing</span></div>
       </div></div>
     </div>
@@ -747,9 +840,9 @@ a:focus-visible,button:focus-visible,.visual:focus-visible,.theme-btn:focus-visi
   <article class="case rv">
     <div class="case-grid">
       <div class="case-info">
-        <div class="case-meta"><span class="case-no">05</span><span class="tag">Growth · CRM</span><span class="tag">Campaign</span><span class="tag">2024</span></div>
+        <div class="case-meta"><span class="case-no">05</span><span class="tag">Growth ｜ CRM</span><span class="tag">Campaign</span><span class="tag">2024</span></div>
         <h3>LINE OA Member Marketing &amp; Influencer Campaign</h3>
-        <p class="case-lead">A full-funnel LINE OA ecosystem — member segmentation, automated messaging and a branded B2B2C campaign for Taiwan Banai, an illustrator with 4,000+ crowdfunding supporters.</p>
+        <p class="case-lead">A full-funnel LINE OA ecosystem covering member segmentation, automated messaging and a branded B2B2C campaign for Taiwan Banai, an illustrator with 4,000+ crowdfunding supporters.</p>
         <div class="metrics">
           <div class="metric-row">
             <div class="metric"><div class="v">3-track</div><div class="k">Lifecycle segmentation</div></div>
@@ -766,9 +859,9 @@ a:focus-visible,button:focus-visible,.visual:focus-visible,.theme-btn:focus-visi
     <div class="case-more" hidden>
       <div class="more-media"><img src="assets/line-oa.jpg" alt="LINE Official Account"></div>
       <div class="more-text"><div class="dl">
-        <div><h4>Context</h4><p>JUKSY's LINE Official Account had no CRM layer — members joined but weren't segmented, so every broadcast went to everyone regardless of purchase history, leading to low engagement and missed monetisation.</p></div>
+        <div><h4>Context</h4><p>JUKSY's LINE Official Account had no CRM layer. Members joined but weren't segmented, so every broadcast went to everyone regardless of purchase history, leading to low engagement and missed monetisation.</p></div>
         <div><h4>What I built</h4><p>A member lifecycle system on LINE OA: registration capturing gender, birthday and phone; automatic segmentation by purchase behaviour; differentiated tracks for converted vs. prospective buyers; and a backend lottery with personalised prize notifications via LINE DM.</p></div>
-        <div><h4>Campaign · Taiwan Banai × JUKSY</h4><p>A complete B2B2C campaign: strategy, promotion-path diagram, two-track prize mechanics, LINE OA wireframes, social copy and visual direction — converting passive social followers into owned-channel subscribers.</p></div>
+        <div><h4>Campaign ｜ Taiwan Banai × JUKSY</h4><p>A complete B2B2C campaign: strategy, promotion-path diagram, two-track prize mechanics, LINE OA wireframes, social copy and visual direction, converting passive social followers into owned-channel subscribers.</p></div>
       </div></div>
     </div>
   </article>
@@ -785,7 +878,7 @@ a:focus-visible,button:focus-visible,.visual:focus-visible,.theme-btn:focus-visi
       <div class="case-info">
         <div class="case-meta"><span class="case-no">06</span><span class="tag">Live product</span><span class="tag">Agentic automation</span><span class="tag">2026</span></div>
         <h3>Credit-card rewards search</h3>
-        <p class="case-lead">Ask it where you're about to spend, and it tells you which of 28 cards pays best — net of foreign-exchange fees, caps and registration rules. Built solo, live in production, and kept current by a scheduled agent that re-checks card terms and commits the corrections itself.</p>
+        <p class="case-lead">Ask it where you're about to spend, and it tells you which of 28 cards pays best, net of foreign-exchange fees, caps and registration rules. Built solo, live in production, and kept current by a scheduled agent that re-checks card terms and commits the corrections itself.</p>
         <div class="metrics">
           <div class="metric-row">
             <div class="metric"><div class="v">28</div><div class="k">Cards in the index</div></div>
@@ -802,11 +895,11 @@ a:focus-visible,button:focus-visible,.visual:focus-visible,.theme-btn:focus-visi
               <span class="mc">Netflix</span><span class="mc">Flights</span><span class="mc">Shopee</span><span class="mc">Costco</span><span class="mc">Apple</span>
             </div>
             <div class="picks">
-              <div class="scene sc"><div class="pick"><span class="pct">+8.5%</span><span class="pk">E.SUN U Bear</span></div><div class="next">10% reward − 1.5% FX fee · next best −0.2%</div></div>
-              <div class="scene sc"><div class="pick"><span class="pct">+4.5%</span><span class="pk">SinoPac Dual Currency</span></div><div class="next">6% reward − 1.5% FX fee · next best +1.5%</div></div>
-              <div class="scene sc"><div class="pick"><span class="pct">+3.0%</span><span class="pk">Cathay CUBE</span></div><div class="next">Domestic, no FX fee · next best +2.0%</div></div>
-              <div class="scene sc"><div class="pick"><span class="pct">+2.0%</span><span class="pk">Fubon Costco Card</span></div><div class="next">Domestic, no FX fee · next best +0.3%</div></div>
-              <div class="scene sc"><div class="pick"><span class="pct neg">−0.2%</span><span class="pk">Taishin Richart</span></div><div class="next">1.3% reward − 1.5% FX fee · no card wins here</div></div>
+              <div class="scene sc"><div class="pick"><span class="pct">+8.5%</span><span class="pk">E.SUN U Bear</span></div><div class="next">10% reward − 1.5% FX fee ｜ next best −0.2%</div></div>
+              <div class="scene sc"><div class="pick"><span class="pct">+4.5%</span><span class="pk">SinoPac Dual Currency</span></div><div class="next">6% reward − 1.5% FX fee ｜ next best +1.5%</div></div>
+              <div class="scene sc"><div class="pick"><span class="pct">+3.0%</span><span class="pk">Cathay CUBE</span></div><div class="next">Domestic, no FX fee ｜ next best +2.0%</div></div>
+              <div class="scene sc"><div class="pick"><span class="pct">+2.0%</span><span class="pk">Fubon Costco Card</span></div><div class="next">Domestic, no FX fee ｜ next best +0.3%</div></div>
+              <div class="scene sc"><div class="pick"><span class="pct neg">−0.2%</span><span class="pk">Taishin Richart</span></div><div class="next">1.3% reward − 1.5% FX fee ｜ no card wins here</div></div>
             </div>
           </div>
           <div class="demo-foot"><span>Net reward after FX fees, caps &amp; registration</span><span>28 cards indexed</span></div>
@@ -822,7 +915,7 @@ a:focus-visible,button:focus-visible,.visual:focus-visible,.theme-btn:focus-visi
       <div class="case-info">
         <div class="case-meta"><span class="case-no">07</span><span class="tag">Data product</span><span class="tag">Scoping under constraint</span><span class="tag">2026</span></div>
         <h3>Travel Radar — Flight price agent</h3>
-        <p class="case-lead">A price agent that watches a route — origin, an optional stop, destination — and alerts only when a fare crosses a threshold worth acting on. The interesting work was product scoping, not scraping: the obvious data sources had just died.</p>
+        <p class="case-lead">A price agent that watches a route (origin, an optional stop, destination) and alerts only when a fare crosses a threshold worth acting on. The interesting work was product scoping, not scraping: the obvious data sources had just died.</p>
       </div>
       <button class="visual clickable" data-open data-cta="View case">
         <div class="cover demo route-cover">
@@ -847,20 +940,20 @@ a:focus-visible,button:focus-visible,.visual:focus-visible,.theme-btn:focus-visi
             </div>
             <div class="fares">
               <div class="scene">
-                <div class="row win"><span class="tick">✓</span><span class="lead">1 stop · split ticket</span><span class="val">£468</span></div>
+                <div class="row win"><span class="tick">✓</span><span class="lead">1 stop ｜ split ticket</span><span class="val">£468</span></div>
                 <div class="row"><span class="lead">Direct</span><span class="val">£742</span></div>
               </div>
               <div class="scene">
                 <div class="row win"><span class="tick">✓</span><span class="lead">Direct</span><span class="val">£512</span></div>
-                <div class="row"><span class="lead">1 stop · split ticket</span><span class="val">£559</span></div>
+                <div class="row"><span class="lead">1 stop ｜ split ticket</span><span class="val">£559</span></div>
               </div>
               <div class="scene">
-                <div class="row win"><span class="tick">✓</span><span class="lead">1 stop · 2 nights in HEL</span><span class="val">£431</span></div>
+                <div class="row win"><span class="tick">✓</span><span class="lead">1 stop ｜ 2 nights in HEL</span><span class="val">£431</span></div>
                 <div class="row"><span class="lead">Direct</span><span class="val">£688</span></div>
               </div>
             </div>
           </div>
-          <div class="demo-foot"><span>Alerts only below your threshold</span><span>Any origin · any destination</span></div>
+          <div class="demo-foot"><span>Alerts only below your threshold</span><span>Any origin ｜ any destination</span></div>
         </div>
         <span class="v-badge">View case →</span>
         <span class="v-cta"><span>View case <em style="font-style:normal">↗</em></span></span>
@@ -869,7 +962,7 @@ a:focus-visible,button:focus-visible,.visual:focus-visible,.theme-btn:focus-visi
     <div class="case-more" hidden>
       <div class="more-text"><div class="dl">
         <div><h4>The constraint</h4><p>Halfway through, the two viable data sources disappeared: one major flight API closed its self-service tier and another moved to invite-only. What remained could answer simple return queries reliably and multi-city queries not at all.</p></div>
-        <div><h4>The product decision</h4><p>Rather than ship a multi-city feature that would silently return nothing, I cut it from v1 and redesigned the trip itself around split tickets — a separate short-haul return plus a long-haul return — which delivers the same "stop somewhere on the way" outcome with no missed-connection risk. A feature that fails quietly is worse than a feature you don't have.</p></div>
+        <div><h4>The product decision</h4><p>Rather than ship a multi-city feature that would silently return nothing, I cut it from v1 and redesigned the trip itself around split tickets, a separate short-haul return plus a long-haul return, which delivers the same "stop somewhere on the way" outcome with no missed-connection risk. A feature that fails quietly is worse than a feature you don't have.</p></div>
         <div><h4>How it runs</h4><p>A scheduled job checks fares, compares them against thresholds set per routing type, and pushes to Telegram only on a breach, plus one weekly summary. Nothing else. The success metric was deliberately "messages I act on", not "messages sent".</p></div>
         <div class="lb-stack"><span>Scheduled agents</span><span>Python</span><span>Telegram Bot API</span><span>Data-source evaluation</span><span>Scope cutting</span></div>
       </div></div>
@@ -881,7 +974,7 @@ a:focus-visible,button:focus-visible,.visual:focus-visible,.theme-btn:focus-visi
       <div class="case-info">
         <div class="case-meta"><span class="case-no">08</span><span class="tag">LLM product</span><span class="tag">Unit economics</span><span class="tag">2026</span></div>
         <h3>Daily Brief — Personalised morning briefing bot</h3>
-        <p class="case-lead">A Telegram bot that writes each reader a different morning briefing — world news, the London job market, and a running finance-literacy series — and lets them change their own settings by simply telling it, in plain language.</p>
+        <p class="case-lead">A Telegram bot that writes each reader a different morning briefing covering world news, the London job market and a running finance-literacy series, and lets them change their own settings by simply telling it, in plain language.</p>
       </div>
       <button class="visual clickable" data-open data-cta="View case">
         <div class="cover demo">
@@ -904,7 +997,7 @@ a:focus-visible,button:focus-visible,.visual:focus-visible,.theme-btn:focus-visi
                 <div class="brief-kicker">Finance literacy</div>
                 <div class="row"><span class="lead">What a base-rate cut does to your savings</span></div>
                 <div class="brief-kicker">Because you follow</div>
-                <div class="row"><span class="lead">AI tooling · outdoor gear · K-pop</span></div>
+                <div class="row"><span class="lead">AI tooling ｜ outdoor gear ｜ K-pop</span></div>
               </div>
             </div>
           </div>
@@ -916,8 +1009,8 @@ a:focus-visible,button:focus-visible,.visual:focus-visible,.theme-btn:focus-visi
     </div>
     <div class="case-more" hidden>
       <div class="more-text"><div class="dl">
-        <div><h4>The architecture decision that mattered</h4><p>The naive design — run the whole pipeline once per reader — would have multiplied cost by roughly 50× at the target reader count. I split it into a shared research pass that builds a candidate pool once, then a cheap per-reader pass that selects from the pool and writes the personalised framing. Cost now barely moves as readers are added, which is what made the product viable at all.</p></div>
-        <div><h4>Latency where it's felt</h4><p>Sign-up used to wait for the nightly batch, so a new reader got silence. I moved the conversational onboarding to an edge worker running pure rules — instant and free — and left the language-model work in the batch. Settings changes are explicitly next-day, and the bot says so rather than pretending to be instant.</p></div>
+        <div><h4>The architecture decision that mattered</h4><p>The naive design, running the whole pipeline once per reader, would have multiplied cost by roughly 50× at the target reader count. I split it into a shared research pass that builds a candidate pool once, then a cheap per-reader pass that selects from the pool and writes the personalised framing. Cost now barely moves as readers are added, which is what made the product viable at all.</p></div>
+        <div><h4>Latency where it's felt</h4><p>Sign-up used to wait for the nightly batch, so a new reader got silence. I moved the conversational onboarding to an edge worker running pure rules, which is instant and free, and left the language-model work in the batch. Settings changes are explicitly next-day, and the bot says so rather than pretending to be instant.</p></div>
         <div><h4>The data decision</h4><p>The first version collected structured demographics. I replaced all of it with one free-text self-description: it gives the model far better context than a set of labels ("currently retraining as a PM" beats "occupation: marketing"), and it keeps the product out of the territory where UK GDPR would demand much more of me. Less data, better output.</p></div>
         <div class="lb-stack"><span>LLM pipeline design</span><span>Cloudflare Workers</span><span>Telegram Bot API</span><span>Scheduled agents</span><span>Cost modelling</span><span>UK GDPR</span></div>
       </div></div>
@@ -936,60 +1029,53 @@ a:focus-visible,button:focus-visible,.visual:focus-visible,.theme-btn:focus-visi
   </div>
   <div class="tl">
     <div class="tl-row now rv">
-      <div class="tl-when">Apr 2026 — Jul 2026</div>
+      <div class="tl-when">Apr 2026 – Jul 2026</div>
       <div class="tl-what">
         <h3>Product &amp; Growth Lead, Operations</h3>
-        <div class="tl-where">Banyan Digital Limited · London, UK · Hybrid</div>
+        <div class="tl-where">Banyan Digital Limited ｜ London, UK ｜ Hybrid</div>
       </div>
       <p class="tl-note">Owned the end-to-end growth roadmap for a UK platform with <b>127k+ monthly active users</b> across the UK, the Americas and Asia. Shipped five AI automation workflows that <b>doubled multi-format output per editor-day at constant headcount</b>, and rebuilt SEO and GA4 measurement around behavioural funnels.</p>
     </div>
     <div class="tl-row rv">
-      <div class="tl-when">Apr 2024 — Aug 2025</div>
+      <div class="tl-when">Apr 2024 – Aug 2025</div>
       <div class="tl-what">
         <h3>Product Manager</h3>
-        <div class="tl-where">Juksy Digital Media Co., Ltd. · Taipei, Taiwan · Hybrid</div>
+        <div class="tl-where">Juksy Digital Media Co., Ltd. ｜ Taipei, Taiwan ｜ Hybrid</div>
       </div>
-      <p class="tl-note"><b>Promoted to Product Manager within nine months.</b> Sole PM taking a B2B2C SaaS platform from problem definition to shipped MVP — vision, roadmap, PRDs and user flows — and built the AI content pipeline that lifted editorial output from <b>3 to 20+ articles per editor per day</b>. Ran cross-functional agile delivery with engineering, design, sales and C-suite stakeholders.</p>
+      <p class="tl-note"><b>Promoted to Product Manager within nine months.</b> Sole PM taking a B2B2C SaaS platform from problem definition to shipped MVP, covering vision, roadmap, PRDs and user flows, and built the AI content pipeline that lifted editorial output from <b>3 to 20+ articles per editor per day</b>. Ran cross-functional agile delivery with engineering, design, sales and C-suite stakeholders.</p>
     </div>
     <div class="tl-row rv">
-      <div class="tl-when">Feb 2021 — Apr 2024</div>
+      <div class="tl-when">Feb 2021 – Apr 2024</div>
       <div class="tl-what">
         <h3>Product Specialist &amp; Domain Expert</h3>
-        <div class="tl-where">Rosetta.ai · Taipei, Taiwan · Remote</div>
+        <div class="tl-where">Rosetta.ai ｜ Taipei, Taiwan ｜ Remote</div>
       </div>
-      <p class="tl-note">Owned the product lifecycle for an AI recommendation and personalisation product deployed across <b>1,000+ e-commerce clients</b> — from the 10,000+ attribute taxonomy the model ranked against, through the A/B testing framework, to production rollout. Partnered with engineering and data science to cut inference response time by 43%.</p>
+      <p class="tl-note">Owned the product lifecycle for an AI recommendation and personalisation product deployed across <b>1,000+ e-commerce clients</b>, from the 10,000+ attribute taxonomy the model ranked against, through the A/B testing framework, to production rollout. Partnered with engineering and data science to cut inference response time by 43%.</p>
     </div>
     <div class="tl-row rv">
-      <div class="tl-when">Oct 2020 — Mar 2023</div>
+      <div class="tl-when">Oct 2020 – Mar 2023</div>
       <div class="tl-what">
         <h3>Project Manager (Freelance)</h3>
-        <div class="tl-where">Self-employed · Taipei, Taiwan</div>
+        <div class="tl-where">Self-employed ｜ Taipei, Taiwan</div>
       </div>
-      <p class="tl-note">Cross-industry project coordination, client and supplier relationship management, and e-commerce platform operations — alongside video production credits on commercial and feature projects.</p>
+      <p class="tl-note">Cross-industry project coordination, client and supplier relationship management, and e-commerce platform operations, alongside video production credits on commercial and feature projects.</p>
     </div>
     <div class="tl-row rv">
-      <div class="tl-when">Mar 2020 — Aug 2020</div>
+      <div class="tl-when">Mar 2020 – Aug 2020</div>
       <div class="tl-what">
         <h3>Purchasing Manager</h3>
-        <div class="tl-where">MAKALOT Industrial · Taipei, Taiwan</div>
+        <div class="tl-where">MAKALOT Industrial ｜ Taipei, Taiwan</div>
       </div>
       <p class="tl-note">Managed orders, pricing and quality control with suppliers across China, Hong Kong and Southeast Asia; launched 8 items for the Japanese fast-fashion brand GU.</p>
     </div>
     <div class="tl-row rv">
-      <div class="tl-when">Sep 2015 — Jun 2019</div>
+      <div class="tl-when">Sep 2015 – Jun 2019</div>
       <div class="tl-what">
         <h3>BA Fashion Marketing</h3>
-        <div class="tl-where">Fu Jen Catholic University · Taiwan</div>
+        <div class="tl-where">Fu Jen Catholic University ｜ Taiwan</div>
       </div>
       <p class="tl-note">Consumer and market analysis, project management and go-to-market strategy. Winner, 46th Graduation Exhibition; led the end-to-end marketing campaign for the graduate degree show.</p>
     </div>
-  </div>
-  <div class="tl-foot rv">
-    <span>Google Analytics Certified</span>
-    <span>Google Ads Search Certified</span>
-    <span>Google Ads Display Certified</span>
-    <span>Mandarin &amp; Taiwanese — native</span>
-    <span>English — fluent</span>
   </div>
 </section>
 
@@ -998,6 +1084,13 @@ a:focus-visible,button:focus-visible,.visual:focus-visible,.theme-btn:focus-visi
   <div class="sec-head rv">
     <span class="sec-idx">04</span><h2 class="sec-title">Capabilities</h2>
     <p class="sec-note">Product judgement, AI fluency and the technical depth to ship with engineering.</p>
+    <div class="tl-foot creds">
+      <span>Google Analytics Certified</span>
+      <span>Google Ads Search Certified</span>
+      <span>Google Ads Display Certified</span>
+      <span>Mandarin &amp; Taiwanese ｜ native</span>
+      <span>English ｜ fluent</span>
+    </div>
   </div>
   <div class="caps">
     <div class="cap rv"><h4><i></i>Product Management</h4><ul>
@@ -1013,20 +1106,20 @@ a:focus-visible,button:focus-visible,.visual:focus-visible,.theme-btn:focus-visi
 <section id="contact" class="wrap contact">
   <p class="contact-big rv">Open to new <span class="em">roles</span> in London.</p>
   <ul class="avail rv">
-    <li class="key">Right to work in the UK — no sponsorship required</li>
-    <li>London-based · On-site, hybrid or remote</li>
-    <li>Product Manager · AI &amp; ML products, B2B SaaS, e-commerce</li>
+    <li class="key">Right to work in the UK, no sponsorship required</li>
+    <li>London-based ｜ On-site, hybrid or remote</li>
+    <li>Product Manager ｜ AI &amp; ML products, B2B SaaS, e-commerce</li>
   </ul>
   <div class="cgrid rv">
     <a href="mailto:chengen.hsieh197@gmail.com"><span class="k">Email</span><span class="v">chengen.hsieh197@gmail.com <span class="ar">↗</span></span></a>
     <a href="https://www.linkedin.com/in/markhsieh1997/" target="_blank" rel="noopener"><span class="k">LinkedIn</span><span class="v">in/markhsieh1997 <span class="ar">↗</span></span></a>
-    <a href="tel:+447352134838"><span class="k">Phone · London</span><span class="v">+44 7352 134 838 <span class="ar">↗</span></span></a>
+    <a href="tel:+447352134838"><span class="k">Phone ｜ London</span><span class="v">+44 7352 134 838 <span class="ar">↗</span></span></a>
   </div>
 </section>
 
 <footer class="wrap">
-  <span>© 2026 — Cheng En Hsieh</span>
-  <span>Product Manager · London · Right to work in the UK</span>
+  <span>© 2026 ｜ Cheng En Hsieh</span>
+  <span>Product Manager ｜ London ｜ Right to work in the UK</span>
   <span>Built from scratch</span>
 </footer>
 </main>
@@ -1086,6 +1179,356 @@ a:focus-visible,button:focus-visible,.visual:focus-visible,.theme-btn:focus-visi
   });
 
   /* nav + progress + active */
+  /* ---------- particle field: intro choreography, then a live background ----------
+     One pool of particles. Every frame each particle is given a goal and pulled
+     toward it by a spring, so phase changes ease into one another instead of
+     cutting. Nothing ever parks: the drifting goal keeps moving underneath the
+     convergence, so the whole run reads as one continuous journey. Timeline (ms):
+       0–900    EXPAND — burst outward from the centre to fill the viewport
+       900–1900 ORBIT  — the ring turns at a steady clock-like rate
+       1900–3000 converge onto the glyphs of "Cheng En Hsieh"
+       3000–3400 hold
+       3400–5400 the name pushes outward from itself and dissolves; copy runs in
+     The dispersal is deliberately the longest beat: the name has to read as
+     drifting apart into the background, not as a cut to a different picture. */
+  var P_TEXT_A=1900, P_TEXT_B=3000, P_HOLD=3400, P_OUT=5400;
+  /* ?slow=4 stretches the whole opening so it can be inspected frame by frame */
+  var SLOW=(function(){ var m=/[?&]slow=([\d.]+)/.exec(location.search); var v=m?parseFloat(m[1]):1; return (v>0&&v<=20)?v:1; })();
+  if(SLOW!==1){ P_TEXT_A*=SLOW; P_TEXT_B*=SLOW; P_HOLD*=SLOW; P_OUT*=SLOW; }
+  /* radius and spin keyframes drive the two opening beats; spin holds constant
+     through the orbit so it reads as a clock hand rather than a wind-down */
+  var K_RAD=[[0,0.04],[900,1.00],[1900,0.86]].map(function(s){ return [s[0]*SLOW,s[1]]; });
+  var K_SPIN=[[0,0.18],[900,1.05],[3000,1.05]].map(function(s){ return [s[0]*SLOW,s[1]]; });
+
+  function particleField(skipStraightToField){
+    var cv=document.getElementById('fieldCanvas'),ctx=cv.getContext('2d',{alpha:true});
+    /* the dots are whole-pixel squares, so a 2x backing store buys nothing and
+       costs 4x the fill and 4x the GPU memory of a full-viewport surface that is
+       redrawn every frame. 1 is the honest number here. */
+    var dpr=1,W=0,H=0,pts=[],raf=0,t0=0;
+    var mx=-9999,my=-9999,mAct=0,introOn=!skipStraightToField,handed=false;
+    var paused=false,lastDraw=0,beat=0,pastHero=false;
+    function now2(){ return performance.now(); }
+    var inkC='#0B0B0B',accC='#2B27FF';
+
+    function theme(){
+      var s=getComputedStyle(document.documentElement);
+      inkC=(s.getPropertyValue('--ink')||'#0B0B0B').trim();
+      accC=(s.getPropertyValue('--accent')||'#2B27FF').trim();
+    }
+    function size(){
+      W=innerWidth; H=innerHeight;
+      cv.width=Math.round(W*dpr); cv.height=Math.round(H*dpr);
+      cv.style.width=W+'px'; cv.style.height=H+'px';
+      ctx.setTransform(dpr,0,0,dpr,0,0);
+    }
+
+    /* glyph targets, sized to the viewport and sampled finely so edges stay sharp */
+    function sampleName(){
+      var probe=document.createElement('canvas').getContext('2d'),fs=100;
+      var face='900 '+fs+'px "Outfit","Space Grotesk",-apple-system,sans-serif';
+      probe.font=face;
+      var wide=probe.measureText('Cheng En Hsieh').width;
+      fs=Math.min(fs*(W*0.42)/wide, H*0.12, 84);
+
+      var off=document.createElement('canvas'),o=off.getContext('2d');
+      var ow=Math.ceil(W),oh=Math.ceil(fs*1.7);
+      off.width=Math.round(ow*dpr); off.height=Math.round(oh*dpr);
+      o.setTransform(dpr,0,0,dpr,0,0);
+      o.font='900 '+fs+'px "Outfit","Space Grotesk",-apple-system,sans-serif';
+      o.textAlign='center'; o.textBaseline='middle'; o.fillStyle='#fff';
+      o.letterSpacing='-0.02em';
+      o.fillText('Cheng En Hsieh',ow/2,oh/2);
+
+      var d=o.getImageData(0,0,off.width,off.height).data,out=[];
+      var step=Math.max(2,Math.round(fs/58))*dpr;
+      for(var y=0;y<off.height;y+=step){
+        for(var x=0;x<off.width;x+=step){
+          if(d[((y*off.width)+x)*4+3]>150) out.push([x/dpr-ow/2,y/dpr-oh/2]);
+        }
+      }
+      return out;
+    }
+
+    function build(){
+      var targets=sampleName();
+      if(!targets.length) return false;
+      /* keep the pool in a range that stays at 60fps on a laptop */
+      var cap=Math.min(3400,Math.round(W*H/460));
+      if(targets.length>cap){
+        var keep=[],stride=targets.length/cap;
+        for(var i=0;i<cap;i++) keep.push(targets[Math.floor(i*stride)]);
+        targets=keep;
+      }
+      pts=targets.map(function(t,i){
+        var side=i%2?1:-1;                                   // half enter left, half right
+        var depth=Math.random();                              // 0 far … 1 near
+        var ang=Math.random()*Math.PI*2;
+        var rnd=Math.random;
+        /* Dispersal. Each dot leaves along the bearing it already sits on relative
+           to the middle of the word, so the outro reads as the name pushing apart
+           from itself. The y term is amplified because the word is wide and short —
+           taken raw, every bearing would point left or right and the whole thing
+           would slide sideways instead of opening out. A little jitter on the angle
+           and the distance keeps it from resolving into a clean ellipse. */
+        var keepOn=rnd()<0.40;                                // the ones that stay as dust
+        var bear=Math.atan2(t[1]*2.6,t[0])+(rnd()-0.5)*1.1;
+        var reach=(0.92+rnd()*0.9)*Math.max(W,H)*0.62;
+        /* Survivors land on an even scatter of the whole viewport instead of a
+           halo around where the word was, so the field reads as dust over the
+           entire page rather than as the ghost of the name. They still travel
+           outwards to get there, because the word sits in the middle and their
+           destinations are all around it. */
+        var ux=rnd()*W, uy=rnd()*H;
+        return {
+          /* start packed at the centre so the first beat reads as an expansion */
+          x:W/2+(rnd()-0.5)*W*0.07, y:H*0.44+(rnd()-0.5)*H*0.07,
+          vx:0, vy:0,
+          tx:t[0], ty:t[1],
+          /* offset from its own glyph position, not an address on screen */
+          dx:keepOn?(ux-t[0]-W/2):Math.cos(bear)*reach+(rnd()-0.5)*W*0.2,
+          dy:keepOn?(uy-t[1]-H*0.44):Math.sin(bear)*reach*0.66+(rnd()-0.5)*H*0.24,
+          side:side, depth:depth, lag:rnd()*0.55,
+          /* polar identity: own radius, own spin, own ellipse — so the ring
+             reads as a swarm with depth rather than one rigid shape */
+          rad:0.28+rnd()*0.95, spin:(0.55+rnd()*0.9)*(rnd()<0.5?-1:1),
+          ex:0.86+rnd()*0.42, ey:0.5+rnd()*0.45,
+          f1:0.18+rnd()*0.4,
+          p1:ang, p2:rnd()*6.283,
+          r:0.6+depth*1.5, seed:rnd()*6.283,
+          /* only about a fifth survive the dissolve, and faintly. Half of them
+             staying at readable brightness left the word legible in the
+             background instead of gone. */
+          keep:keepOn,
+          acc:rnd()<0.075                                     // a few accent-coloured motes
+        };
+      });
+      return true;
+    }
+
+    function easeInOut(p){ return p<0.5?4*p*p*p:1-Math.pow(-2*p+2,3)/2; }
+    function clamp01(v){ return v<0?0:v>1?1:v; }
+    /* eased interpolation across [time,value] stops */
+    function keyframe(t,stops){
+      if(t<=stops[0][0]) return stops[0][1];
+      for(var i=1;i<stops.length;i++){
+        if(t<=stops[i][0]){
+          var a=stops[i-1],b=stops[i];
+          return a[1]+(b[1]-a[1])*easeInOut((t-a[0])/(b[0]-a[0]));
+        }
+      }
+      return stops[stops.length-1][1];
+    }
+
+    function frame(now){
+      if(paused) return;
+      beat=now2();
+      if(!t0) t0=now;
+      var t=introOn?now-t0:P_OUT+1;
+      /* The intro runs full rate; once settled the field drifts a couple of
+         pixels a second and 30fps is already generous. Past the hero it stops
+         altogether — see the scroll handler. */
+      if(t>P_OUT){
+        if(now-lastDraw<32){ raf=requestAnimationFrame(frame); return; }
+        lastDraw=now;
+      }
+      var cx=W/2, cy=H*0.44, sec=(now-t0)/1000/SLOW;
+      ctx.clearRect(0,0,W,H);
+
+      /* phase weights — overlapping so nothing snaps. The wander is the default
+         goal, so particles that start off-screen stream in from left and right. */
+      var wText =easeInOut(clamp01((t-P_TEXT_A)/(P_TEXT_B-P_TEXT_A)))*(1-clamp01((t-P_HOLD)/(P_OUT-P_HOLD)));
+      var wField=easeInOut(clamp01((t-P_HOLD)/(P_OUT-P_HOLD)));
+      /* the wander releases faster than the text takes over, so the last stretch
+         of the convergence is unopposed and the glyph edges land clean */
+      var wRoam =Math.max(0,1-wText*1.3-wField);
+      var fadeIn=clamp01(t/500);
+      /* the two opening beats live in these two numbers */
+      var radK=keyframe(t,K_RAD), spinK=keyframe(t,K_SPIN);
+      var maxR=Math.max(W,H)*0.62;
+
+      for(var i=0;i<pts.length;i++){
+        var p=pts[i], gx, gy;
+
+        /* polar goal: expand, contract, then swirl. A slow sine on the radius
+           keeps individual particles from ever sitting still on the ring. */
+        var ang=p.p1+sec*p.spin*spinK;
+        var rad=maxR*p.rad*radK*(1+Math.sin(sec*p.f1+p.p2)*0.16);
+        var ox=cx+Math.cos(ang)*rad*p.ex;
+        var oy=cy+Math.sin(ang)*rad*p.ey;
+        var tX=cx+p.tx, tY=cy+p.ty;
+        var fX=tX+p.dx, fY=tY+p.dy;                            // straight out from where it stands
+
+        var sum=wRoam+wText+wField||1;
+        gx=(ox*wRoam+tX*wText+fX*wField)/sum;
+        gy=(oy*wRoam+tY*wText+fY*wField)/sum;
+
+        if(wField>0.6){                                        // barely-there drift once resting
+          gx+=Math.sin(sec*0.16+p.seed)*16*(0.4+p.depth);
+          gy+=Math.cos(sec*0.13+p.seed)*12*(0.4+p.depth);
+        }
+
+        /* over-damped on purpose: particles ease into place and stop, with no
+           overshoot or ringing — settling, not bouncing */
+        var k=0.020+0.075*wText+0.012*p.lag, damp=0.86-0.09*wText;
+        p.vx=(p.vx+(gx-p.x)*k)*damp;
+        p.vy=(p.vy+(gy-p.y)*k)*damp;
+
+        /* pointer: push away, and swell slightly when close */
+        var near=0;
+        if(mAct){
+          var dx=p.x-mx, dy=p.y-my, d2=dx*dx+dy*dy, R=190;
+          if(d2<R*R){
+            var d=Math.sqrt(d2)||1; near=(1-d/R)*(1-wText);   // stand down while the name holds
+            /* firmer once the intro is over: at rest the spring is slack and a
+               nudge barely showed, and the dust parting around the cursor is the
+               whole point of it being there */
+            var push=near*near*(1.5+2.2*wField)*(0.5+p.depth);
+            p.vx+=dx/d*push; p.vy+=dy/d*push;
+          }
+        }
+
+        p.x+=p.vx; p.y+=p.vy;
+
+        var a=(0.34+p.depth*0.42)*fadeIn;
+        a=a+(1-a)*wText;                                       // brightest as the name
+        /* the dissolve has to actually take the word away: what survives is faint
+           enough to read as dust, and the rest goes to nothing while it drifts */
+        a=a*(1-wField*0.76)+near*0.45;
+        if(!p.keep) a*=(1-wField)*(1-wField);                  // most of them fade right out
+
+        if(a<=0.012) continue;
+
+        /* snap to whole pixels so the squares stay hard-edged rather than blurring */
+        var r=Math.max(1,Math.round((p.r+near*2.2)*(0.85+0.55*wText)));
+        var px=Math.round(p.x),py=Math.round(p.y);
+        ctx.globalAlpha=a>1?1:a;
+        ctx.fillStyle=p.acc?accC:inkC;
+        ctx.fillRect(px,py,r,r);
+      }
+      ctx.globalAlpha=1;
+
+      if(introOn && t>=P_HOLD && !handed) handoff();
+      raf=requestAnimationFrame(frame);
+    }
+
+    function handoff(){
+      handed=true;
+      clearTimeout(revealGuard);
+      document.documentElement.classList.remove('intro-running');
+      document.documentElement.classList.add('intro-done');
+    }
+    /* where a particle ends up once the name has dispersed */
+    function restX(p){ return W/2+p.tx+p.dx; }
+    function restY(p){ return H*0.44+p.ty+p.dy; }
+    function skip(){
+      if(!introOn||handed) return;
+      /* leaving t0 at 0 made the next frame re-stamp it to now, which threw the
+         drift clock back to zero and jolted the whole field. Keep the clock. */
+      introOn=false; handoff();
+      for(var i=0;i<pts.length;i++){ pts[i].x=restX(pts[i]); pts[i].y=restY(pts[i]); pts[i].vx=pts[i].vy=0; }
+    }
+
+    window.addEventListener('pointermove',function(e){ mx=e.clientX; my=e.clientY; mAct=1; },{passive:true});
+    window.addEventListener('pointerleave',function(){ mAct=0; },{passive:true});
+    /* a bare flag read off scrollY — no layout, no getBoundingClientRect */
+    window.addEventListener('scroll',function(){
+      var away=(window.scrollY||window.pageYOffset)>innerHeight;
+      if(away===pastHero) return;
+      pastHero=away;
+      document.documentElement.classList.toggle('past-hero',away);
+      /* It used to stop dead here. It cannot any more: the dust is meant to be
+         felt on every section, and it has to get out of the way of the pointer
+         wherever the pointer is, so there is nothing to switch off. */
+    },{passive:true});
+    /* debounced: rebuilding samples the glyphs again, which is far too expensive
+       to run on every resize event while a window is being dragged */
+    var rzT=0;
+    window.addEventListener('resize',function(){
+      size();
+      clearTimeout(rzT);
+      rzT=setTimeout(function(){
+        build();
+        if(!introOn||handed) for(var i=0;i<pts.length;i++){ pts[i].x=restX(pts[i]); pts[i].y=restY(pts[i]); }
+      },220);
+    });
+    ['pointerdown','keydown','wheel','touchstart'].forEach(function(ev){
+      window.addEventListener(ev,skip,{once:true,passive:true});
+    });
+    new MutationObserver(theme).observe(document.documentElement,{attributes:true,attributeFilter:['data-theme']});
+
+    /* Stop drawing when nothing can see it. There are two independent reasons to
+       stop — a modal on top and the tab in the background — and one boolean let
+       whichever cleared first restart the loop while the other still applied, so
+       the field would run full tilt behind an open case study. */
+    var holds={modal:false,hidden:false},shrunk=false;
+    function held(){ return holds.modal||holds.hidden; }
+    function settle(){
+      if(held()){ if(!paused){ paused=true; cancelAnimationFrame(raf); } }
+      else if(paused){ paused=false; if(shrunk){ shrunk=false; size(); } lastDraw=0; beat=now2(); raf=requestAnimationFrame(frame); }
+    }
+    function hold(k,v){ if(holds[k]===v) return; holds[k]=v; settle(); }
+    window.__field={pause:function(){ hold('modal',true); },resume:function(){ hold('modal',false); }};
+
+    /* A hidden tab is the one moment we can give the memory back without anyone
+       seeing it. A full-viewport 2D canvas is a real allocation — tens of
+       megabytes at this size — and on a machine already swapping, the tab that
+       is holding one is the tab whose next allocation fails and takes the
+       renderer down with it. Zero the backing store while nobody is looking. */
+    document.addEventListener('visibilitychange',function(){
+      hold('hidden',document.hidden);
+      if(document.hidden && !shrunk){ shrunk=true; cv.width=cv.height=1; }
+    });
+
+    /* Watchdog. A requestAnimationFrame chain has no owner: if one link is ever
+       dropped — a tab Chrome froze and thawed, a lost GPU context, a frame that
+       threw — nothing restarts it, and the field stays frozen on screen for the
+       rest of the visit with no error to show for it. Check the pulse and pick it
+       back up. Cheap enough at half-hertz to be free. */
+    setInterval(function(){
+      if(held()||document.hidden||!beat) return;
+      if(now2()-beat>1600){ lastDraw=0; beat=now2(); cancelAnimationFrame(raf); raf=requestAnimationFrame(frame); }
+    },2000);
+
+    theme(); size();
+    if(!build()){ document.documentElement.classList.add('intro-done'); return; }
+    if(introOn) document.documentElement.classList.add('intro-running');
+    else document.documentElement.classList.add('intro-done');
+    cv.classList.add('on');
+    raf=requestAnimationFrame(frame);
+  }
+
+  /* Fail-safe: the hero copy is hidden until 'intro-done', so if fonts never
+     resolve or the canvas throws, the page would stay blank forever. This
+     guarantees the site appears regardless of what the intro does. */
+  var revealGuard=setTimeout(function(){
+    document.documentElement.classList.remove('intro-running');
+    document.documentElement.classList.add('intro-done');
+  },Math.max(5200,P_OUT+1500));
+
+  if(reduce){
+    clearTimeout(revealGuard);
+    document.documentElement.classList.add('intro-done');
+    var fc0=document.getElementById('fieldCanvas'); if(fc0) fc0.style.display='none';
+  } else {
+    var jump = !!(location.hash || /(\?|&)nointro/.test(location.search) || window.scrollY>10);
+    var boot=function(){
+      try{ particleField(jump); }
+      catch(err){
+        clearTimeout(revealGuard);
+        document.documentElement.classList.remove('intro-running');
+        document.documentElement.classList.add('intro-done');
+        var c=document.getElementById('fieldCanvas'); if(c) c.style.display='none';
+      }
+    };
+    /* don't wait on webfonts forever — race them against a short timeout */
+    if(document.fonts && document.fonts.ready){
+      var booted=false, once=function(){ if(!booted){ booted=true; boot(); } };
+      document.fonts.ready.then(once);
+      setTimeout(once,1200);
+    } else boot();
+  }
+
   /* back to top */
   var toTop=document.getElementById('toTop');
   toTop.addEventListener('click',function(){
@@ -1095,33 +1538,92 @@ a:focus-visible,button:focus-visible,.visual:focus-visible,.theme-btn:focus-visi
   var nav=document.querySelector('nav'),prog=document.querySelector('.progress');
   var secs=[].slice.call(document.querySelectorAll('section[id]'));
   var links=[].slice.call(document.querySelectorAll('.nav-link'));
+  /* Section tops and page height only change on resize or a reveal, but reading
+     them per scroll event forced a full layout of a nine-thousand-pixel document
+     on every frame of every scroll. Measure once, then just compare numbers. */
+  var secTops=[],pageH=0,active='';
+  function measure(){
+    var y=window.scrollY||window.pageYOffset;
+    secTops=secs.map(function(s){ return [s.id,s.getBoundingClientRect().top+y]; });
+    pageH=document.documentElement.scrollHeight-window.innerHeight;
+    cacheRv();
+  }
   function onScroll(){
     var y=window.scrollY||window.pageYOffset;
     nav.classList.toggle('scrolled',y>40);
     toTop.classList.toggle('show',y>window.innerHeight*0.8);
-    var h=document.documentElement.scrollHeight-window.innerHeight;
-    prog.style.width=(h>0?(y/h*100):0)+'%';
-    var cur=''; secs.forEach(function(s){ if(s.getBoundingClientRect().top<=120) cur=s.id; });
+    prog.style.width=(pageH>0?(y/pageH*100):0)+'%';
+    sweepRv();
+    var cur='';
+    for(var i=0;i<secTops.length;i++) if(secTops[i][1]-y<=120) cur=secTops[i][0];
+    if(cur===active) return;                               // nothing to write most frames
+    active=cur;
     links.forEach(function(l){ l.classList.toggle('active',l.getAttribute('href')==='#'+cur); });
   }
-  window.addEventListener('scroll',onScroll,{passive:true}); onScroll();
+  window.addEventListener('scroll',onScroll,{passive:true});
+  var meT=0;
+  function remeasure(){ clearTimeout(meT); meT=setTimeout(function(){ measure(); onScroll(); },200); }
+  window.addEventListener('resize',remeasure,{passive:true});
+  window.addEventListener('load',remeasure);              // late images shift everything below them
+  measure(); onScroll();
 
-  /* reveals */
+  /* ---------- reveals ----------
+     This was an IntersectionObserver keyed on isIntersecting, which quietly fails
+     the moment anyone arrives anywhere except the top. Jump to the footer, follow
+     a #contact link, or reload half way down, and every block you skipped goes
+     from "below the viewport" (ratio 0) to "above the viewport" (ratio 0) without
+     ever crossing the threshold — so no callback fires, and twenty of the
+     twenty-eight blocks on this page stay at opacity 0 for the rest of the visit.
+     Testing boundingClientRect in the callback does not help: the callback never
+     runs. Comparing cached offsets on scroll cannot miss, costs one number per
+     block, and reads no layout — the tops are measured once alongside the section
+     offsets and only again when something actually moves. */
   var rvs=[].slice.call(document.querySelectorAll('.rv'));
+  var pend=reduce?[]:rvs.slice(), rvTops=[];
+  if(reduce) rvs.forEach(function(el){ el.classList.add('in'); });
+  function cacheRv(){
+    if(!pend||!pend.length) return;                        // measure() runs before this block
+    var y=window.scrollY||window.pageYOffset;
+    rvTops=pend.map(function(el){ return el.getBoundingClientRect().top+y; });
+  }
+  function sweepRv(){
+    if(!pend||!pend.length||rvTops.length!==pend.length) return;
+    var line=(window.scrollY||window.pageYOffset)+window.innerHeight*0.92;
+    var keep=[],tops=[];
+    for(var i=0;i<pend.length;i++){
+      if(rvTops[i]<=line) pend[i].classList.add('in');
+      else { keep.push(pend[i]); tops.push(rvTops[i]); }
+    }
+    pend=keep; rvTops=tops;
+  }
+  cacheRv(); sweepRv();                                    // whatever is on screen right now
+
+  /* Case covers run only while they are on screen. Several of their loops animate
+     width and flex-grow, so all seven together were re-laying-out the whole
+     document sixty times a second for the entire visit — including while you sat
+     at the bottom of the page with every one of them scrolled away. A generous
+     margin means they are already moving by the time a cover is in view. */
+  var covers=[].slice.call(document.querySelectorAll('.cover'));
   if('IntersectionObserver' in window && !reduce){
-    var io=new IntersectionObserver(function(en){ en.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } }); },{threshold:.12,rootMargin:'0px 0px -8% 0px'});
-    rvs.forEach(function(el){ io.observe(el); });
-  } else rvs.forEach(function(el){ el.classList.add('in'); });
+    var io3=new IntersectionObserver(function(en){
+      en.forEach(function(e){ e.target.classList.toggle('live',e.isIntersecting); });
+    },{rootMargin:'220px 0px 220px 0px'});
+    covers.forEach(function(el){ io3.observe(el); });
+  } else covers.forEach(function(el){ el.classList.add('live'); });
 
 
   /* metric count-up */
   function countUp(el){
     var target=parseFloat(el.getAttribute('data-count')),suffix=el.getAttribute('data-suffix')||'';
     var sEl=el.querySelector('.s'),prefix=sEl?sEl.outerHTML:'',dur=1300,start=null;
-    var row=el.closest('.metric-row');
-    if(row&&!row.style.minWidth){
-      row.style.minWidth=row.getBoundingClientRect().width+'px';
-      setTimeout(function(){ row.style.minWidth=''; },dur+400);
+    /* Columns are sized to their widest line, so a number ticking up from 0 would
+       drag its own column wider as it counts and shove the rest of the row along
+       with it. The final value is still in the markup at this point: measure the
+       cell now, hold it for the duration, then let it go. */
+    var cell=el.closest('.metric');
+    if(cell&&!cell.style.minWidth){
+      cell.style.minWidth=Math.ceil(cell.getBoundingClientRect().width)+'px';
+      setTimeout(function(){ cell.style.minWidth=''; },dur+400);
     }
     function step(ts){ if(!start)start=ts; var p=Math.min((ts-start)/dur,1),ease=1-Math.pow(1-p,3);
       el.innerHTML=prefix+Math.round(target*ease)+suffix;
@@ -1178,10 +1680,19 @@ a:focus-visible,button:focus-visible,.visual:focus-visible,.theme-btn:focus-visi
     lbBody.scrollTop=0; lbMain.scrollTop=0;
 
     lb.classList.add('open');
+    if(window.__field) window.__field.pause();
     if(lenis) lenis.stop(); document.body.style.overflow='hidden';
     lbClose.focus();
   }
-  function closeLB(){ zoom.classList.remove('open'); lb.classList.remove('open'); if(lenis) lenis.start(); document.body.style.overflow=''; }
+  function closeLB(){
+    zoom.classList.remove('open'); lb.classList.remove('open');
+    if(window.__field) window.__field.resume();
+    if(lenis) lenis.start();
+    document.body.style.overflow='';
+    /* a cloned cover left in the panel keeps its animations running out of sight
+       until the next case is opened; drop it once the fade has finished */
+    setTimeout(function(){ if(!lb.classList.contains('open')){ lbMain.innerHTML=''; zoomImg.removeAttribute('src'); } },450);
+  }
   document.querySelectorAll('.visual[data-open]').forEach(function(v){
     v.addEventListener('click',function(){ openCase(v.closest('.case'),v); });
   });
@@ -1197,8 +1708,26 @@ a:focus-visible,button:focus-visible,.visual:focus-visible,.theme-btn:focus-visi
   /* ---------- cursor + view label ---------- */
   if(fine && !reduce){
     var dot=document.querySelector('.cur-dot'),ring=document.querySelector('.cur-ring'),lab=document.querySelector('.cur-label');
-    var mx=innerWidth/2,my=innerHeight/2,px=-1,py=-1;
-    window.addEventListener('mousemove',function(e){ mx=e.clientX; my=e.clientY; },{passive:true});
+    var mx=-200,my=-200,px=-1,py=-1,seen=false,armed=false;
+    /* This watches class on <html> and its callback writes class on <html>, which
+       is a loop: classList.add() runs the update steps and re-sets the attribute
+       even when the token is already there, so adding 'cursor-on' a second time
+       still queues another record. Observer callbacks are microtasks, so each one
+       queued the next and the queue never drained — the event loop stopped for
+       good on the first mouse move, taking the pointer, scrolling and every click
+       with it. It only ever bit desktop, because this whole block is behind
+       pointer:fine and a phone never sends a mousemove.
+       Do the work once, then stop listening. */
+    var obs;
+    function maybeShow(){
+      if(armed||!seen||document.documentElement.classList.contains('intro-running')) return;
+      armed=true;
+      if(obs) obs.disconnect();
+      document.documentElement.classList.add('cursor-on');
+    }
+    window.addEventListener('mousemove',function(e){ mx=e.clientX; my=e.clientY; seen=true; maybeShow(); },{passive:true});
+    obs=new MutationObserver(maybeShow);
+    obs.observe(document.documentElement,{attributes:true,attributeFilter:['class']});
     (function cursorLoop(){
       if(mx!==px||my!==py){
         px=mx; py=my;
