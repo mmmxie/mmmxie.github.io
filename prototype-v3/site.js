@@ -176,6 +176,7 @@
       setTimeout(function () { cell.style.minWidth = ''; }, dur + 400);
     }
     function step(ts) {
+      if (reduce || motionOff) { el.innerHTML = prefix + target + suffix; return; }   // motion stopped mid-count
       if (!start) start = ts;
       var p = Math.min((ts - start) / dur, 1), e = 1 - Math.pow(1 - p, 3);
       el.innerHTML = prefix + Math.round(target * e) + suffix;
@@ -434,6 +435,7 @@
       bar.style.transform = 'scaleX(' + Math.min(1, t / (T.brk + T.brkDur)).toFixed(3) + ')';
       if (t >= T.reveal) { intro.classList.add('leaving'); reveal(); }
     }
+    if (skipped) return;   // skip() owns the ending now, after its fade
     if (state.done || t > T.brk + T.brkDur + 0.3) { finish(); return; }
     requestAnimationFrame(tick);
   }

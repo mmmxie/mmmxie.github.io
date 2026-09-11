@@ -413,7 +413,7 @@ export function createUniverse(opts) {
 
     /* entrance clock */
     let it = -1, intr = null, tilt, cam;
-    const introPhase = intro && !introDone && intro.t0 != null;
+    let introPhase = intro && !introDone && intro.t0 != null;
     const Tl = intro ? intro.T : null;
     if (introPhase) {
       it = (now - intro.t0) / 1000;
@@ -428,7 +428,7 @@ export function createUniverse(opts) {
     curSpin = intr ? spinI : spin;
     frameTrig();
     // lost the glyphs (font never resolved, zero-size name): skip rather than break on nothing
-    if (introPhase && it >= Tl.brk - 0.05 && !glyph && skipT < 0) freezeAndEase(now);
+    if (introPhase && it >= Tl.brk - 0.05 && !glyph && skipT < 0) { freezeAndEase(now); introPhase = !introDone; }
 
     const par = scrollY0 / Math.max(1, H);
     const target = sectionScene();
@@ -485,7 +485,7 @@ export function createUniverse(opts) {
         s = tmp.s + ((P.tile[i] ? tileCSS * 0.8 : 1.4) - tmp.s) * nmv;
         a = (tmp.a * galA) + (0.95 - tmp.a * galA) * nmv;
         a *= 1 - dotsOut;
-      } else if (introPhase && skipK < 0) {
+      } else if (introPhase && skipK < 0 && glyph) {
         // the letters break away: tiles first carry the glyph itself, then become dust
         cloudAt(i, cam, cTb, sTb, cY, sY, f, null);
         const rel = easeInOut(clamp01((brkProgress - P.delay[i]) / (1 - P.delay[i])));
@@ -630,7 +630,7 @@ export function createUniverse(opts) {
 
   function frame(now) {
     frameId = 0;
-    if (disposed || paused || hidden) return;
+    if (disposed || paused || hidden || (gl && !R)) return;   // (gl && !R): context lost, wait for restore
     const t0 = performance.now();
     if (intro && !introDone && intro.t0 == null) {
       if (gl) { gl.clearColor(0, 0, 0, 0); gl.clear(gl.COLOR_BUFFER_BIT); }
@@ -651,7 +651,8 @@ export function createUniverse(opts) {
       // the display's period: 10th percentile of the last 240 intervals. One stray
       // short frame can't pin it low, and a device capped at 30 fps reads as 30 fps;
       // sustained overload trips degrade() long before the window fills with slow frames
-      if (iv > 4 && iv < 60) { ring[ringI++ % 240] = iv; if (ringI % 60 === 0) { const sorted = ring.slice(0, Math.min(ringI, 240)).sort((a, b) => a - b); refresh = sorted[Math.floor(sorted.length * 0.1)]; } }
+      // only frames that keep up may teach us the period; slow frames never do
+      if (iv > 4 && iv < 60 && !(ivEMA > refresh * 1.45)) { ring[ringI++ % 240] = iv; if (ringI % 60 === 0) { const sorted = ring.slice(0, Math.min(ringI, 240)).sort((a, b) => a - b); refresh = sorted[Math.floor(sorted.length * 0.1)]; } }
       ivEMA = ivEMA ? ivEMA * 0.94 + Math.min(iv, 100) * 0.06 : iv;
     }
     lastNow = now;
