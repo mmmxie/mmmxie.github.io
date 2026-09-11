@@ -527,7 +527,13 @@ html.still .route-legs .leg:first-child{opacity:1}
 html.still .universe{opacity:.6}
 @media (prefers-reduced-motion:reduce){
   html{scroll-behavior:auto}
-  *,*::before,*::after{transition-duration:.001ms!important;transition-delay:0s!important}
+  *,*::before,*::after{animation:none!important;transition-duration:.001ms!important;transition-delay:0s!important}
+  /* the same first frames as html.still, repeated here so they hold without JavaScript */
+  .scene{opacity:0}.scene:first-child{opacity:1}
+  .rail-fill{transform:none}.rail .st{opacity:1;color:var(--ink-2)}
+  .capbar span,.lines i{clip-path:none}
+  .tlstrip .head,.route-plane{display:none}
+  .route-legs .leg:first-child{opacity:1}
   .rv,.sec-title,.sec-title>span{opacity:1!important;transform:none!important;clip-path:none!important}
   .sec-head::before{transform:none}
   html.js .tl-row{opacity:1}

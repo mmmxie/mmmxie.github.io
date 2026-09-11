@@ -17,6 +17,11 @@
   function $$(s, r) { return [].slice.call((r || d).querySelectorAll(s)); }
   function afterFirstFrame(fn) { requestAnimationFrame(function () { setTimeout(fn, 0); }); }
   var motionOff = h.classList.contains('motion-off');
+  /* The head failsafe gave up on us (slow network) and showed the plain page.
+     Rejoin the enhanced page in one step: everything already on show stays on
+     show, and the entrance does not start late. */
+  var rejoined = h.classList.contains('no-js');
+  if (rejoined) { h.classList.remove('no-js'); h.classList.add('js'); }
   var universe = null;
 
   /* ---------- smooth scroll (desktop only; phones keep native momentum) ---------- */
@@ -34,7 +39,9 @@
   }
   function startLenis() {
     if (lenis || reduce || coarse || motionOff || !window.Lenis) return;
-    var own = lenis = new Lenis({ lerp: 0.1, smoothWheel: true });
+    var own;
+    try { own = lenis = new Lenis({ lerp: 0.1, smoothWheel: true }); } catch (e) { lenis = null; return; }
+    if (lbOpen) own.stop();   // arrived while a dialog is up
     (function raf(t) { if (lenis !== own) return; own.raf(t); requestAnimationFrame(raf); })(performance.now());
   }
   function stopLenis() { if (!lenis) return; var l = lenis; lenis = null; l.destroy(); }
@@ -72,8 +79,8 @@
   var links = $$('.nav-link');
   var formMap = { ring: 1, lattice: 2, line: 3, cluster: 4, logo: 5 };
   var secTops = [], pageH = 0, active = '', pastHero = false;
-  var rvs = $$('.rv'), pend = reduce ? [] : rvs.slice(), rvTops = [];
-  if (reduce) rvs.forEach(function (el) { el.classList.add('in'); });
+  var rvs = $$('.rv'), pend = reduce || rejoined ? [] : rvs.slice(), rvTops = [];
+  if (reduce || rejoined) rvs.forEach(function (el) { el.classList.add('in'); });
   var visuals = $$('.case .visual'), visTops = [];
   var rows = $$('.tl-row'), rowTops = [], rowNow = null;
   var geo = null;
@@ -145,7 +152,7 @@
   // page's first layout into this script task and hold back the first paint.
   afterFirstFrame(function () {
     measure(); onScroll();
-    if (d.fonts && d.fonts.ready) d.fonts.ready.then(remeasure);
+    if (d.fonts && d.fonts.ready) d.fonts.ready.then(function () { remeasure(); if (universe && !finished && state.t0 != null) universe.fontsChanged(); });
     if ('ResizeObserver' in window) { var ro = new ResizeObserver(remeasure); ro.observe(d.body); }
   });
   on(toTop, 'click', function () { if (lenis) lenis.scrollTo(0); else window.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' }); });
@@ -159,6 +166,7 @@
 
   /* ---------- metric count-up ---------- */
   function countUp(el) {
+    if (reduce || motionOff) return;   // the final figure is already in the markup
     var target = parseFloat(el.getAttribute('data-count')), suffix = el.getAttribute('data-suffix') || '';
     var sEl = el.querySelector('.s'), prefix = sEl ? sEl.outerHTML : '', dur = 1300, start = null;
     // hold the cell at its final width so the row doesn't shuffle while it counts
@@ -279,7 +287,7 @@
   }, { passive: false });
 
   /* ---------- pointer details: cursor ring, metal highlight ---------- */
-  if (fine && !reduce) {
+  if (fine) {
     var ring = $('.cur-ring'), lab = $('.cur-label');
     var cx = -100, cy = -100, rx = -100, ry = -100, moving = 0, lastT = 0;
     function loop(t) {
@@ -289,6 +297,7 @@
       if (Math.abs(cx - rx) + Math.abs(cy - ry) > 0.3) moving = requestAnimationFrame(loop); else { moving = 0; lastT = 0; }
     }
     on(window, 'mousemove', function (e) {
+      if (reduce || motionOff) return;
       cx = e.clientX; cy = e.clientY;
       if (!h.classList.contains('cursor-on') && !h.classList.contains('intro-on')) { rx = cx; ry = cy; h.classList.add('cursor-on'); }
       if (!moving) moving = requestAnimationFrame(loop);
@@ -340,7 +349,7 @@
     // SMIL isn't touched by CSS animation rules: pause the flight path explicitly
     $$('.route-map').forEach(function (svg) { try { if (still) svg.pauseAnimations(); else svg.unpauseAnimations(); } catch (e) { /* no SMIL */ } });
     if (universe) universe.setStill(still);
-    if (still) { stopLenis(); visuals.forEach(function (v) { v.style.removeProperty('--py'); }); }
+    if (still) { stopLenis(); h.classList.remove('cursor-on'); visuals.forEach(function (v) { v.style.removeProperty('--py'); }); }
     else loadLenis();
   }
   on(motionBtn, 'click', function () {
@@ -482,7 +491,7 @@
       });
       if (geo) universe.setSections(geo.list, geo.mark, geo.axis);
       if (reduce || motionOff) universe.setStill(true);
-      if (lbOpen || d.hidden) universe.setPaused(true);
+      if (lbOpen) universe.setPaused(true);
       universe.start();
       if (new URLSearchParams(location.search).has('debug')) { window.__universe = universe; window.__intro = state; }
     }).catch(function (err) {

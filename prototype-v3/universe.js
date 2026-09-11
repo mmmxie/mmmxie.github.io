@@ -57,7 +57,8 @@ export function createUniverse(opts) {
       nx: f(), ny: f(), delay: f(), tu: f(), tv: f(), tile: new Uint8Array(n),
       lx: f(), ly: f(),
       // precomputed rotation pairs: the per-frame cloud needs no sin/cos at all
-      cb: f(), sb: f(), cp: f(), sp: f(), cq: f(), sq: f()
+      cb: f(), sb: f(), cp: f(), sp: f(), cq: f(), sq: f(),
+      ux: f(), uy: f(), uz: f()        // a fixed point on the unit sphere (work scene)
     };
     X = f(); Y = f(); S = f(); A = f(); M = f(); L = f();
     OX = f(); OY = f(); VX = f(); VY = f();
@@ -88,6 +89,8 @@ export function createUniverse(opts) {
       P.cb[i] = Math.cos(b0); P.sb[i] = Math.sin(b0);
       P.cp[i] = Math.cos(ph0); P.sp[i] = Math.sin(ph0);
       P.cq[i] = Math.cos(ph0 * 1.3); P.sq[i] = Math.sin(ph0 * 1.3);
+      const un = P.seed[i] * 2 - 1, ut = P.r2[i] * TAU, ur = Math.sqrt(1 - un * un);
+      P.ux[i] = ur * Math.cos(ut); P.uy[i] = un; P.uz[i] = ur * Math.sin(ut);
     }
   }
 
@@ -277,7 +280,8 @@ export function createUniverse(opts) {
   function size() {
     W = innerWidth; H = innerHeight;
     // cap the backing store: a 5K screen at DPR 2 would otherwise ask for two ~60 MB surfaces
-    dpr = Math.min(devicePixelRatio || 1, cfg.dpr, Math.sqrt(5.2e6 / Math.max(1, W * H)));
+    const surfaces = front && cfg.front ? 2 : 1;
+    dpr = Math.min(devicePixelRatio || 1, cfg.dpr, Math.sqrt(5.2e6 / surfaces / Math.max(1, W * H)));
     for (const c of [back, front]) {
       if (!c) continue;
       c.width = Math.round(W * dpr); c.height = Math.round(H * dpr);
@@ -287,7 +291,7 @@ export function createUniverse(opts) {
   /* ---------- state ---------- */
   let spin = 0, spinI = 0, curSpin = 0, sceneS = 0, sceneTarget = 0, scrollY0 = 0;
   let time = 0, last = 0, frameId = 0, paused = false, hidden = document.hidden, still = false, disposed = false;
-  let formOn = false, frameCost = 0, slow = 0, drawN = 0, lastNow = 0, ivEMA = 0, refresh = 16.7;
+  let draws = 0, formOn = false, frameCost = 0, slow = 0, drawN = 0, lastNow = 0, ivEMA = 0, refresh = 40;
   const ptr = { x: -1e4, y: -1e4, tx: -1e4, ty: -1e4, energy: 0, has: false };
   let brkProgress = 0, brkSkipAt = -1, brkSkipProg = 0, skipT = -1, introDone = !intro;
 
@@ -305,8 +309,9 @@ export function createUniverse(opts) {
   /* project the cloud position of particle i; writes into tmp */
   const tmp = { x: 0, y: 0, s: 0, a: 0, z: 0 };
   // per-frame trig, shared by every particle (angle-sum identities do the rest)
-  const T0 = { cs: 1, ss: 0, a1: 0, b1: 1, a2: 0, b2: 1, a3: 1, b3: 0 };
+  const T0 = { cs: 1, ss: 0, a1: 0, b1: 1, a2: 0, b2: 1, a3: 1, b3: 0, sc: 1, ss2: 0 };
   function frameTrig() {
+    T0.sc = Math.cos(time * 0.12); T0.ss2 = Math.sin(time * 0.12);
     T0.cs = Math.cos(curSpin); T0.ss = Math.sin(curSpin);
     T0.a1 = Math.sin(time * 0.11); T0.b1 = Math.cos(time * 0.11);
     T0.a2 = Math.sin(time * 0.7); T0.b2 = Math.cos(time * 0.7);
@@ -353,13 +358,9 @@ export function createUniverse(opts) {
         return;
       }
       case 2: { // work: a slowly turning sphere of data points
-        const n = sd * 2 - 1, th = r2 * TAU;           // uniform on the sphere
-        const rr = Math.sqrt(1 - n * n);
-        let px = rr * Math.cos(th), py = n, pz = rr * Math.sin(th);
-        const ya = time * 0.12, c = Math.cos(ya), s_ = Math.sin(ya);
-        const qx = px * c + pz * s_, qz = -px * s_ + pz * c;
-        const tl = 0.42, ct = Math.cos(tl), st = Math.sin(tl);
-        const qy = py * ct - qz * st, qz2 = py * st + qz * ct;
+        const px = P.ux[i], py = P.uy[i], pz = P.uz[i];
+        const qx = px * T0.sc + pz * T0.ss2, qz = -px * T0.ss2 + pz * T0.sc;
+        const qy = py * 0.9131 - qz * 0.4078, qz2 = py * 0.4078 + qz * 0.9131;   // fixed 0.42 rad tilt
         const R0 = Math.min(W * (wide ? 0.15 : 0.32), H * 0.28) * (r3 < 0.12 ? 1.35 : 1);
         const persp = 1 / (1 + qz2 * 0.35);
         tmp.x = (wide ? W * 0.76 : W * 0.5) + qx * R0 * persp;
@@ -633,6 +634,7 @@ export function createUniverse(opts) {
       frameId = requestAnimationFrame(frame); return;
     }
     step(now);
+    draws++;
     if (gl && R) {
       const d = pack();
       drawGL(gl, R, 0, d);
@@ -643,7 +645,8 @@ export function createUniverse(opts) {
     frameCost = frameCost * 0.95 + (performance.now() - t0) * 0.05;
     if (lastNow) {
       const iv = now - lastNow;
-      if (iv > 0 && iv < 40) refresh = Math.min(refresh * 1.002, iv);   // slowly relearn the refresh period
+      // the display's period is the fastest interval we see; sustained slow frames never relax it
+      if (iv > 4 && iv < 40) refresh = Math.min(refresh, iv);
       ivEMA = ivEMA ? ivEMA * 0.94 + Math.min(iv, 100) * 0.06 : iv;
     }
     lastNow = now;
@@ -658,6 +661,7 @@ export function createUniverse(opts) {
     if (cfg.dpr > 1) { cfg = { ...cfg, dpr: 1 }; size(); }
   }
   function run() {
+    if (gl && !R) return;              // context lost: wait for restore
     if (!frameId && !disposed && !paused && !hidden) { last = 0; lastNow = 0; ivEMA = 0; frameId = requestAnimationFrame(frame); }
   }
 
@@ -687,7 +691,7 @@ export function createUniverse(opts) {
     if (cfg.forms) (window.requestIdleCallback || setTimeout)(() => { if (!disposed) sampleLogo(); });
   }
 
-  listen(back, 'webglcontextlost', e => { e.preventDefault(); cancelAnimationFrame(frameId); frameId = 0; R = null; if (intro && !introDone) api.finishNow(); onRenderer && onRenderer('lost'); }, { passive: false });
+  listen(back, 'webglcontextlost', e => { e.preventDefault(); cancelAnimationFrame(frameId); frameId = 0; R = null; if (intro && !introDone) api.finishNow(); if (formOn) { formOn = false; onForm && onForm(false); } onRenderer && onRenderer('lost'); }, { passive: false });
   listen(back, 'webglcontextrestored', () => { try { R = buildGL(gl); uploadStatic(gl, R); R.glyphStamp = -1; onRenderer && onRenderer('webgl'); run(); } catch (e) { destroy(); onRenderer && onRenderer('none'); } });
   if (front) {
     listen(front, 'webglcontextlost', e => { e.preventDefault(); RF = null; }, { passive: false });
@@ -708,7 +712,7 @@ export function createUniverse(opts) {
     rzT = setTimeout(() => {
       if (disposed) return;
       // phones resize on every address-bar move; ignore small height-only changes
-      if (innerWidth === lastW && Math.abs(innerHeight - lastH) < 160 && matchMedia('(pointer: coarse)').matches) return;
+      if (introDone && innerWidth === lastW && Math.abs(innerHeight - lastH) < 160 && matchMedia('(pointer: coarse)').matches) return;
       lastW = innerWidth; lastH = innerHeight;
       size();
       if (intro && !introDone && intro.t0 != null) {
@@ -734,6 +738,10 @@ export function createUniverse(opts) {
     get renderer() { return gl ? 'webgl' : ctx2d ? '2d' : 'none'; },
     get tilesReady() { return !!glyph && (!!R || !!ctx2d); },
     rasterName,
+    fontsChanged() {
+      if (!intro || introDone || intro.t0 == null || !glyph) return;
+      if ((performance.now() - intro.t0) / 1000 < intro.T.brk) rasterName();
+    },
     /* the entrance has been skipped: freeze where everything is and ease it home */
     skip(now = performance.now()) {
       if (introDone || !intro || intro.t0 == null) return;
@@ -749,7 +757,7 @@ export function createUniverse(opts) {
     setStill(v) { still = v; if (!v) run(); else if (!frameId) frame(performance.now()); },
     start() { run(); },
     destroy,
-    inspect() { return { N, drawN, T, tileCSS, dpr, renderer: api.renderer, introDone, sceneS, sceneTarget, frameCost: +frameCost.toFixed(2), front: !!RF, formOn, paused, still, glyphX: glyph ? glyph.ox : null, glyphY: glyph ? glyph.oy : null }; }
+    inspect() { return { N, drawN, T, tileCSS, dpr, renderer: api.renderer, introDone, sceneS, sceneTarget, frameCost: +frameCost.toFixed(2), front: !!RF, formOn, paused, still, draws, glyphX: glyph ? glyph.ox : null, glyphY: glyph ? glyph.oy : null, glyphW: glyph ? glyph.gw : null }; }
   };
   onRenderer && onRenderer(api.renderer);
   return api;
