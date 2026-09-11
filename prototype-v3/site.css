@@ -116,7 +116,7 @@ html.intro-on .intro{display:grid}
 .ql{display:block;font-family:var(--f-display);font-weight:400;font-size:clamp(1.05rem,2.3vw,2.1rem);line-height:1.34;letter-spacing:-.012em;color:var(--ink);text-wrap:balance}
 .ql-2{margin-top:.35em;color:var(--ink-2);font-size:clamp(.92rem,1.7vw,1.5rem)}
 .ql-v .c{color:transparent;transition:color .12s linear}
-.ql-v .c.on{color:inherit}
+.ql-v .c.on{color:inherit;text-shadow:0 0 18px rgba(7,8,10,.95),0 0 4px rgba(7,8,10,.9)}
 .intro-id{position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);text-align:center;pointer-events:none}
 .intro-name{display:inline-block;font-family:var(--f-display);font-weight:600;font-size:clamp(26px,5vw,72px);line-height:1.2;letter-spacing:.04em;white-space:nowrap;color:var(--ink);opacity:0}
 .intro-name.gone{color:transparent}
