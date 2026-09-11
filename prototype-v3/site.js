@@ -7,7 +7,8 @@
   'use strict';
   var d = document, h = d.documentElement;
   var SELF = d.currentScript && d.currentScript.src;
-  var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var mqReduce = matchMedia('(prefers-reduced-motion: reduce)');
+  var reduce = mqReduce.matches;
   var fine = matchMedia('(pointer: fine)').matches;
   var coarse = matchMedia('(pointer: coarse)').matches;
   var ac = new AbortController();
@@ -19,13 +20,24 @@
 
   /* ---------- smooth scroll (desktop only; phones keep native momentum) ---------- */
   var lenis = null;
+  var LENIS = { src: 'https://cdn.jsdelivr.net/npm/lenis@1.1.14/dist/lenis.min.js', sri: 'sha384-O55L/6rhHr9CFvrxqv5luxOCcmVaBmETbZbJDP+Do8T0pztTACsFBD/IXCNkj7DV' };
+  /* loaded here, after the page works, so a slow or failed CDN can't hold anything up */
+  function loadLenis() {
+    if (reduce || coarse || motionOff) return;
+    if (window.Lenis) return startLenis();
+    if (d.getElementById('lenisJs')) return;
+    var sc = d.createElement('script');
+    sc.id = 'lenisJs'; sc.src = LENIS.src; sc.integrity = LENIS.sri; sc.crossOrigin = 'anonymous'; sc.async = true;
+    sc.onload = startLenis;
+    d.head.appendChild(sc);
+  }
   function startLenis() {
     if (lenis || reduce || coarse || motionOff || !window.Lenis) return;
     var own = lenis = new Lenis({ lerp: 0.1, smoothWheel: true });
     (function raf(t) { if (lenis !== own) return; own.raf(t); requestAnimationFrame(raf); })(performance.now());
   }
   function stopLenis() { if (!lenis) return; var l = lenis; lenis = null; l.destroy(); }
-  startLenis();
+  loadLenis();
   function scrollToEl(el) {
     if (lenis) lenis.scrollTo(el, { offset: -10 });
     else el.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth' });
@@ -62,6 +74,7 @@
   var rvs = $$('.rv'), pend = reduce ? [] : rvs.slice(), rvTops = [];
   if (reduce) rvs.forEach(function (el) { el.classList.add('in'); });
   var visuals = $$('.case .visual'), visTops = [];
+  var rows = $$('.tl-row'), rowTops = [], rowNow = null;
   var geo = null;
 
   function measure() {
@@ -72,6 +85,7 @@
     visTops = visuals.map(function (v) { var r = v.getBoundingClientRect(); return [r.top + y - (parseFloat(v.style.getPropertyValue('--py')) || 0), r.height]; });
     var list = [{ top: 0, scene: 0 }];
     $$('main [data-form]').forEach(function (s) { list.push({ top: s.getBoundingClientRect().top + y, scene: formMap[s.getAttribute('data-form')] || 0 }); });
+    rowTops = rows.map(function (r) { var b = r.getBoundingClientRect(); return [b.top + y, b.height]; });
     var m = $('#contactMark').getBoundingClientRect(), ax = $('#xpLine').getBoundingClientRect();
     geo = { list: list, mark: { x: m.left, top: m.top + y, w: m.width, h: m.height }, axis: ax.left + ax.width / 2 };
     if (universe) universe.setSections(geo.list, geo.mark, geo.axis);
@@ -84,9 +98,8 @@
     }
     pend = keep; rvTops = tops;
   }
-  var parallaxOn = fine && !reduce;
   function parallax(y) {
-    if (!parallaxOn || motionOff) return;
+    if (!fine || reduce || motionOff) return;
     var vh = innerHeight;
     for (var i = 0; i < visuals.length; i++) {
       var t = visTops[i]; if (!t) continue;
@@ -108,6 +121,11 @@
       if (away !== pastHero) { pastHero = away; h.classList.toggle('past-hero', away); }
       sweepRv(y);
       parallax(y);
+      // the row whose box spans the viewport centre is the one under the star
+      var c = y + innerHeight / 2, hit = null;
+      for (var j = 0; j < rowTops.length; j++) if (c >= rowTops[j][0] && c < rowTops[j][0] + rowTops[j][1]) hit = rows[j];
+      if (!hit && rowTops.length) hit = c < rowTops[0][0] ? rows[0] : c >= rowTops[rowTops.length - 1][0] ? rows[rows.length - 1] : rowNow;
+      if (hit && hit !== rowNow) setRow(hit);
       var cur = '';
       for (var i = 0; i < secTops.length; i++) if (secTops[i][1] - y <= innerHeight * 0.4) cur = secTops[i][0];
       if (cur !== active) {
@@ -157,27 +175,25 @@
   }
 
   /* ---------- experience: the row crossing the star lights up ---------- */
-  var rows = $$('.tl-row'), xpNow = $('#xpNow'), star = $('.xp-star'), flip = false;
+  var xpNow = $('#xpNow'), star = $('.xp-star'), flip = false;
   function setRow(r) {
+    rowNow = r;
     rows.forEach(function (x) { x.classList.toggle('active', x === r); });
     var i = rows.indexOf(r) + 1;
     if (xpNow) xpNow.textContent = (i < 10 ? '0' : '') + i;
     flip = !flip; if (star) star.classList.toggle('spin', flip);
   }
-  if ('IntersectionObserver' in window && !reduce) {
-    var io4 = new IntersectionObserver(function (en) { en.forEach(function (e) { if (e.isIntersecting) setRow(e.target); }); }, { rootMargin: '-50% 0px -50% 0px' });
-    rows.forEach(function (r) { io4.observe(r); });
-    setRow(rows[0]);
-  } else rows.forEach(function (r) { r.classList.add('active'); });
+  if (!rowNow) setRow(rows[0]);
 
   /* ---------- lightbox ---------- */
   var lb = $('#lb'), lbMain = $('#lbMain'), lbThumbs = $('#lbThumbs'), lbBody = $('#lbBody'), lbClose = $('#lbClose'), lbHint = $('#lbHint');
   var zoom = $('#zoom'), zoomImg = $('#zoomImg'), zoomClose = $('#zoomClose');
-  var main = $('main'), opener = null, lbT = 0;
+  var main = $('main'), opener = null, zoomOpener = null, lbOpen = false, zoomOpen = false;
+  // open/closed is state; the fade is only the picture of it
   function show(el) { el.hidden = false; void el.offsetWidth; el.classList.add('open'); }
   function hide(el, after) { el.classList.remove('open'); setTimeout(function () { if (!el.classList.contains('open')) { el.hidden = true; after && after(); } }, 420); }
-  function openZoom(src, alt) { zoomImg.src = src; zoomImg.alt = alt || ''; show(zoom); zoomClose.focus(); }
-  function closeZoom() { hide(zoom, function () { zoomImg.removeAttribute('src'); }); lbClose.focus(); }
+  function openZoom(src, alt, from) { zoomOpener = from || null; zoomImg.src = src; zoomImg.alt = alt || ''; zoomOpen = true; show(zoom); zoomClose.focus(); }
+  function closeZoom() { if (!zoomOpen) return; zoomOpen = false; hide(zoom, function () { zoomImg.removeAttribute('src'); }); (zoomOpener || lbClose).focus(); }
   on(zoom, 'click', function (e) { if (e.target !== zoomImg) closeZoom(); });
   on(zoomClose, 'click', closeZoom);
   on(zoomImg, 'click', closeZoom);
@@ -191,9 +207,10 @@
     lbMain.innerHTML = ''; lbThumbs.innerHTML = ''; lbThumbs.hidden = true; lbHint.hidden = true;
     var imgs = media ? $$('img', media) : [];
     if (imgs.length) {
-      var big = d.createElement('img'); big.src = imgs[0].getAttribute('src'); big.alt = imgs[0].alt; lbMain.appendChild(big);
+      var zb = d.createElement('button'); zb.type = 'button'; zb.className = 'lb-zoom'; zb.setAttribute('aria-label', 'Enlarge image');
+      var big = d.createElement('img'); big.src = imgs[0].getAttribute('src'); big.alt = imgs[0].alt; zb.appendChild(big); lbMain.appendChild(zb);
       lbHint.hidden = false;
-      big.addEventListener('click', function () { openZoom(big.src, big.alt); });
+      zb.addEventListener('click', function () { openZoom(big.src, big.alt, zb); });
       if (imgs.length > 1) {
         lbThumbs.hidden = false;
         imgs.forEach(function (im, i) {
@@ -218,7 +235,7 @@
     if (sub) lbBody.querySelector('.lb-sub').textContent = sub.textContent;
     lb.setAttribute('aria-label', title);
     lbBody.scrollTop = 0; lbMain.scrollTop = 0;
-    clearTimeout(lbT);
+    lbOpen = true;
     show(lb);
     main.inert = true; nav.inert = true;
     if (universe) universe.setPaused(true);
@@ -227,8 +244,9 @@
     lbClose.focus();
   }
   function closeLB() {
-    if (lb.hidden) return;
-    if (!zoom.hidden) { zoom.classList.remove('open'); zoom.hidden = true; }
+    if (!lbOpen) return;
+    lbOpen = false;
+    if (zoomOpen || !zoom.hidden) { zoomOpen = false; zoom.classList.remove('open'); zoom.hidden = true; }
     hide(lb, function () { lbMain.innerHTML = ''; zoomImg.removeAttribute('src'); });
     main.inert = false; nav.inert = false;
     if (universe) universe.setPaused(false);
@@ -241,11 +259,11 @@
   on(lb, 'click', function (e) { if (e.target === lb) closeLB(); });
   on(d, 'keydown', function (e) {
     if (e.key === 'Escape') {
-      if (!zoom.hidden) closeZoom(); else if (!lb.hidden) closeLB(); else closeMenu();
+      if (zoomOpen) closeZoom(); else if (lbOpen) closeLB(); else closeMenu();
       return;
     }
     if (e.key !== 'Tab') return;
-    var box = !zoom.hidden ? zoom : !lb.hidden ? lb : null;
+    var box = zoomOpen ? zoom : lbOpen ? lb : null;
     if (!box) return;
     var f = $$('button,[href],[tabindex]:not([tabindex="-1"])', box).filter(function (x) { return !x.hidden && x.offsetParent !== null; });
     if (!f.length) return;
@@ -257,11 +275,12 @@
   /* ---------- pointer details: cursor ring, metal highlight ---------- */
   if (fine && !reduce) {
     var ring = $('.cur-ring'), lab = $('.cur-label');
-    var cx = -100, cy = -100, rx = -100, ry = -100, moving = 0;
-    function loop() {
-      rx += (cx - rx) * 0.22; ry += (cy - ry) * 0.22;
+    var cx = -100, cy = -100, rx = -100, ry = -100, moving = 0, lastT = 0;
+    function loop(t) {
+      var k = 1 - Math.exp(-Math.min(0.05, lastT ? (t - lastT) / 1000 : 1 / 60) * 15); lastT = t;
+      rx += (cx - rx) * k; ry += (cy - ry) * k;
       ring.style.transform = 'translate3d(' + rx.toFixed(1) + 'px,' + ry.toFixed(1) + 'px,0)';
-      if (Math.abs(cx - rx) + Math.abs(cy - ry) > 0.3) moving = requestAnimationFrame(loop); else moving = 0;
+      if (Math.abs(cx - rx) + Math.abs(cy - ry) > 0.3) moving = requestAnimationFrame(loop); else { moving = 0; lastT = 0; }
     }
     on(window, 'mousemove', function (e) {
       cx = e.clientX; cy = e.clientY;
@@ -308,14 +327,27 @@
   var motionBtn = $('#motionBtn');
   function paintMotion() { motionBtn.textContent = motionOff ? 'Resume motion' : 'Pause motion'; motionBtn.setAttribute('aria-pressed', String(motionOff)); }
   paintMotion();
+  function applyStill() {
+    var still = reduce || motionOff;
+    h.classList.toggle('still', still);
+    h.classList.toggle('motion-off', motionOff);
+    // SMIL isn't touched by CSS animation rules: pause the flight path explicitly
+    $$('.route-map').forEach(function (svg) { try { if (still) svg.pauseAnimations(); else svg.unpauseAnimations(); } catch (e) { /* no SMIL */ } });
+    if (universe) universe.setStill(still);
+    if (still) { stopLenis(); visuals.forEach(function (v) { v.style.removeProperty('--py'); }); }
+    else loadLenis();
+  }
   on(motionBtn, 'click', function () {
     motionOff = !motionOff;
-    h.classList.toggle('motion-off', motionOff);
     try { localStorage.setItem('ce_motion', motionOff ? 'off' : 'on'); } catch (e) { /* private mode */ }
     paintMotion();
-    if (universe) universe.setStill(motionOff);
-    if (motionOff) { stopLenis(); visuals.forEach(function (v) { v.style.removeProperty('--py'); }); }
-    else startLenis();
+    applyStill();
+  });
+  on(mqReduce, 'change', function (e) {
+    reduce = e.matches;
+    if (reduce && !finished && playing) { skip(); finish(); }
+    applyStill();
+    if (!reduce && !universe && !booting) boot();
   });
 
   /* ---------- entrance ---------- */
@@ -390,7 +422,7 @@
     requestAnimationFrame(tick);
   }
   function startIntro() {
-    if (state.t0 != null || finished) return;
+    if (state.t0 != null || finished || skipped) return;
     state.t0 = performance.now();
     if (universe) universe.start();
     requestAnimationFrame(tick);
@@ -420,7 +452,10 @@
     if (coarse || innerWidth < 700) return 'mid';
     return 'high';
   }
+  var booting = false;
   function boot() {
+    if (booting || universe) return;
+    booting = true;
     var url = SELF ? new URL('universe.js', SELF).href : 'prototype-v3/universe.js';
     import(url).then(function (mod) {
       var t = tierOf(), front = null;
@@ -435,14 +470,17 @@
         intro: playing && !finished && !skipped ? state : null,
         nameEl: introName,
         logoPath: logo ? logo.getAttribute('d') : '',
-        onForm: function (v) { h.classList.toggle('gl-form', v); }
+        onForm: function (v) { h.classList.toggle('gl-form', v); },
+        // a lost or failed renderer hands the stage back to the static stars and the solid logo
+        onRenderer: function (r) { var ok = r === 'webgl' || r === '2d'; h.classList.toggle('gl-on', ok); if (!ok) h.classList.remove('gl-form'); }
       });
       if (geo) universe.setSections(geo.list, geo.mark, geo.axis);
-      if (motionOff) universe.setStill(true);
-      h.classList.add('gl-on');
+      if (reduce || motionOff) universe.setStill(true);
+      if (lbOpen || d.hidden) universe.setPaused(true);
       universe.start();
       if (new URLSearchParams(location.search).has('debug')) { window.__universe = universe; window.__intro = state; }
     }).catch(function (err) {
+      booting = false;
       h.classList.remove('gl-on');
       if (window.console && /debug/.test(location.search)) console.warn('universe unavailable', err);
     });
@@ -452,4 +490,6 @@
 
   /* bfcache and unload: give GPU memory back */
   on(window, 'pagehide', function (e) { if (!e.persisted && universe) { universe.destroy(); universe = null; } });
+  applyStill();
+  window.__ceReady = true;
 })();

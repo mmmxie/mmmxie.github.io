@@ -13,7 +13,11 @@
   try{s=sessionStorage.getItem('ce_intro_seen');m=localStorage.getItem('ce_motion');}catch(e){}
   var reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
   if(m==='off')h.classList.add('motion-off');
+  if(reduce||m==='off')h.classList.add('still');
   if(!reduce&&m!=='off'&&!s&&!location.hash&&!/[?&]nointro/.test(location.search))h.classList.add('intro-on');
+  /* failsafe: if the page script never reports in, drop every JS-only hiding
+     state so the content shows as it would without JavaScript */
+  setTimeout(function(){if(!window.__ceReady){h.classList.remove('js','intro-on');h.classList.add('no-js');}},4000);
 })(document);
 </script>
 
@@ -45,8 +49,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,400..700&family=IBM+Plex+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="prototype-v3/site.css">
 <link rel="modulepreload" href="prototype-v3/universe.js">
-<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.14/dist/lenis.min.js" integrity="sha384-O55L/6rhHr9CFvrxqv5luxOCcmVaBmETbZbJDP+Do8T0pztTACsFBD/IXCNkj7DV" crossorigin="anonymous" defer></script>
-<script src="prototype-v3/site.js" defer></script>
+<script src="prototype-v3/site.js" defer onerror="document.documentElement.classList.remove('js','intro-on');document.documentElement.classList.add('no-js')"></script>
 
 <script type="application/ld+json">
 {
@@ -309,7 +312,7 @@
       </button>
     </div>
     <div class="case-more" hidden>
-      <div class="more-media"><img src="assets/robard-dashboard.jpg" alt="RoBard product dashboard, designed in Figma"><img src="assets/img_1.jpg" alt="RoBard full function map"><img src="assets/img_2.jpg" alt="RoBard SaaS PRD"></div>
+      <div class="more-media"><img src="assets/robard-dashboard.jpg" alt="RoBard product dashboard, designed in Figma" loading="lazy" decoding="async"><img src="assets/img_1.jpg" alt="RoBard full function map" loading="lazy" decoding="async"><img src="assets/img_2.jpg" alt="RoBard SaaS PRD" loading="lazy" decoding="async"></div>
       <div class="more-text"><div class="dl">
         <div><h4>Challenge</h4><p>JUKSY's editorial and marketing teams were stuck writing press releases by hand, and revenue growth depended on raising output. Coordination cost was high too: there was no single platform for managing releases, tracking orders, approvals and payments, or seeing publication status across channels.</p></div>
         <div><h4>Solution</h4><p>A three-sided platform connecting brands, media channels and JUKSY as the operator, automating the full path from order to publication. Brands raise an order on the platform, including AI-drafted copy and channel selection, which then moves through sales and editorial for review, revision and publishing, then client sign-off and close, with tracking available throughout.</p></div>
@@ -344,7 +347,7 @@
       </button>
     </div>
     <div class="case-more" hidden>
-      <div class="more-media"><img src="assets/rosetta.jpg" alt="Rosetta.ai recommendation engine dashboard"></div>
+      <div class="more-media"><img src="assets/rosetta.jpg" alt="Rosetta.ai recommendation engine dashboard" loading="lazy" decoding="async"></div>
       <div class="more-text"><div class="dl">
         <div><h4>Challenge</h4><p>Clients relied on generic bestseller and frequently-bought-together widgets that ignored individual style preference. In fashion this fails harder than in most categories: catalogues turn over every season, and what a shopper buys depends on taste rather than spec, so popularity-based merchandising surfaces the wrong things to almost everyone. The result was poor discovery, low AOV and high product-page bounce.</p></div>
         <div><h4>My role</h4><p>As Product Specialist and fashion domain expert I owned the lifecycle: defining model requirements with data science, building the data infrastructure, designing the A/B testing framework, and coordinating rollout across 1,000+ merchants. I built the 10,000+ attribute taxonomy and database from consumer research across the fashion industry, which lifted product recognition accuracy from 40% to 90%+ across all categories and gave the ranking model its benchmark. The engine reads browsing patterns, style affinity and purchase intent to surface per-user recommendations in real time, at 43% lower inference latency than the previous production solution.</p></div>

@@ -23,10 +23,12 @@ const easeInOut = x => (x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 
 const smooth = (a, b, x) => { const t = clamp01((x - a) / (b - a)); return t * t * (3 - 2 * t); };
 
 const INK = [0.925, 0.933, 0.945];
+const CLUSTERS = [[0.1, 0.24], [0.9, 0.2], [0.07, 0.74], [0.93, 0.78], [0.3, 0.93], [0.7, 0.07]];
 const GOLD = [0.80, 0.72, 0.54];
 
 export function createUniverse(opts) {
-  const { back, front = null, tier = 'high', intro = null, nameEl = null, logoPath = '', onForm = null } = opts;
+  let { back } = opts;
+  const { front = null, tier = 'high', intro = null, nameEl = null, logoPath = '', onForm = null, onRenderer = null } = opts;
   const abort = new AbortController();
   const listen = (el, ev, fn, o = {}) => el.addEventListener(ev, fn, { signal: abort.signal, passive: true, ...o });
 
@@ -93,12 +95,11 @@ export function createUniverse(opts) {
   let gl = null, ctx2d = null, glFront = null;
   let R = null, RF = null; // WebGL resources per context
   let glyph = null;        // { canvas, w, h, ratio, ox, oy }
-  const glyphTex = { back: null, front: null };
 
   const VS = `
     attribute vec2 aPos; attribute float aSize; attribute float aAlpha; attribute float aMix;
     attribute float aLayer; attribute vec2 aTile; attribute float aTone;
-    uniform vec2 uRes; uniform float uDpr; uniform float uLayer; uniform float uTileSize;
+    uniform vec2 uRes; uniform float uDpr; uniform float uLayer;
     varying float vA; varying float vMix; varying vec2 vTile; varying float vTone; varying float vSize;
     void main(){
       vec2 p = aPos * uDpr;
@@ -134,8 +135,6 @@ export function createUniverse(opts) {
     const g = canvas.getContext('webgl2', opt) || canvas.getContext('webgl', opt);
     if (!g) return null;
     const res = buildGL(g);
-    if (!res) return null;
-    res.layer = layer;
     return { g, res };
   }
   function buildGL(g) {
@@ -277,7 +276,8 @@ export function createUniverse(opts) {
   /* ---------- sizing ---------- */
   function size() {
     W = innerWidth; H = innerHeight;
-    dpr = Math.min(devicePixelRatio || 1, cfg.dpr);
+    // cap the backing store: a 5K screen at DPR 2 would otherwise ask for two ~60 MB surfaces
+    dpr = Math.min(devicePixelRatio || 1, cfg.dpr, Math.sqrt(5.2e6 / Math.max(1, W * H)));
     for (const c of [back, front]) {
       if (!c) continue;
       c.width = Math.round(W * dpr); c.height = Math.round(H * dpr);
@@ -287,7 +287,7 @@ export function createUniverse(opts) {
   /* ---------- state ---------- */
   let spin = 0, spinI = 0, curSpin = 0, sceneS = 0, sceneTarget = 0, scrollY0 = 0;
   let time = 0, last = 0, frameId = 0, paused = false, hidden = document.hidden, still = false, disposed = false;
-  let formOn = false, frameCost = 0, slow = 0, drawN = 0;
+  let formOn = false, frameCost = 0, slow = 0, drawN = 0, lastNow = 0, ivEMA = 0, refresh = 16.7;
   const ptr = { x: -1e4, y: -1e4, tx: -1e4, ty: -1e4, energy: 0, has: false };
   let brkProgress = 0, brkSkipAt = -1, brkSkipProg = 0, skipT = -1, introDone = !intro;
 
@@ -384,7 +384,7 @@ export function createUniverse(opts) {
       }
       case 4: { // capabilities: six constellations around the edges
         const k = Math.floor(sd * 6);
-        const C = [[0.1, 0.24], [0.9, 0.2], [0.07, 0.74], [0.93, 0.78], [0.3, 0.93], [0.7, 0.07]][k];
+        const C = CLUSTERS[k];
         const rr = Math.pow(r2, 1.8) * Math.min(W, H) * 0.1, a = r3 * TAU + time * 0.05 * (k % 2 ? 1 : -1);
         tmp.x = C[0] * W + Math.cos(a) * rr; tmp.y = C[1] * H + Math.sin(a) * rr * 0.8;
         tmp.s = r2 < 0.05 ? 3.2 : 1 + P.scale[i]; tmp.a = r2 < 0.05 ? 0.85 : 0.35 + 0.3 * (1 - r2);
@@ -638,43 +638,57 @@ export function createUniverse(opts) {
       drawGL(gl, R, 0, d);
       if (glFront && RF) drawGL(glFront, RF, 1, d);
     } else if (ctx2d) draw2D();
-    // adapt: a sustained slow frame budget sheds particles, then resolution
+    // adapt: judge by what the viewer gets (frame interval against the display's
+    // own refresh) as well as by our CPU time, so GPU-bound drops count too
     frameCost = frameCost * 0.95 + (performance.now() - t0) * 0.05;
-    if (frameCost > 9 && introDone) { if (++slow > 90) degrade(); } else slow = Math.max(0, slow - 1);
+    if (lastNow) {
+      const iv = now - lastNow;
+      if (iv > 0 && iv < 40) refresh = Math.min(refresh * 1.002, iv);   // slowly relearn the refresh period
+      ivEMA = ivEMA ? ivEMA * 0.94 + Math.min(iv, 100) * 0.06 : iv;
+    }
+    lastNow = now;
+    const behind = ivEMA > refresh * 1.45 || frameCost > refresh * 0.55;
+    if (behind && introDone && !paused) { if (++slow > 120) degrade(); } else slow = Math.max(0, slow - 2);
     if (still && introDone) return;          // motion paused: one static frame is enough
     frameId = requestAnimationFrame(frame);
   }
   function degrade() {
-    slow = 0; frameCost = 0;
+    slow = 0; frameCost = 0; ivEMA = 0;
     if (drawN > 1200) { drawN = Math.max(1200, Math.round(drawN * 0.7)); return; }
     if (cfg.dpr > 1) { cfg = { ...cfg, dpr: 1 }; size(); }
   }
   function run() {
-    if (!frameId && !disposed && !paused && !hidden) { last = 0; frameId = requestAnimationFrame(frame); }
+    if (!frameId && !disposed && !paused && !hidden) { last = 0; lastNow = 0; ivEMA = 0; frameId = requestAnimationFrame(frame); }
   }
 
   /* ---------- lifecycle ---------- */
+  function fallback2D() {
+    // a canvas that ever produced a WebGL context can never give a 2D one: swap in a fresh element
+    if (gl) { freeGL(gl, R); gl = null; R = null; const fresh = back.cloneNode(false); back.replaceWith(fresh); back = fresh; size(); }
+    ctx2d = back.getContext('2d');
+    if (!ctx2d) throw new Error('No canvas renderer');
+    drawN = N = Math.min(N, 1200);
+  }
   function init() {
     size();
     if (!P) alloc(cfg.n);
     drawN = N;
-    const b = initGL(back, 0);
+    let b = null;
+    try { b = initGL(back, 0); } catch (e) { b = null; if (back.getContext('webgl2') || back.getContext('webgl')) gl = back.getContext('webgl2') || back.getContext('webgl'); }
     if (b) {
       gl = b.g; R = b.res; uploadStatic(gl, R);
       if (cfg.front && front) {
-        const fr = initGL(front, 1);
-        if (fr) { glFront = fr.g; RF = fr.res; uploadStatic(glFront, RF); front.hidden = false; }
+        try {
+          const fr = initGL(front, 1);
+          if (fr) { glFront = fr.g; RF = fr.res; uploadStatic(glFront, RF); front.hidden = false; }
+        } catch (e) { glFront = null; RF = null; }
       }
-    } else {
-      ctx2d = back.getContext('2d');
-      if (!ctx2d) throw new Error('No canvas renderer');
-      drawN = N = Math.min(N, 1200);
-    }
+    } else fallback2D();
     if (cfg.forms) (window.requestIdleCallback || setTimeout)(() => { if (!disposed) sampleLogo(); });
   }
 
-  listen(back, 'webglcontextlost', e => { e.preventDefault(); cancelAnimationFrame(frameId); frameId = 0; R = null; }, { passive: false });
-  listen(back, 'webglcontextrestored', () => { try { R = buildGL(gl); uploadStatic(gl, R); R.glyphStamp = -1; run(); } catch (e) { destroy(); } });
+  listen(back, 'webglcontextlost', e => { e.preventDefault(); cancelAnimationFrame(frameId); frameId = 0; R = null; if (intro && !introDone) api.finishNow(); onRenderer && onRenderer('lost'); }, { passive: false });
+  listen(back, 'webglcontextrestored', () => { try { R = buildGL(gl); uploadStatic(gl, R); R.glyphStamp = -1; onRenderer && onRenderer('webgl'); run(); } catch (e) { destroy(); onRenderer && onRenderer('none'); } });
   if (front) {
     listen(front, 'webglcontextlost', e => { e.preventDefault(); RF = null; }, { passive: false });
     listen(front, 'webglcontextrestored', () => { try { RF = buildGL(glFront); uploadStatic(glFront, RF); RF.glyphStamp = -1; } catch (e) { RF = null; } });
@@ -697,6 +711,11 @@ export function createUniverse(opts) {
       if (innerWidth === lastW && Math.abs(innerHeight - lastH) < 160 && matchMedia('(pointer: coarse)').matches) return;
       lastW = innerWidth; lastH = innerHeight;
       size();
+      if (intro && !introDone && intro.t0 != null) {
+        const it = (performance.now() - intro.t0) / 1000;
+        if (it < intro.T.brk) { if (glyph) rasterName(); }   // the name moved: sample it where it is now
+        else api.skip();                                       // mid-break: finish cleanly instead of flying from stale spots
+      }
       if (still) { step(performance.now()); frame(performance.now()); }
     }, 150);
   });
@@ -710,10 +729,10 @@ export function createUniverse(opts) {
   }
 
   init();
-
+  // the listeners above were bound to the original canvas; a 2D swap needs none of them
   const api = {
     get renderer() { return gl ? 'webgl' : ctx2d ? '2d' : 'none'; },
-    get tilesReady() { return !!glyph; },
+    get tilesReady() { return !!glyph && (!!R || !!ctx2d); },
     rasterName,
     /* the entrance has been skipped: freeze where everything is and ease it home */
     skip(now = performance.now()) {
@@ -730,7 +749,8 @@ export function createUniverse(opts) {
     setStill(v) { still = v; if (!v) run(); else if (!frameId) frame(performance.now()); },
     start() { run(); },
     destroy,
-    inspect() { return { N, drawN, T, tileCSS, dpr, renderer: api.renderer, introDone, sceneS, sceneTarget, frameCost: +frameCost.toFixed(2), front: !!RF, formOn }; }
+    inspect() { return { N, drawN, T, tileCSS, dpr, renderer: api.renderer, introDone, sceneS, sceneTarget, frameCost: +frameCost.toFixed(2), front: !!RF, formOn, paused, still, glyphX: glyph ? glyph.ox : null, glyphY: glyph ? glyph.oy : null }; }
   };
+  onRenderer && onRenderer(api.renderer);
   return api;
 }
