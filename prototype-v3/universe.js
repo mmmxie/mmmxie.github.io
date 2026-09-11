@@ -133,7 +133,7 @@ export function createUniverse(opts) {
       gl_FragColor = vec4(col * a, a);
     }`;
 
-  function initGL(canvas, layer) {
+  function initGL(canvas) {
     const opt = { alpha: true, antialias: false, premultipliedAlpha: true, depth: false, stencil: false, powerPreference: 'low-power', preserveDrawingBuffer: false };
     const g = canvas.getContext('webgl2', opt) || canvas.getContext('webgl', opt);
     if (!g) return null;
@@ -174,7 +174,6 @@ export function createUniverse(opts) {
     g.bufferData(g.ARRAY_BUFFER, d, g.STATIC_DRAW);
     g.bindBuffer(g.ARRAY_BUFFER, res.dyn);
     g.bufferData(g.ARRAY_BUFFER, N * 6 * 4, g.DYNAMIC_DRAW);
-    res.staticN = N;
   }
   function freeGL(g, res) {
     if (!g || !res) return;
@@ -292,6 +291,7 @@ export function createUniverse(opts) {
   let spin = 0, spinI = 0, curSpin = 0, sceneS = 0, sceneTarget = 0, scrollY0 = 0;
   let time = 0, last = 0, frameId = 0, paused = false, hidden = document.hidden, still = false, disposed = false;
   let draws = 0, formOn = false, frameCost = 0, slow = 0, drawN = 0, lastNow = 0, ivEMA = 0, refresh = 40;
+  const ring = new Float32Array(240); let ringI = 0;
   const ptr = { x: -1e4, y: -1e4, tx: -1e4, ty: -1e4, energy: 0, has: false };
   let brkProgress = 0, brkSkipAt = -1, brkSkipProg = 0, skipT = -1, introDone = !intro;
 
@@ -307,7 +307,7 @@ export function createUniverse(opts) {
   }
 
   /* project the cloud position of particle i; writes into tmp */
-  const tmp = { x: 0, y: 0, s: 0, a: 0, z: 0 };
+  const tmp = { x: 0.5, y: 0.5, s: 0.5, a: 0.5, z: 0.5 };   // doubles from the start, so V8 never re-boxes them
   // per-frame trig, shared by every particle (angle-sum identities do the rest)
   const T0 = { cs: 1, ss: 0, a1: 0, b1: 1, a2: 0, b2: 1, a3: 1, b3: 0, sc: 1, ss2: 0 };
   function frameTrig() {
@@ -413,9 +413,10 @@ export function createUniverse(opts) {
 
     /* entrance clock */
     let it = -1, intr = null, tilt, cam;
-    if (intro && !introDone && intro.t0 != null) {
+    const introPhase = intro && !introDone && intro.t0 != null;
+    const Tl = intro ? intro.T : null;
+    if (introPhase) {
       it = (now - intro.t0) / 1000;
-      const Tl = intro.T;
       if (it < Tl.brk && skipT < 0) {
         const spawn = 1 - easeOut(seg(it, 0, 4.2));
         intr = { spawn };
@@ -427,10 +428,7 @@ export function createUniverse(opts) {
     curSpin = intr ? spinI : spin;
     frameTrig();
     // lost the glyphs (font never resolved, zero-size name): skip rather than break on nothing
-    if (intro && !introDone && intro.t0 != null && it >= intro.T.brk - 0.05 && !glyph && skipT < 0) {
-      for (let i = 0; i < N; i++) { FX[i] = X[i]; FY[i] = Y[i]; FA[i] = A[i]; FS[i] = S[i]; }
-      skipT = now;
-    }
+    if (introPhase && it >= Tl.brk - 0.05 && !glyph && skipT < 0) freezeAndEase(now);
 
     const par = scrollY0 / Math.max(1, H);
     const target = sectionScene();
@@ -446,7 +444,7 @@ export function createUniverse(opts) {
     const cT = Math.cos(tilt), sT = Math.sin(tilt), cY = Math.cos(cam.yaw), sY = Math.sin(cam.yaw);
     // during the break the cloud eases from edge-on to its resting tilt
     let cTb = cT, sTb = sT;
-    if (intro && !introDone && it >= intro.T.brk) {
+    if (introPhase && it >= Tl.brk) {
       const tb = 0.62 * easeInOut(clamp01(brkProgress));
       cTb = Math.cos(tb); sTb = Math.sin(tb);
     }
@@ -465,9 +463,6 @@ export function createUniverse(opts) {
     for (const sc of sections) if (sc.scene === sceneTarget && scrollY0 + H * 0.5 >= sc.top) depthIn = (scrollY0 + H * 0.5 - sc.top) / H;
     const shapeFade = sceneTarget === 3 || sceneTarget === 5 ? 1 : 1 - 0.72 * smooth(0.55, 1.35, depthIn);
     const readAlpha = 1 - 0.46 * smooth(0.05, 0.6, Math.min(sceneS, 1));
-    const introPhase = intro && !introDone && intro.t0 != null;
-    const Tl = intro ? intro.T : null;
-
     // break progress on the same wall clock as the page; a late skip compresses the rest into 0.5 s
     if (introPhase && it >= Tl.brk) {
       brkProgress = brkSkipAt < 0 ? (it - Tl.brk) / Tl.brkDur : brkSkipProg + ((it - brkSkipAt) / 0.5) * (1 - brkSkipProg);
@@ -565,6 +560,14 @@ export function createUniverse(opts) {
     if (introPhase && (brkProgress >= 1 || (skipK >= 0 && skipK > 0.9))) { introDone = true; intro.done = true; }
   }
 
+  /* Freeze every particle where it is and ease it into the cloud. If nothing has
+     been drawn yet (the module arrived late) there is nowhere to ease from:
+     start in the cloud and let the canvas fade in. */
+  function freezeAndEase(now) {
+    if (!draws) { introDone = true; if (intro) intro.done = true; return; }
+    for (let i = 0; i < N; i++) { FX[i] = X[i]; FY[i] = Y[i]; FA[i] = A[i]; FS[i] = S[i]; M[i] = 0; }
+    skipT = now;
+  }
   function sectionScene() {
     if (!sections.length) return 0;
     const probe = scrollY0 + H * 0.5;
@@ -645,8 +648,10 @@ export function createUniverse(opts) {
     frameCost = frameCost * 0.95 + (performance.now() - t0) * 0.05;
     if (lastNow) {
       const iv = now - lastNow;
-      // the display's period is the fastest interval we see; sustained slow frames never relax it
-      if (iv > 4 && iv < 40) refresh = Math.min(refresh, iv);
+      // the display's period: 10th percentile of the last 240 intervals. One stray
+      // short frame can't pin it low, and a device capped at 30 fps reads as 30 fps;
+      // sustained overload trips degrade() long before the window fills with slow frames
+      if (iv > 4 && iv < 60) { ring[ringI++ % 240] = iv; if (ringI % 60 === 0) { const sorted = ring.slice(0, Math.min(ringI, 240)).sort((a, b) => a - b); refresh = sorted[Math.floor(sorted.length * 0.1)]; } }
       ivEMA = ivEMA ? ivEMA * 0.94 + Math.min(iv, 100) * 0.06 : iv;
     }
     lastNow = now;
@@ -678,12 +683,12 @@ export function createUniverse(opts) {
     if (!P) alloc(cfg.n);
     drawN = N;
     let b = null;
-    try { b = initGL(back, 0); } catch (e) { b = null; if (back.getContext('webgl2') || back.getContext('webgl')) gl = back.getContext('webgl2') || back.getContext('webgl'); }
+    try { b = initGL(back); } catch (e) { b = null; if (back.getContext('webgl2') || back.getContext('webgl')) gl = back.getContext('webgl2') || back.getContext('webgl'); }
     if (b) {
       gl = b.g; R = b.res; uploadStatic(gl, R);
       if (cfg.front && front) {
         try {
-          const fr = initGL(front, 1);
+          const fr = initGL(front);
           if (fr) { glFront = fr.g; RF = fr.res; uploadStatic(glFront, RF); front.hidden = false; }
         } catch (e) { glFront = null; RF = null; }
       }
@@ -737,7 +742,6 @@ export function createUniverse(opts) {
   const api = {
     get renderer() { return gl ? 'webgl' : ctx2d ? '2d' : 'none'; },
     get tilesReady() { return !!glyph && (!!R || !!ctx2d); },
-    rasterName,
     fontsChanged() {
       if (!intro || introDone || intro.t0 == null || !glyph) return;
       if ((performance.now() - intro.t0) / 1000 < intro.T.brk) rasterName();
@@ -747,12 +751,10 @@ export function createUniverse(opts) {
       if (introDone || !intro || intro.t0 == null) return;
       const it = (now - intro.t0) / 1000;
       if (it >= intro.T.brk) { if (brkSkipAt < 0) { brkSkipAt = it; brkSkipProg = brkProgress; } return; }
-      for (let i = 0; i < N; i++) { FX[i] = X[i]; FY[i] = Y[i]; FA[i] = A[i]; FS[i] = S[i]; M[i] = 0; }
-      skipT = now;
+      freezeAndEase(now);
     },
     finishNow() { introDone = true; if (intro) intro.done = true; },
     setSections(list, mark, axisX) { sections = list; markBox = mark; if (axisX != null) lineX = axisX; },
-    setAxis(x) { lineX = x; },
     setPaused(v) { paused = v; if (!v) run(); },
     setStill(v) { still = v; if (!v) run(); else if (!frameId) frame(performance.now()); },
     start() { run(); },

@@ -340,7 +340,8 @@
 
   /* ---------- motion switch (WCAG 2.2.2) ---------- */
   var motionBtn = $('#motionBtn');
-  function paintMotion() { motionBtn.textContent = motionOff ? 'Resume motion' : 'Pause motion'; motionBtn.setAttribute('aria-pressed', String(motionOff)); }
+  // the label itself says what pressing does next, so no aria-pressed on top of it
+  function paintMotion() { motionBtn.textContent = motionOff ? 'Resume motion' : 'Pause motion'; }
   paintMotion();
   function applyStill() {
     var still = reduce || motionOff;
@@ -412,7 +413,7 @@
     introName.style.transition = 'opacity .3s'; introName.style.opacity = '0';
     role.style.transition = 'opacity .25s'; role.style.opacity = '0';
     intro.classList.add('leaving');
-    reveal();
+    setTimeout(reveal, 300);   // let the typed text fade before the overlay goes
     setTimeout(finish, 1100);
   }
   function tick(now) {
@@ -439,21 +440,26 @@
   function startIntro() {
     if (state.t0 != null || finished || skipped) return;
     state.t0 = performance.now();
+    watchdog = setTimeout(finish, 13000);   // counted from the real start, never while the tab was in the background
     if (universe) universe.start();
     requestAnimationFrame(tick);
   }
   if (playing) {
-    watchdog = setTimeout(finish, 13000);
     on(intro, 'click', skip);
     on($('#introSkip'), 'click', function (e) { e.stopPropagation(); skip(); });
     on(window, 'wheel', function (e) { if (Math.abs(e.deltaY) > 4) skip(); });
     on(window, 'touchmove', skip);
     on(window, 'keydown', function (e) { if (['Tab', 'Escape', 'Enter', ' ', 'ArrowDown', 'PageDown', 'End'].indexOf(e.key) > -1) skip(); });
     on(window, 'scroll', function () { if ((window.scrollY || 0) > 10) skip(); });
-    on(d, 'visibilitychange', function () { if (d.hidden) { skip(); finish(); } });
+    // opened in a background tab: the entrance waits until someone is looking;
+    // hidden once it is running, it hands the page straight back
+    on(d, 'visibilitychange', function () {
+      if (d.hidden) { if (state.t0 != null) { skip(); finish(); } }
+      else if (!started) go();
+    });
     on(window, 'pageshow', function (e) { if (e.persisted && !finished) { skip(); finish(); } });
     // don't wait on webfonts for long: the name is sampled from real glyphs later anyway
-    var started = false, go = function () { if (!started) { started = true; startIntro(); } };
+    var started = false, go = function () { if (started || d.hidden) return; started = true; startIntro(); };
     afterFirstFrame(function () { if (d.fonts && d.fonts.ready) d.fonts.ready.then(go); });
     setTimeout(go, 900);
   } else if (!reduce) {
