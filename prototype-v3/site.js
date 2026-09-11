@@ -15,6 +15,7 @@
   function on(el, ev, fn, o) { el.addEventListener(ev, fn, Object.assign({ signal: ac.signal, passive: true }, o || {})); }
   function $(s, r) { return (r || d).querySelector(s); }
   function $$(s, r) { return [].slice.call((r || d).querySelectorAll(s)); }
+  function afterFirstFrame(fn) { requestAnimationFrame(function () { setTimeout(fn, 0); }); }
   var motionOff = h.classList.contains('motion-off');
   var universe = null;
 
@@ -139,9 +140,14 @@
   function remeasure() { clearTimeout(meT); meT = setTimeout(function () { measure(); onScroll(); }, 180); }
   on(window, 'resize', remeasure);
   on(window, 'load', remeasure);
-  if (d.fonts && d.fonts.ready) d.fonts.ready.then(remeasure);
-  if ('ResizeObserver' in window) { var ro = new ResizeObserver(remeasure); ro.observe(d.body); }
-  measure(); onScroll();
+  // Everything that reads layout waits for the first frame. Even touching
+  // document.fonts.ready forces style and layout, which would pull the whole
+  // page's first layout into this script task and hold back the first paint.
+  afterFirstFrame(function () {
+    measure(); onScroll();
+    if (d.fonts && d.fonts.ready) d.fonts.ready.then(remeasure);
+    if ('ResizeObserver' in window) { var ro = new ResizeObserver(remeasure); ro.observe(d.body); }
+  });
   on(toTop, 'click', function () { if (lenis) lenis.scrollTo(0); else window.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' }); });
 
   /* ---------- covers only animate on screen ---------- */
@@ -439,7 +445,7 @@
     on(window, 'pageshow', function (e) { if (e.persisted && !finished) { skip(); finish(); } });
     // don't wait on webfonts for long: the name is sampled from real glyphs later anyway
     var started = false, go = function () { if (!started) { started = true; startIntro(); } };
-    if (d.fonts && d.fonts.ready) d.fonts.ready.then(go);
+    afterFirstFrame(function () { if (d.fonts && d.fonts.ready) d.fonts.ready.then(go); });
     setTimeout(go, 900);
   } else if (!reduce) {
     setTimeout(function () { shine($('#heroTitle')); }, 900);
