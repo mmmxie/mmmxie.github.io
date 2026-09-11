@@ -53,7 +53,9 @@ export function createUniverse(opts) {
       scale: f(), bright: f(), seed: f(), r2: f(), r3: f(), r4: f(),
       tone: new Uint8Array(n), stable: new Uint8Array(n), form: new Uint8Array(n),
       nx: f(), ny: f(), delay: f(), tu: f(), tv: f(), tile: new Uint8Array(n),
-      lx: f(), ly: f()
+      lx: f(), ly: f(),
+      // precomputed rotation pairs: the per-frame cloud needs no sin/cos at all
+      cb: f(), sb: f(), cp: f(), sp: f(), cq: f(), sq: f()
     };
     X = f(); Y = f(); S = f(); A = f(); M = f(); L = f();
     OX = f(); OY = f(); VX = f(); VY = f();
@@ -80,6 +82,10 @@ export function createUniverse(opts) {
       P.tone[i] = rnd() < 0.06 ? 1 : 0;
       P.stable[i] = rnd() < 0.2 ? 1 : 0;
       P.form[i] = rnd() < 0.5 ? 1 : 0;
+      const b0 = P.rxz[i] * 0.14, ph0 = P.seed[i] * TAU;
+      P.cb[i] = Math.cos(b0); P.sb[i] = Math.sin(b0);
+      P.cp[i] = Math.cos(ph0); P.sp[i] = Math.sin(ph0);
+      P.cq[i] = Math.cos(ph0 * 1.3); P.sq[i] = Math.sin(ph0 * 1.3);
     }
   }
 
@@ -298,14 +304,22 @@ export function createUniverse(opts) {
 
   /* project the cloud position of particle i; writes into tmp */
   const tmp = { x: 0, y: 0, s: 0, a: 0, z: 0 };
+  // per-frame trig, shared by every particle (angle-sum identities do the rest)
+  const T0 = { cs: 1, ss: 0, a1: 0, b1: 1, a2: 0, b2: 1, a3: 1, b3: 0 };
+  function frameTrig() {
+    T0.cs = Math.cos(curSpin); T0.ss = Math.sin(curSpin);
+    T0.a1 = Math.sin(time * 0.11); T0.b1 = Math.cos(time * 0.11);
+    T0.a2 = Math.sin(time * 0.7); T0.b2 = Math.cos(time * 0.7);
+    T0.a3 = Math.cos(time * 0.09); T0.b3 = Math.sin(time * 0.09);
+  }
   function cloudAt(i, cam, cT, sT, cY, sY, f, intr) {
-    const a = curSpin + P.rxz[i] * 0.14;
-    const c = Math.cos(a), s = Math.sin(a);
+    // cos/sin(spin + b) from precomputed cos/sin(b)
+    const c = T0.cs * P.cb[i] - T0.ss * P.sb[i], s = T0.ss * P.cb[i] + T0.cs * P.sb[i];
     const gx = P.gx[i], gz = P.gz[i];
     const rx = c * gx + s * gz, rz = -s * gx + c * gz;
-    const ph = P.seed[i] * TAU;
-    let x = rx * 2.7 + P.sx[i] * 1.9 + Math.sin(time * 0.11 + ph) * 0.05;
-    let y = P.gy[i] * 2.7 + P.sy[i] * 1.9 + Math.sin(time * 0.7 + ph) * 0.012 + Math.cos(time * 0.09 + ph * 1.3) * 0.04;
+    const cp = P.cp[i], sp = P.sp[i];
+    let x = rx * 2.7 + P.sx[i] * 1.9 + (T0.a1 * cp + T0.b1 * sp) * 0.05;
+    let y = P.gy[i] * 2.7 + P.sy[i] * 1.9 + (T0.a2 * cp + T0.b2 * sp) * 0.012 + (T0.a3 * P.cq[i] - T0.b3 * P.sq[i]) * 0.04;
     let z = rz * 2.7 + P.sz[i] * 1.9;
     if (intr) { x = rx + P.sx[i] * intr.spawn * 7; y = P.gy[i] + P.sy[i] * intr.spawn * 7; z = rz + P.sz[i] * intr.spawn * 7; }
     // object rotation: tilt about x, then yaw about y
@@ -410,6 +424,7 @@ export function createUniverse(opts) {
     }
     if (!still) spin += 0.055 * dt;
     curSpin = intr ? spinI : spin;
+    frameTrig();
     // lost the glyphs (font never resolved, zero-size name): skip rather than break on nothing
     if (intro && !introDone && intro.t0 != null && it >= intro.T.brk - 0.05 && !glyph && skipT < 0) {
       for (let i = 0; i < N; i++) { FX[i] = X[i]; FY[i] = Y[i]; FA[i] = A[i]; FS[i] = S[i]; }
@@ -655,7 +670,7 @@ export function createUniverse(opts) {
       if (!ctx2d) throw new Error('No canvas renderer');
       drawN = N = Math.min(N, 1200);
     }
-    sampleLogo();
+    if (cfg.forms) (window.requestIdleCallback || setTimeout)(() => { if (!disposed) sampleLogo(); });
   }
 
   listen(back, 'webglcontextlost', e => { e.preventDefault(); cancelAnimationFrame(frameId); frameId = 0; R = null; }, { passive: false });

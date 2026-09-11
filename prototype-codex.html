@@ -1,21 +1,16 @@
 <!DOCTYPE html>
-<html lang="en-GB" class="no-js">
+<html lang="en-GB" data-theme="dark">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="google-site-verification" content="ofwrxtXsVwe7Dk4jibKsFmR4aLXEg1dRM9mNlYV2814" />
 <script>
-/* Runs before first paint: decide whether the entrance plays, so the hero never
-   flashes up and then vanishes behind it. Plays once per browser session. */
-(function(d){
-  var h=d.documentElement,s=null,m=null;
-  h.classList.remove('no-js');h.classList.add('js');
-  try{s=sessionStorage.getItem('ce_intro_seen');m=localStorage.getItem('ce_motion');}catch(e){}
-  var reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if(m==='off')h.classList.add('motion-off');
-  if(!reduce&&m!=='off'&&!s&&!location.hash&&!/[?&]nointro/.test(location.search))h.classList.add('intro-on');
-})(document);
+try {
+  const saved = localStorage.getItem('portfolio-prototype-theme') || localStorage.getItem('theme');
+  document.documentElement.dataset.theme = saved === 'dark' || saved === 'light'
+    ? saved : matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+} catch {}
 </script>
+<meta name="google-site-verification" content="ofwrxtXsVwe7Dk4jibKsFmR4aLXEg1dRM9mNlYV2814" />
 
 <!-- SEO -->
 <title>Cheng En Hsieh — Product Manager, London | AI &amp; ML Products, B2B SaaS</title>
@@ -23,8 +18,6 @@
 <meta name="author" content="Cheng En Hsieh">
 <meta name="robots" content="noindex, follow">
 <link rel="canonical" href="https://chennxie.com/">
-<meta name="theme-color" content="#07080A">
-<meta name="color-scheme" content="dark">
 
 <!-- Open Graph / Twitter -->
 <meta property="og:type" content="website">
@@ -38,15 +31,11 @@
 <meta name="twitter:description" content="Product Manager, London. Six years across AI, SaaS and e-commerce in APAC and the UK. Right to work in the UK.">
 <meta name="twitter:image" content="https://chennxie.com/assets/og-cover.png">
 
-<link rel="icon" href="prototype-v3/favicon.svg" type="image/svg+xml">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230B0B0C'/%3E%3Ctext x='16' y='23' font-family='Space Grotesk,Arial,sans-serif' font-weight='700' font-size='14' fill='%23F3F1EB' text-anchor='middle'%3ECE%3C/text%3E%3C/svg%3E">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,400..700&family=IBM+Plex+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="prototype-v3/site.css">
-<link rel="modulepreload" href="prototype-v3/universe.js">
-<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.14/dist/lenis.min.js" integrity="sha384-O55L/6rhHr9CFvrxqv5luxOCcmVaBmETbZbJDP+Do8T0pztTACsFBD/IXCNkj7DV" crossorigin="anonymous" defer></script>
-<script src="prototype-v3/site.js" defer></script>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 
 <script type="application/ld+json">
 {
@@ -97,59 +86,59 @@
   ]
 }
 </script>
+
+<link rel="stylesheet" href="tokens.css">
+<link rel="stylesheet" href="prototype-assets/portfolio.css">
+<script src="prototype-assets/portfolio.js" defer></script>
 </head>
 <body>
-<canvas class="universe" id="universe" aria-hidden="true"></canvas>
-<div class="stars" aria-hidden="true"></div>
-<div class="vignette" aria-hidden="true"></div>
+
+<canvas class="field-canvas" id="fieldCanvas" aria-hidden="true"></canvas>
 <div class="grain" aria-hidden="true"></div>
 <a href="#work" class="skip">Skip to work</a>
-<div class="cur-ring" aria-hidden="true"><span class="cur-label"></span></div>
 <div class="progress" aria-hidden="true"></div>
 
-<!-- ============ ENTRANCE ============ -->
-<div class="intro" id="intro">
-  <div class="intro-quote">
-    <p class="ql"><span class="sr-only">I see data as the particles of our digital universe</span><span class="ql-v" aria-hidden="true" data-text="I see data as the particles of our digital universe"></span></p>
-    <p class="ql ql-2"><span class="sr-only">Shaping the world around us as we gather, connect, build, and grow with it</span><span class="ql-v" aria-hidden="true" data-text="Shaping the world around us as we gather, connect, build, and grow with it"></span></p>
-  </div>
-  <div class="intro-id" aria-hidden="true">
-    <p class="intro-name" id="introName">CHENG EN HSIEH</p>
-    <p class="intro-role">Product Manager ｜ London</p>
-  </div>
-  <button class="intro-skip" id="introSkip" type="button">Skip intro <span aria-hidden="true">→</span></button>
-  <div class="intro-prog" aria-hidden="true"><i></i></div>
-</div>
-
-<nav class="nav" aria-label="Main">
-  <a href="#top" class="brand"><svg class="brand-mark" viewBox="0 0 1000 588" aria-hidden="true" focusable="false"><use href="#logo-mark"/></svg><span>Cheng En Hsieh</span></a>
-  <div class="nav-links" id="navLinks">
-    <a href="#about" class="nav-link">About</a>
-    <a href="#work" class="nav-link">Work</a>
-    <a href="#projects" class="nav-link">Projects</a>
-    <a href="#experience" class="nav-link">Experience</a>
-    <a href="#contact" class="nav-link">Contact</a>
-  </div>
+<nav aria-label="Main navigation">
+  <a href="#top" class="brand" data-cursor><b>CE</b><span>Cheng En Hsieh</span></a>
   <div class="nav-r">
-    <a class="nav-cv" href="assets/Cheng-En-Hsieh-CV-Product-Manager.pdf" target="_blank" rel="noopener">CV ↓</a>
+    <button class="menu-toggle" id="menuToggle" aria-expanded="false" aria-controls="navLinks" hidden>Menu <span aria-hidden="true">＋</span></button>
+    <div class="nav-links-group" id="navLinks">
+      <a href="#about" class="nav-link">About</a>
+      <a href="#work" class="nav-link">Work</a>
+      <a href="#experience" class="nav-link">Experience</a>
+      <a href="#contact" class="nav-link">Contact</a>
+    </div>
+    <a class="nav-cv" href="assets/Cheng-En-Hsieh-CV-Product-Manager.pdf" target="_blank" rel="noopener" data-cursor>CV ↓</a>
     <span class="pill"><span class="dot"></span><span class="lbl">Open to roles</span></span>
-    <button class="menu-btn" id="menuBtn" type="button" aria-expanded="false" aria-controls="navLinks">Menu</button>
+    <button class="motion-toggle" id="motionToggle" aria-pressed="false" hidden><span aria-hidden="true">Ⅱ</span><span class="motion-label">Pause motion</span></button>
+    <button class="theme-btn" id="theme" aria-label="Toggle dark mode" data-cursor hidden>
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v2M12 20v2M4 12H2M22 12h-2M5 5l1.5 1.5M17.5 17.5L19 19M19 5l-1.5 1.5M6.5 17.5L5 19"/></svg>
+    </button>
   </div>
 </nav>
-
-<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs><path id="logo-mark" fill="currentColor" d="M819 585.3C798.2 581.8 781.2 570.8 769.6 553.5C754.5 531.1 749.9 504.8 753.6 463.3C757.8 416 753.4 394.6 735.8 376.1C715.1 354.3 680.2 348.1 653.7 361.5C629.8 373.5 616.8 391.9 610.7 422.5C609.3 429 608.8 435 608.1 448.3C606.5 483.5 604 497.7 596.9 513.8C586.7 537 568.3 550.6 547.6 550.5C526.4 550.3 510.5 537.1 505 515C502.7 505.6 503.8 491.9 507.9 479.9C511.4 469.8 512.6 467.9 532.2 439.2C549.4 414 555.1 391.3 548.6 374C541.4 354.8 524.7 342 500.3 337.1C493.5 335.7 473.2 335.8 464.8 337.3C451.1 339.8 436.1 344.3 419.2 351.1C394.9 360.9 380.9 365.3 365.1 368.1C358.2 369.4 336.8 369.4 330.1 368.2C308.9 364.2 294.5 356.7 282.3 343.4C266.1 325.5 261.2 299.5 269.6 276.1C278.5 251.2 302 231.9 330.4 226.1C351 222 374.4 224.2 394.8 232.3C414.9 240.3 426.7 248 460.5 275.6C478.3 290.1 490.8 297.3 507.8 302.8C523.2 307.7 539 307.6 549.5 302.6C560.7 297.3 562.7 286.2 554.1 277.6C551.3 274.8 547.8 272.3 536.8 265.6C505.8 246.6 490.5 231.4 479.4 208.7C472 193.6 469.4 181.5 470 164.8C471.1 129.9 490.5 102.1 520.3 92.5C528.4 89.9 533.6 89.1 541.2 89.4C570.9 90.7 594.2 112.8 603 147.9C606.8 163 607.6 172.7 607.9 205.5C608.2 238.9 608.9 246.2 613.3 259.9C623.1 291.2 647.7 310.2 680 311.7C703.8 312.8 729 300.7 741.5 282.2C750.3 269.2 754 256 754 238.1C754 222.7 753.2 218.1 744.2 181C739.9 163.3 736.5 146.7 735.4 138.5C730.4 100.6 737.1 72.1 755.7 50.9C777 26.9 811.6 18.5 841.8 30.2C864.5 39 881.4 59.9 886 85.1C887.3 91.7 887.3 106.6 886.1 113.3C881.6 137.5 870.6 156.8 843.9 186.5C816.4 217.2 802.6 246.5 799.4 281C797.9 296.6 801.2 320.9 806.9 335.9C817.6 364.1 830.5 382.4 861.9 413.7C885.9 437.5 895.4 450.6 902.6 469.6C909.3 487.4 910.5 508.3 905.8 525.3C897.5 554.8 874.9 577.4 847 583.9C837.9 586 826.5 586.6 819 585.3ZM339.3 570.3C317.8 568.9 297.6 563.5 271 552C234.1 536 218.4 531.7 187.1 529.2C151.4 526.3 127.9 520.1 102.3 506.7C52.8 480.8 16.8 432.5 5.7 377.1C1.3 355 0.7 328.7 4.2 307.5C8.9 279.6 19.5 253 35.4 229.5C52 204.9 72.6 185.2 106.2 161.9C136.8 140.7 166.6 117.4 187.1 98.5C189.5 96.3 199 87.6 208.2 79.2C243.4 46.8 260.8 33.7 285.7 20.8C317.9 4.1 350.7 -1.7 380.1 4C423.5 12.5 451.2 47.3 445.1 85.6C440.1 116.7 415.9 140 380.6 147.8C367.3 150.7 347.7 151.3 320 149.6C306.6 148.7 283.9 149.2 274.2 150.5C245.9 154.4 222 165.4 199.5 184.9C172.6 208.3 152.5 244.2 145.7 280.8C136.6 330 152.5 382.3 186.7 415.4C210.2 438.2 239.1 448.9 266.9 445C284 442.7 294.8 438.7 323.3 424.2C360.7 405.3 378.2 400.1 401.9 400.8C436 402 461.2 419.8 471.2 450C482.1 482.6 466.6 519.5 431.9 544.1C409.3 560.1 384.8 568.7 357 570.4C348.2 570.9 348.3 570.9 339.3 570.3ZM908.2 364.7C886.6 361.1 868.6 350.1 855.6 332.6C839.7 311 836.8 280.9 848.2 255.5C863.7 221 901.9 201.7 937.2 210.7C957.4 215.7 974 227.7 985.5 245.3C998.2 264.8 1001.5 291.5 993.8 312.4C983.8 339.7 963.3 357.6 935.3 363.7C928.1 365.3 914.9 365.7 908.2 364.7Z"/></defs></svg>
 
 <main id="top">
 <!-- ============ HERO ============ -->
 <header class="hero wrap">
+  <div class="intro-stage" id="introStage">
+    <div class="orbit-mark" aria-hidden="true"><i></i><i></i><i></i></div>
+    <p class="intro-name" id="introName">CHENG EN HSIEH</p>
+    <div class="intro-message" id="introMessage">
+      <p>I see data as the particles of our digital universe.</p>
+      <p>Shaping the world around us as we gather, connect, build, and grow with it.</p>
+    </div>
+    <div class="stage-foot"><button id="replayIntro" hidden>Replay entrance <span aria-hidden="true">↻</span></button></div>
+  </div>
   <h1>
     <span class="hero-name">Cheng En Hsieh ｜ Product Manager ｜ EN &amp; ZH Bilingual ｜ London</span>
-    <span class="hero-statement metal" id="heroTitle">Building products that deliver real impact</span>
+    <span class="hero-statement">I ship <span class="em">AI products</span> that move real numbers.</span>
   </h1>
-  <p class="hero-sub">Six years of experience in AI, SaaS and e-commerce (APAC &amp; UK), building recommendation engines, LLM-powered workflows and end-to-end B2B2C platforms.</p>
+  <div class="hero-support">
+  <p class="hero-sub">Six years across AI, SaaS and e-commerce in APAC and the UK. Built recommendation engines, agentic workflows and B2B2C platforms, owning delivery end to end from discovery to GTM.</p>
   <div class="hero-cta-row">
     <a href="#work" class="btn solid">View selected work <span class="ar">↓</span></a>
     <a href="mailto:chengen.hsieh197@gmail.com" class="btn ghost">Get in touch</a>
+  </div>
   </div>
   <div class="ticker" aria-hidden="true">
     <div class="ticker-track">
@@ -180,11 +169,11 @@
 
 
 <!-- ============ ABOUT ============ -->
-<section id="about" class="wrap sec" data-form="ring">
+<section id="about" class="wrap">
   <div class="sec-head rv">
     <span class="sec-idx">01</span>
-    <h2 class="sec-title"><span>About</span></h2>
-    <p class="sec-note">What I do, and how I decide what's worth building</p>
+    <h2 class="sec-title">About</h2>
+    <p class="sec-note">What I do, and how I decide what's worth building.</p>
   </div>
   <div class="about-grid">
     <div class="about-copy rv">
@@ -194,15 +183,15 @@
     </div>
     <ul class="princ rv">
       <li>
-        <h4><i>01</i>Clarify goals and constraints first</h4>
+        <h3><i>01</i>Clarify goals and constraints first</h3>
         <p>Every roadmap I've owned started by naming the one thing actually capping the business, whether that was throughput, margin or activation, rather than working down the longest list of feature requests. Define the problem, break it into parts, then decide what gets built and in what order.</p>
       </li>
       <li>
-        <h4><i>02</i>Ship the smallest version, then scale it</h4>
+        <h3><i>02</i>Ship the smallest version, then scale it</h3>
         <p>I'd rather put a working prototype in front of real users than defend a hypothesis in a document. At JUKSY that meant a prototype, then an MVP live in the market, then feature work shaped by user feedback and test results rather than by what we assumed they wanted, with a metric agreed before launch and an honest read on it after.</p>
       </li>
       <li>
-        <h4><i>03</i>Automate the repetitive work</h4>
+        <h3><i>03</i>Automate the repetitive work</h3>
         <p>Any process that runs the same way twice stops being product work and becomes something to automate. Doing that at Banyan doubled output per editor at flat headcount and gave the team its time back for the parts that needed judgement.</p>
       </li>
     </ul>
@@ -210,19 +199,19 @@
 </section>
 
 <!-- ============ WORK ============ -->
-<section id="work" class="wrap sec" data-form="lattice">
+<section id="work" class="wrap">
   <div class="sec-head rv">
     <span class="sec-idx">02</span>
-    <h2 class="sec-title"><span>Selected Work</span></h2>
-    <p class="sec-note">Three case studies across AI, SaaS and e-commerce ｜ Tap any project to open the full case</p>
+    <h2 class="sec-title">Selected Work</h2>
+    <p class="sec-note">Three case studies across AI, SaaS and e-commerce. Tap any project to open the full case.</p>
   </div>
 
-  <!-- CASE 1: Banyan Digital -->
+  <!-- CASE 1 — Banyan Digital -->
   <article class="case rv">
     <div class="case-grid">
       <div class="case-info">
         <div class="case-meta"><span class="case-no">01</span><span class="tag">AI Automation</span><span class="tag">Growth</span><span class="tag">London ｜ 2026</span></div>
-        <div class="case-title"><h3>Banyan Digital</h3><p class="case-sub">AI Automation &amp; Growth</p></div>
+        <h3>Banyan Digital — AI Automation &amp; Growth</h3>
         <p class="case-lead">Ran product and operations for a social platform with 127k+ monthly active users. Diagnosed content production as the real constraint and shipped five AI automation workflows that doubled output per editor-day at flat headcount.</p>
         <div class="metrics">
           <div class="metric-row">
@@ -233,7 +222,7 @@
           </div>
         </div>
       </div>
-      <button class="visual clickable" type="button" data-open data-cta="View case">
+      <button class="visual clickable" data-open data-cta="View case">
         <div class="cover demo">
           <div class="demo-head"><span>Shoot to published</span><span class="live"><i></i>Running</span></div>
           <div class="demo-body pipe">
@@ -271,7 +260,7 @@
           <div class="demo-foot"><span>One upload ｜ zero manual steps</span><span>10 pieces / editor-day</span></div>
         </div>
         <span class="v-badge">View case →</span>
-        <span class="v-cta"><span>View case <em>↗</em></span></span>
+        <span class="v-cta"><span>View case <em style="font-style:normal">↗</em></span></span>
       </button>
     </div>
     <div class="case-more" hidden>
@@ -284,12 +273,12 @@
     </div>
   </article>
 
-  <!-- CASE 2: RoBard -->
+  <!-- CASE 2 — RoBard -->
   <article class="case rv">
     <div class="case-grid">
       <div class="case-info">
         <div class="case-meta"><span class="case-no">02</span><span class="tag">B2B2C SaaS</span><span class="tag">Sole PM</span><span class="tag">2024-2025</span></div>
-        <div class="case-title"><h3>RoBard SaaS</h3><p class="case-sub">Marketing Automation Platform</p></div>
+        <h3>RoBard SaaS — Marketing Automation Platform</h3>
         <p class="case-lead">As the sole product manager, I built this marketing SaaS platform from zero to one, covering AI-assisted asset collection, AI copywriting trained on brand voice, one-click multi-channel publishing and KOC/KOL marketing. I led a cross-functional team of 10+, shipping an MVP in three months and a live product with a fast iteration cycle within six.</p>
         <div class="metrics">
           <div class="metric-row">
@@ -301,15 +290,15 @@
           <p class="metrics-note">Team of 10+ across product, engineering, design, editorial, sales and finance.</p>
         </div>
       </div>
-      <button class="visual clickable" type="button" data-open data-cta="View artefacts">
+      <button class="visual clickable" data-open data-cta="View artefacts">
         <div class="frame"><i></i><i></i><i></i><span class="cap">RoBard ｜ Product Dashboard</span></div>
-        <div class="shot"><img src="assets/robard-dashboard.jpg" alt="RoBard marketing-automation SaaS product dashboard, designed in Figma" loading="lazy" decoding="async" width="1800" height="1230"></div>
+        <div class="shot"><img src="assets/robard-dashboard.jpg" alt="RoBard marketing-automation SaaS product dashboard, designed in Figma" loading="lazy" decoding="async"></div>
         <span class="v-badge">Enlarge →</span>
-        <span class="v-cta"><span>View artefacts <em>↗</em></span></span>
+        <span class="v-cta"><span>View artefacts <em style="font-style:normal">↗</em></span></span>
       </button>
     </div>
     <div class="case-more" hidden>
-      <div class="more-media"><img src="assets/robard-dashboard.jpg" alt="RoBard product dashboard, designed in Figma"><img src="assets/img_1.jpg" alt="RoBard full function map"><img src="assets/img_2.jpg" alt="RoBard SaaS PRD"></div>
+      <div class="more-media"><img src="assets/robard-dashboard.jpg" alt="RoBard product dashboard, designed in Figma" loading="lazy" decoding="async"><img src="assets/img_1.jpg" alt="RoBard full function map" loading="lazy" decoding="async"><img src="assets/img_2.jpg" alt="RoBard SaaS PRD" loading="lazy" decoding="async"></div>
       <div class="more-text"><div class="dl">
         <div><h4>Challenge</h4><p>JUKSY's editorial and marketing teams were stuck writing press releases by hand, and revenue growth depended on raising output. Coordination cost was high too: there was no single platform for managing releases, tracking orders, approvals and payments, or seeing publication status across channels.</p></div>
         <div><h4>Solution</h4><p>A three-sided platform connecting brands, media channels and JUKSY as the operator, automating the full path from order to publication. Brands raise an order on the platform, including AI-drafted copy and channel selection, which then moves through sales and editorial for review, revision and publishing, then client sign-off and close, with tracking available throughout.</p></div>
@@ -320,12 +309,12 @@
     </div>
   </article>
 
-  <!-- CASE 3: Rosetta.ai -->
+  <!-- CASE 3 — Rosetta.ai -->
   <article class="case rv">
     <div class="case-grid">
       <div class="case-info">
         <div class="case-meta"><span class="case-no">03</span><span class="tag">AI Recommendation</span><span class="tag">E-commerce</span><span class="tag">2021-2024</span></div>
-        <div class="case-title"><h3>Rosetta.ai</h3><p class="case-sub">AI Recommendation Engine</p></div>
+        <h3>Rosetta.ai — AI Recommendation Engine</h3>
         <p class="case-lead">Built an AI personalisation engine with the machine learning team and deployed it across 1,000+ e-commerce clients, turning generic bestseller widgets into real-time, per-user recommendations.</p>
         <div class="metrics">
           <div class="metric-row">
@@ -337,14 +326,14 @@
           <p class="metrics-note">Commercial figures are first-year averages for early-adopter accounts migrating from zero personalisation. Latency is measured against the previous production solution.</p>
         </div>
       </div>
-      <button class="visual clickable" type="button" data-open data-cta="View case">
-        <div class="shot"><img src="assets/rosetta.jpg" alt="Rosetta.ai AI recommendation engine dashboard — additional GMV, recommender clicks and CTR" loading="lazy" decoding="async" width="1600" height="999"></div>
+      <button class="visual clickable" data-open data-cta="View case">
+        <div class="shot"><img src="assets/rosetta.jpg" alt="Rosetta.ai AI recommendation engine dashboard — additional GMV, recommender clicks and CTR" loading="lazy" decoding="async"></div>
         <span class="v-badge">View case →</span>
-        <span class="v-cta"><span>View case <em>↗</em></span></span>
+        <span class="v-cta"><span>View case <em style="font-style:normal">↗</em></span></span>
       </button>
     </div>
     <div class="case-more" hidden>
-      <div class="more-media"><img src="assets/rosetta.jpg" alt="Rosetta.ai recommendation engine dashboard"></div>
+      <div class="more-media"><img src="assets/rosetta.jpg" alt="Rosetta.ai recommendation engine dashboard" loading="lazy" decoding="async"></div>
       <div class="more-text"><div class="dl">
         <div><h4>Challenge</h4><p>Clients relied on generic bestseller and frequently-bought-together widgets that ignored individual style preference. In fashion this fails harder than in most categories: catalogues turn over every season, and what a shopper buys depends on taste rather than spec, so popularity-based merchandising surfaces the wrong things to almost everyone. The result was poor discovery, low AOV and high product-page bounce.</p></div>
         <div><h4>My role</h4><p>As Product Specialist and fashion domain expert I owned the lifecycle: defining model requirements with data science, building the data infrastructure, designing the A/B testing framework, and coordinating rollout across 1,000+ merchants. I built the 10,000+ attribute taxonomy and database from consumer research across the fashion industry, which lifted product recognition accuracy from 40% to 90%+ across all categories and gave the ranking model its benchmark. The engine reads browsing patterns, style affinity and purchase intent to surface per-user recommendations in real time, at 43% lower inference latency than the previous production solution.</p></div>
@@ -353,20 +342,20 @@
       </div></div>
     </div>
   </article>
-</section>
 
-<!-- ============ SIDE PROJECTS ============ -->
-<section id="projects" class="wrap sec" data-form="lattice">
-  <div class="sec-head rv">
+  </section>
+  <section id="projects" class="wrap side-projects">
+  <!-- Side projects -->
+  <div class="sec-head rv" >
     <span class="sec-idx">+</span>
-    <h2 class="sec-title"><span>Side Projects</span></h2>
-    <p class="sec-note">Products I scoped, built and shipped on my own</p>
+    <h2 class="sec-title">Side Projects</h2>
+    <p class="sec-note">Products I scoped, built and shipped on my own.</p>
   </div>
   <article class="case rv">
     <div class="case-grid">
       <div class="case-info">
         <div class="case-meta"><span class="case-no">04</span><span class="tag">Live product</span><span class="tag">Agentic automation</span><span class="tag">2026</span></div>
-        <div class="case-title"><h3>Credit-card rewards search</h3></div>
+        <h3>Credit-card rewards search</h3>
         <p class="case-lead">Card rewards shift constantly and spending contexts keep multiplying, so almost nobody tracks which promotions are live at any given moment. The result is the same question at every checkout: which card do I use to get the most back? I mapped the common spending contexts against 30+ cards, so you register the cards you actually hold once and get the best-return answer on every purchase after that.</p>
         <div class="metrics">
           <div class="metric-row">
@@ -394,7 +383,7 @@
           <div class="demo-foot"><span>Net reward after FX fees, caps &amp; registration</span><span>30+ cards indexed</span></div>
         </div>
         <span class="v-badge">Live site ↗</span>
-        <span class="v-cta"><span>Open the tool <em>↗</em></span></span>
+        <span class="v-cta"><span>Open the tool <em style="font-style:normal">↗</em></span></span>
       </a>
     </div>
   </article>
@@ -403,11 +392,11 @@
     <div class="case-grid">
       <div class="case-info">
         <div class="case-meta"><span class="case-no">05</span><span class="tag">LLM product</span><span class="tag">Unit economics</span><span class="tag">2026</span></div>
-        <div class="case-title"><h3>Daily Brief</h3><p class="case-sub">Personalised morning briefing bot</p></div>
+        <h3>Daily Brief — Personalised morning briefing bot</h3>
         <p class="case-lead">A Telegram bot that delivers the day's news at a set time, filtered by the industries you care about and capped at however many stories you want. It also handles learning tracks: pick a subject like accounting or finance and it builds a daily study plan alongside the briefing.</p>
-        <div class="about-copy case-notes">
-          <p><strong>The constraint</strong><br>The interesting part was the cost. Running an agent through several WebSearch calls and having it read each result end to end burns tens of thousands of tokens on search output alone.</p>
-          <p><strong>Solution</strong><br>Switching to a script that pulls RSS first, returning forty headlines and summaries as cheap plain text, then handing the model a single select-and-write pass, cut token use by five to ten times and made the output more consistent.</p>
+        <div class="about-copy">
+          <p style="font-size:1rem;line-height:1.6;max-width:54ch"><strong>The constraint</strong><br>The interesting part was the cost. Running an agent through several WebSearch calls and having it read each result end to end burns tens of thousands of tokens on search output alone.</p>
+          <p style="font-size:1rem;line-height:1.6;max-width:54ch"><strong>Solution</strong><br>Switching to a script that pulls RSS first, returning forty headlines and summaries as cheap plain text, then handing the model a single select-and-write pass, cut token use by five to ten times and made the output more consistent.</p>
         </div>
       </div>
       <a class="visual clickable" href="https://t.me/DailyINTNewsBot" target="_blank" rel="noopener" data-cta="Open the bot">
@@ -438,7 +427,7 @@
           <div class="demo-foot"><span>Written per reader</span><span>Flat cost curve</span></div>
         </div>
         <span class="v-badge">Open the bot ↗</span>
-        <span class="v-cta"><span>Open the bot <em>↗</em></span></span>
+        <span class="v-cta"><span>Open the bot <em style="font-style:normal">↗</em></span></span>
       </a>
     </div>
   </article>
@@ -447,7 +436,7 @@
     <div class="case-grid">
       <div class="case-info">
         <div class="case-meta"><span class="case-no">06</span><span class="tag">Data product</span><span class="tag">Scoping under constraint</span><span class="tag">2026</span></div>
-        <div class="case-title"><h3>Travel Radar</h3><p class="case-sub">Flight price agent</p></div>
+        <h3>Travel Radar — Flight price agent</h3>
         <p class="case-lead">Built for getting from A to B at the lowest real cost, covering both direct routes and self-connected multi-leg ones, across fixed or open date ranges. Ask for ten days in Iceland leaving from Paris any time in January, and Travel Radar prices the direct flights alongside the alternatives: Paris to London to Reykjavik, or any other city worth routing through. Not just fixed dates, and not just what the airlines sell as a single connecting ticket.</p>
       </div>
       <a class="visual clickable" href="https://t.me/FlightTicketMasterBot" target="_blank" rel="noopener" data-cta="Open the bot">
@@ -489,108 +478,97 @@
           <div class="demo-foot"><span>Alerts only below your threshold</span><span>Any origin ｜ any destination</span></div>
         </div>
         <span class="v-badge">Open the bot ↗</span>
-        <span class="v-cta"><span>Open the bot <em>↗</em></span></span>
+        <span class="v-cta"><span>Open the bot <em style="font-style:normal">↗</em></span></span>
       </a>
     </div>
   </article>
+
 </section>
 
 
 <!-- ============ EXPERIENCE ============ -->
-<section id="experience" class="sec xp" data-form="line">
-  <div class="xp-grid wrap">
-    <div class="xp-side">
-      <div class="xp-sticky">
-        <div class="sec-head rv">
-          <span class="sec-idx">03</span>
-          <h2 class="sec-title"><span>Professional Experience</span></h2>
-        </div>
-        <p class="xp-count" aria-hidden="true"><b id="xpNow">01</b><span> / 06</span></p>
+<section id="experience" class="wrap">
+  <div class="sec-head rv">
+    <span class="sec-idx">03</span>
+    <h2 class="sec-title">Professional Experience</h2>
+  </div>
+  <div class="tl">
+    <div class="tl-row now rv">
+      <div class="tl-when">Apr 2026 - Jul 2026</div>
+      <div class="tl-what">
+        <h3>Product Operations Specialist</h3>
+        <div class="tl-where">Banyan Digital Limited ｜ London, UK ｜ Hybrid</div>
       </div>
+      <p class="tl-note">Ran a content social community platform with over <b>127k monthly active users</b>. Through data analysis and stakeholder interviews across departments, I designed and shipped five automated workflows that <b>doubled output from 5 to 10 pieces per editor-day</b>.</p>
     </div>
-    <div class="xp-axis" aria-hidden="true">
-      <span class="xp-line" id="xpLine"></span>
-      <span class="xp-star"><svg viewBox="0 0 40 40" focusable="false"><path d="M20 0C21.2 12.6 27.4 18.8 40 20 27.4 21.2 21.2 27.4 20 40 18.8 27.4 12.6 21.2 0 20 12.6 18.8 18.8 12.6 20 0Z"/></svg></span>
+    <div class="tl-row rv">
+      <div class="tl-when">Apr 2024 - Aug 2025</div>
+      <div class="tl-what">
+        <h3>Product Manager (promoted from Junior Product Manager within nine months)</h3>
+        <div class="tl-where">Juksy Digital Media Co., Ltd. ｜ Taipei, Taiwan ｜ Hybrid</div>
+      </div>
+      <p class="tl-note">Built a marketing automation SaaS and an AI content pipeline that lifted editorial output from <b>7 to 20+ articles per editor per day</b>. Ran agile delivery across a cross-functional team of 10 spanning engineering, design and sales, reporting to C-suite stakeholders.</p>
     </div>
-    <ol class="tl">
-      <li class="tl-row now">
-        <div class="tl-when">Apr 2026 - Jul 2026</div>
-        <div class="tl-what">
-          <h3>Product Operations Specialist</h3>
-          <div class="tl-where">Banyan Digital Limited ｜ London, UK ｜ Hybrid</div>
-        </div>
-        <p class="tl-note">Ran a content social community platform with over <b>127k monthly active users</b>. Through data analysis and stakeholder interviews across departments, I designed and shipped five automated workflows that <b>doubled output from 5 to 10 pieces per editor-day</b>.</p>
-      </li>
-      <li class="tl-row">
-        <div class="tl-when">Apr 2024 - Aug 2025</div>
-        <div class="tl-what">
-          <h3>Product Manager (promoted from Junior Product Manager within nine months)</h3>
-          <div class="tl-where">Juksy Digital Media Co., Ltd. ｜ Taipei, Taiwan ｜ Hybrid</div>
-        </div>
-        <p class="tl-note">Built a marketing automation SaaS and an AI content pipeline that lifted editorial output from <b>7 to 20+ articles per editor per day</b>. Ran agile delivery across a cross-functional team of 10 spanning engineering, design and sales, reporting to C-suite stakeholders.</p>
-      </li>
-      <li class="tl-row">
-        <div class="tl-when">Feb 2021 - Apr 2024</div>
-        <div class="tl-what">
-          <h3>Product Specialist &amp; Domain Expert</h3>
-          <div class="tl-where">Rosetta.ai ｜ Taipei, Taiwan ｜ Hybrid</div>
-        </div>
-        <p class="tl-note">Built AI recommendation and personalisation for fashion e-commerce with the ML team, deployed across <b>1,000+ merchants</b>. Owned and built the 10,000+ attribute taxonomy and database that the ranking model scored against. Worked with engineering and data science to cut response time by 43%.</p>
-      </li>
-      <li class="tl-row">
-        <div class="tl-when">Oct 2020 - Mar 2023</div>
-        <div class="tl-what">
-          <h3>Project Manager</h3>
-          <div class="tl-where">Freelance ｜ Taipei, Taiwan</div>
-        </div>
-        <p class="tl-note">Coordinated projects across industries, managing client and supplier relationships alongside e-commerce platform operations. Delivered two films, three music videos, one documentary and one curated event, plus a range of ongoing business partnerships.</p>
-      </li>
-      <li class="tl-row">
-        <div class="tl-when">Mar 2020 - Aug 2020</div>
-        <div class="tl-what">
-          <h3>Procurement Specialist</h3>
-          <div class="tl-where">MAKALOT Industrial ｜ Taipei, Taiwan ｜ On-site</div>
-        </div>
-        <p class="tl-note">Managed supplier orders across China, Hong Kong and Southeast Asia, covering pricing negotiation, quality control and delivery scheduling. Ensured the on-time launch of 8 apparel products for Japanese fast-fashion brand GU.</p>
-      </li>
-      <li class="tl-row">
-        <div class="tl-when">Sep 2015 - Jun 2019</div>
-        <div class="tl-what">
-          <h3>BA Fashion Marketing</h3>
-          <div class="tl-where">Fu Jen Catholic University ｜ Taiwan</div>
-        </div>
-        <p class="tl-note">Consumer and market analysis, project management and go-to-market strategy. Winner, 46th Graduation Exhibition; led the end-to-end marketing campaign for the graduate degree show.</p>
-      </li>
-    </ol>
+    <div class="tl-row rv">
+      <div class="tl-when">Feb 2021 - Apr 2024</div>
+      <div class="tl-what">
+        <h3>Product Specialist &amp; Domain Expert</h3>
+        <div class="tl-where">Rosetta.ai ｜ Taipei, Taiwan ｜ Hybrid</div>
+      </div>
+      <p class="tl-note">Built AI recommendation and personalisation for fashion e-commerce with the ML team, deployed across <b>1,000+ merchants</b>. Owned and built the 10,000+ attribute taxonomy and database that the ranking model scored against. Worked with engineering and data science to cut response time by 43%.</p>
+    </div>
+    <div class="tl-row rv">
+      <div class="tl-when">Oct 2020 - Mar 2023</div>
+      <div class="tl-what">
+        <h3>Project Manager</h3>
+        <div class="tl-where">Freelance ｜ Taipei, Taiwan</div>
+      </div>
+      <p class="tl-note">Coordinated projects across industries, managing client and supplier relationships alongside e-commerce platform operations. Delivered two films, three music videos, one documentary and one curated event, plus a range of ongoing business partnerships.</p>
+    </div>
+    <div class="tl-row rv">
+      <div class="tl-when">Mar 2020 - Aug 2020</div>
+      <div class="tl-what">
+        <h3>Procurement Specialist</h3>
+        <div class="tl-where">MAKALOT Industrial ｜ Taipei, Taiwan ｜ On-site</div>
+      </div>
+      <p class="tl-note">Managed supplier orders across China, Hong Kong and Southeast Asia, covering pricing negotiation, quality control and delivery scheduling. Ensured the on-time launch of 8 apparel products for Japanese fast-fashion brand GU.</p>
+    </div>
+    <div class="tl-row rv">
+      <div class="tl-when">Sep 2015 - Jun 2019</div>
+      <div class="tl-what">
+        <h3>BA Fashion Marketing</h3>
+        <div class="tl-where">Fu Jen Catholic University ｜ Taiwan</div>
+      </div>
+      <p class="tl-note">Consumer and market analysis, project management and go-to-market strategy. Winner, 46th Graduation Exhibition; led the end-to-end marketing campaign for the graduate degree show.</p>
+    </div>
   </div>
 </section>
 
 <!-- ============ CAPABILITIES ============ -->
-<section id="capabilities" class="wrap sec" data-form="cluster">
+<section id="capabilities" class="wrap">
   <div class="sec-head rv">
-    <span class="sec-idx">04</span><h2 class="sec-title"><span>Capabilities</span></h2>
-    <p class="sec-note">Product judgement, AI fluency and the technical depth to ship with engineering</p>
+    <span class="sec-idx">04</span><h2 class="sec-title">Capabilities</h2>
+    <p class="sec-note">Product judgement, AI fluency and the technical depth to ship with engineering.</p>
   </div>
-  <div class="caps rv">
-    <div class="cap"><h4><i></i>AI &amp; Data</h4><ul>
+  <div class="caps">
+    <div class="cap rv"><h3><i></i>AI &amp; Data</h3><ul>
       <li>LLM integration</li><li>Agentic workflow automation</li><li>Model evaluation and guardrails</li><li>A/B testing and experimentation</li><li>SQL</li><li>Google Analytics</li><li>SEO</li><li>Claude Code</li><li>Codex</li></ul></div>
-    <div class="cap"><h4><i></i>Product</h4><ul>
+    <div class="cap rv"><h3><i></i>Product</h3><ul>
       <li>Product strategy</li><li>Roadmapping</li><li>Discovery and user research</li><li>PRD and functional specs</li><li>Prioritisation</li><li>Prototyping and UX</li><li>GTM and launch</li><li>Agile and sprint planning</li></ul></div>
-    <div class="cap"><h4><i></i>Tools</h4><ul>
+    <div class="cap rv"><h3><i></i>Tools</h3><ul>
       <li>Claude Code</li><li>Codex</li><li>Figma</li><li>Jira</li><li>Miro</li><li>Notion</li><li>Slack</li><li>LINE OA</li></ul></div>
-    <div class="cap"><h4><i></i>Leadership</h4><ul>
+    <div class="cap rv"><h3><i></i>Leadership</h3><ul>
       <li>Cross-functional delivery</li><li>Stakeholder management</li><li>C-suite communication</li></ul></div>
-    <div class="cap"><h4><i></i>Domains</h4><ul>
+    <div class="cap rv"><h3><i></i>Domains</h3><ul>
       <li>SaaS</li><li>E-commerce</li><li>Fashion business</li><li>Digital media</li></ul></div>
-    <div class="cap"><h4><i></i>Languages</h4><ul>
+    <div class="cap rv"><h3><i></i>Languages</h3><ul>
       <li>Mandarin and Taiwanese (native)</li><li>English (fluent)</li></ul></div>
   </div>
 </section>
 
 <!-- ============ CONTACT ============ -->
-<section id="contact" class="wrap sec contact" data-form="logo">
-  <div class="contact-mark" id="contactMark" aria-hidden="true"><svg viewBox="0 0 1000 588" focusable="false"><use href="#logo-mark"/></svg></div>
-  <p class="contact-big metal rv">Let’s build something great together</p>
+<section id="contact" class="wrap contact">
+  <h2 class="contact-big rv">Open to new <span class="em">roles</span> in London.</h2>
   <ul class="avail rv">
     <li class="key">Right to work in the UK, no sponsorship required</li>
     <li>London-based ｜ On-site, hybrid or remote</li>
@@ -606,18 +584,18 @@
 <footer class="wrap">
   <span>© 2026 ｜ Cheng En Hsieh</span>
   <span>Product Manager ｜ London ｜ Right to work in the UK</span>
-  <span class="foot-r">Built from scratch <button class="motion-btn" id="motionBtn" type="button" aria-pressed="false">Pause motion</button></span>
+  <span>Built from scratch</span>
 </footer>
 </main>
 
-<button class="totop" id="toTop" type="button" aria-label="Back to top">
-  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5"/><path d="M5 12l7-7 7 7"/></svg>
+<button class="totop" id="toTop" aria-label="Back to top" data-cursor>
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5"/><path d="M5 12l7-7 7 7"/></svg>
 </button>
 
 <!-- ============ LIGHTBOX ============ -->
-<div class="lb" id="lb" role="dialog" aria-modal="true" aria-label="Case detail" hidden>
+<dialog class="lb" id="lb" aria-label="Case detail">
   <div class="lb-panel">
-    <button class="lb-close" id="lbClose" type="button" aria-label="Close">✕</button>
+    <button class="lb-close" id="lbClose" aria-label="Close">✕</button>
     <div class="lb-media" id="lbMedia">
       <div class="lb-main" id="lbMain" data-lenis-prevent></div>
       <div class="lb-thumbs" id="lbThumbs" data-lenis-prevent hidden></div>
@@ -625,11 +603,13 @@
     </div>
     <div class="lb-body" id="lbBody" data-lenis-prevent tabindex="0"></div>
   </div>
-</div>
+</dialog>
 
-<div class="zoom" id="zoom" data-lenis-prevent role="dialog" aria-modal="true" aria-label="Enlarged image" hidden>
-  <button class="zoom-close" id="zoomClose" type="button" aria-label="Close enlarged image">✕</button>
+<dialog class="zoom" id="zoom" aria-label="Enlarged image">
+  <button class="zoom-close" id="zoomClose" aria-label="Close enlarged image">✕</button>
   <img id="zoomImg" alt="">
-</div>
+</dialog>
+
+
 </body>
 </html>

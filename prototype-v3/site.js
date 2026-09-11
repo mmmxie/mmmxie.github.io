@@ -447,7 +447,8 @@
       if (window.console && /debug/.test(location.search)) console.warn('universe unavailable', err);
     });
   }
-  if (!reduce) boot();
+  // the entrance needs the particles now; otherwise let the page settle first
+  if (!reduce) { if (playing) boot(); else (window.requestIdleCallback || setTimeout)(boot, { timeout: 700 }); }
 
   /* bfcache and unload: give GPU memory back */
   on(window, 'pagehide', function (e) { if (!e.persisted && universe) { universe.destroy(); universe = null; } });
