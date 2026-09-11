@@ -726,7 +726,7 @@ export function createUniverse(opts) {
         if (it < intro.T.brk) { if (glyph) rasterName(); }   // the name moved: sample it where it is now
         else api.skip();                                       // mid-break: finish cleanly instead of flying from stale spots
       }
-      if (still) { step(performance.now()); frame(performance.now()); }
+      if (still) frame(performance.now());   // frame() carries the lost-context guard; never step() around it
     }, 150);
   });
 
