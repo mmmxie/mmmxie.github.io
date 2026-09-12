@@ -372,6 +372,7 @@
   var playing = h.classList.contains('intro-on');
   var T = { type1: [0.35, 1.55], type2: [1.6, 3.15], qOut: [4.7, 5.2], conv: [4.8, 5.9], nameIn: [5.45, 5.9], roleIn: [5.7, 6.15], brk: 6.9, brkDur: 2.45, roleOut: [6.75, 7.05], reveal: 8.2 };
   var state = { t0: null, T: T, done: false };
+  if (/[?&]debug/.test(location.search)) window.__intro = state;   // exposed before the module loads, so tests can see the real start
   var revealed = !playing, finished = !playing, skipped = false, nameGone = false, watchdog = 0;
   var lines = $$('.ql-v').map(function (el) {
     var txt = el.getAttribute('data-text') || '', frag = d.createDocumentFragment(), spans = [];
@@ -401,6 +402,7 @@
   function finish() {
     if (finished) return;
     finished = true;
+    state.finishes = (state.finishes || 0) + 1;   // observable in ?debug=1, so tests can tell who ended the entrance
     clearTimeout(watchdog);
     reveal();
     if (universe) universe.finishNow();
@@ -501,7 +503,7 @@
       if (reduce || motionOff) universe.setStill(true);
       if (lbOpen) universe.setPaused(true);
       universe.start();
-      if (new URLSearchParams(location.search).has('debug')) { window.__universe = universe; window.__intro = state; }
+      if (new URLSearchParams(location.search).has('debug')) window.__universe = universe;
     }).catch(function (err) {
       booting = false;
       h.classList.remove('gl-on');
