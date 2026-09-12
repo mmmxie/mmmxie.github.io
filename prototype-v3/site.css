@@ -188,8 +188,9 @@ html.cursor-on .cur-ring{opacity:1}
 .hero-sub{max-width:62ch;margin:clamp(22px,2.8vw,32px) auto 0;color:var(--ink-2);font-size:clamp(1rem,1.2vw,1.1rem);line-height:1.65;text-wrap:balance}
 .sub-br{display:none}
 /* wide enough for one line: shrink the type to fit rather than wrap it.
-   73.5 is the sentence's own width in ems, measured in IBM Plex Sans, plus a margin. */
-@media (min-width:1200px){.hero-sub{max-width:none;white-space:nowrap;font-size:min(1.1rem,calc((100vw - 2 * var(--gutter)) / 73.5))}}
+   74.2 is the sentence's own width in ems for the WIDEST font in the stack
+   (Helvetica Neue, 72.327em, measured with the webfont blocked), plus a margin. */
+@media (min-width:1200px){.hero-sub{max-width:none;white-space:nowrap;font-size:min(1.1rem,calc((100vw - 2 * var(--gutter)) / 74.2))}}
 /* narrower desktops: exactly two lines, breaking before "building" */
 @media (min-width:900px) and (max-width:1199.98px){.hero-sub{max-width:none;text-wrap:initial}.sub-br{display:inline}}
 .hero-cta-row{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;margin-top:clamp(28px,3.2vw,40px)}
@@ -238,7 +239,7 @@ html.past-hero .ticker-track{animation-play-state:paused}
 .case-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,.95fr);gap:clamp(26px,5vw,80px);align-items:stretch}
 .case-grid>.visual{align-self:center}
 .case:nth-of-type(even) .case-info{order:2}
-.case-info{display:flex;flex-direction:column;gap:clamp(22px,2.6vw,34px);min-width:0}
+.case-info{display:flex;flex-direction:column;justify-content:center;gap:clamp(22px,2.6vw,34px);min-width:0}
 @media (max-width:880px){.case-grid{grid-template-columns:minmax(0,1fr);gap:24px}.case:nth-of-type(even) .case-info{order:0}}
 .case-meta{display:flex;gap:14px;align-items:center;flex-wrap:wrap}
 .case-no{font-family:var(--f-mono);font-size:.72rem;color:var(--accent);letter-spacing:.12em;margin-right:8px}
@@ -436,6 +437,7 @@ html.js .tl-row.active .tl-what h3{color:var(--ink)}
   .xp-grid{grid-template-columns:28px minmax(0,1fr);column-gap:18px}
   .xp-side{grid-column:1 / -1}
   .xp-sticky{position:static}
+  .xp .sec-head{padding-block:clamp(72px,8.4vw,132px) 22px}
   .xp-count{display:none}
   .xp-axis{grid-column:1}
   .xp-star{width:26px;height:26px;top:calc(50vh - 13px)}
@@ -461,8 +463,10 @@ html.js .tl-row.active .tl-what h3{color:var(--ink)}
 .contact-mark svg{width:100%;height:100%;display:block}
 html.gl-form .contact-mark{opacity:0}
 .contact-big{font-family:var(--f-display);font-weight:500;letter-spacing:-.045em;line-height:1.04;font-size:clamp(2.2rem,6.4vw,5.6rem);max-width:21ch;margin:0 auto clamp(20px,2.4vw,28px);text-wrap:balance;padding:.04em .06em .1em}
-/* 14.8 is the sentence's own width in ems at this weight and tracking, plus a margin */
-@media (min-width:900px){.contact-big{white-space:nowrap;max-width:none;font-size:min(5.6rem,calc((100vw - 2 * var(--gutter)) / 14.8))}}
+/* 15.45 is the sentence's width in ems for the WIDEST font in the stack at this weight
+   and tracking (Helvetica Neue Medium, 15.191em with the webfont blocked), plus a margin.
+   Archivo itself is 14.55em, so with the webfont up this leaves room to spare. */
+@media (min-width:900px){.contact-big{white-space:nowrap;max-width:none;font-size:min(5.6rem,calc((100vw - 2 * var(--gutter)) / 15.45))}}
 .avail{list-style:none;display:flex;flex-wrap:wrap;justify-content:center;gap:10px 20px;margin:0 auto clamp(30px,3.6vw,46px)}
 .avail li{display:inline-flex;align-items:center;font-size:.64rem;letter-spacing:.12em;color:var(--ink-2)}
 .avail li.key{color:var(--ink)}
@@ -475,7 +479,7 @@ html.gl-form .contact-mark{opacity:0}
 .cgrid .v{font-size:1.02rem;font-weight:500;display:flex;justify-content:space-between;align-items:center;gap:8px;overflow-wrap:anywhere}
 .cgrid .ar{color:var(--accent);transition:transform .3s var(--ease-out)}
 .cgrid a:hover .ar{transform:translate(3px,-3px)}
-@media (max-width:760px){.cgrid{grid-template-columns:1fr}}
+@media (max-width:760px){.cgrid{grid-template-columns:1fr;gap:10px;background:none;border:0;border-radius:0;overflow:visible}.cgrid a{border:1px solid var(--line-2);border-radius:14px}}
 
 footer{position:relative;z-index:1;border-top:1px solid var(--line-2);padding-block:26px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;font-size:.64rem;letter-spacing:.08em;color:var(--ink-3)}
 .foot-r{display:inline-flex;align-items:center;gap:18px;flex-wrap:wrap}

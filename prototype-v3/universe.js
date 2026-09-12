@@ -299,6 +299,7 @@ export function createUniverse(opts) {
   let spin = 0, spinI = 0, curSpin = 0, sceneS = 0, sceneTarget = 0, scrollY0 = 0;
   let time = 0, last = 0, frameId = 0, paused = false, hidden = document.hidden, still = false, disposed = false;
   let draws = 0, formOn = false, frameCost = 0, slow = 0, drawN = 0, lastNow = 0, ivEMA = 0, refresh = 40;
+  const sceneFade = new Float32Array(7).fill(1);   // one dimmer per scene, indexed by scene number
   const ring = new Float32Array(240); let ringI = 0;
   const ptr = { x: -1e4, y: -1e4, tx: -1e4, ty: -1e4, energy: 0, has: false };
   let brkProgress = 0, brkSkipAt = -1, brkSkipProg = 0, skipT = -1, introDone = !intro;
@@ -481,14 +482,20 @@ export function createUniverse(opts) {
     const PR = 92, PR2 = PR * PR;
 
     const s0 = Math.floor(sceneS), s1 = Math.min(s0 + 1, 6), sf = sceneS - s0;
-    // a shape is at full strength while its section heading is in view, then
-    // steps back so it never sits on top of the reading
-    let depthIn = 0;
-    for (const sc of sections) if (sc.scene === sceneTarget && scrollY0 + H * 0.5 >= sc.top) depthIn = (scrollY0 + H * 0.5 - sc.top) / H;
-    // the axis and the mark hold; the constellations sit at the edges so they only
-    // step back a little; the shapes that share space with the reading step back fully
-    const fadeDepth = sceneTarget === 4 || sceneTarget === 6 ? 0 : sceneTarget === 5 ? 0.3 : 0.72;
-    const shapeFade = 1 - fadeDepth * smooth(0.55, 1.35, depthIn);
+    // A shape is at full strength while its section heading is in view, then steps
+    // back so it never sits on top of the reading. One factor per scene, each read
+    // from its OWN section's scroll depth: switching a single factor on sceneTarget
+    // made the whole shape jump the frame the target changed (0.28 -> 1 crossing into
+    // Experience, and back the other way scrolling up).
+    // The axis and the mark hold; the constellations sit at the edges so they only
+    // step back a little; shapes that share space with the reading step back fully.
+    for (let k = 0; k < sceneFade.length; k++) sceneFade[k] = 1;
+    for (const sc of sections) {
+      const d = (scrollY0 + H * 0.5 - sc.top) / H;
+      if (d <= 0 || sc.scene >= sceneFade.length) continue;
+      const depth = sc.scene === 4 || sc.scene === 6 ? 0 : sc.scene === 5 ? 0.3 : 0.72;
+      sceneFade[sc.scene] = 1 - depth * smooth(0.55, 1.35, d);
+    }
     const readAlpha = 1 - 0.46 * smooth(0.05, 0.6, Math.min(sceneS, 1));
     // break progress on the same wall clock as the page; a late skip compresses the rest into 0.5 s
     if (introPhase && it >= Tl.brk) {
@@ -547,7 +554,7 @@ export function createUniverse(opts) {
         if (cfg.forms && P.form[i] && sceneS > 0.001) {
           // bamlab-style handover: each particle leaves on its own delay and arcs
           let x0 = x, y0 = y, sz0 = s, a0 = a;
-          if (s0 > 0) { shapeAt(s0, i); x0 = tmp.x; y0 = tmp.y; sz0 = tmp.s; a0 = tmp.a; }
+          if (s0 > 0) { shapeAt(s0, i); x0 = tmp.x; y0 = tmp.y; sz0 = tmp.s; a0 = tmp.a * sceneFade[s0]; }
           if (sf > 0) {
             shapeAt(s1, i);
             const d0 = P.r4[i] * 0.42;
@@ -558,9 +565,8 @@ export function createUniverse(opts) {
             x = u * u * x0 + 2 * u * l * mx + l * l * tmp.x;
             y = u * u * y0 + 2 * u * l * my + l * l * tmp.y;
             s = sz0 + (tmp.s - sz0) * l;
-            a = (a0 + (tmp.a - a0) * l) * (1 - 0.55 * Math.sin(Math.PI * l));
+            a = (a0 + (tmp.a * sceneFade[s1] - a0) * l) * (1 - 0.55 * Math.sin(Math.PI * l));
           } else { x = x0; y = y0; s = sz0; a = a0; }
-          if (s0 > 0 || sf > 0) a *= shapeFade;
           layer = 0;
         }
       }
@@ -787,7 +793,12 @@ export function createUniverse(opts) {
     setStill(v) { still = v; if (!v) run(); else if (!frameId) frame(performance.now()); },
     start() { run(); },
     destroy,
-    inspect() { return { N, drawN, T, tileCSS, dpr, renderer: api.renderer, introDone, sceneS, sceneTarget, frameCost: +frameCost.toFixed(2), front: !!RF, formOn, paused, still, draws, glyphX: glyph ? glyph.ox : null, glyphY: glyph ? glyph.oy : null, glyphW: glyph ? glyph.gw : null }; }
+    inspect() {
+      // meanAlpha is what the section shapes actually add up to on screen this frame;
+      // the smoothness check sweeps a section boundary and watches it for a step
+      let sum = 0; for (let i = 0; i < drawN; i++) sum += A[i];
+      return { N, drawN, T, tileCSS, dpr, renderer: api.renderer, introDone, sceneS, sceneTarget, meanAlpha: drawN ? +(sum / drawN).toFixed(5) : 0, sceneFade: Array.from(sceneFade), frameCost: +frameCost.toFixed(2), front: !!RF, formOn, paused, still, draws, glyphX: glyph ? glyph.ox : null, glyphY: glyph ? glyph.oy : null, glyphW: glyph ? glyph.gw : null };
+    }
   };
   onRenderer && onRenderer(api.renderer);
   return api;

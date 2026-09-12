@@ -15,7 +15,13 @@
   if(m==='off')h.classList.add('motion-off');
   if(reduce||m==='off')h.classList.add('still');
   /* every load replays the entrance: no session gate, only an explicit opt-out */
-  if(!reduce&&m!=='off'&&!location.hash&&!/[?&]nointro/.test(location.search))h.classList.add('intro-on');
+  if(!reduce&&m!=='off'&&!location.hash&&!/[?&]nointro/.test(location.search)){
+    h.classList.add('intro-on');
+    /* reloading from half way down restores the old scroll position, and any scroll
+       skips the entrance. Hold the page at the top for the entrance, then hand
+       restoration back so Back still returns you where you were. */
+    try{history.scrollRestoration='manual'}catch(e){}
+  }
   /* failsafe: if the page script never reports in, drop every JS-only hiding
      state so the content shows as it would without JavaScript */
   setTimeout(function(){if(!window.__ceReady){h.classList.remove('js','intro-on');h.classList.add('no-js');}},4000);

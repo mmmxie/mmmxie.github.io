@@ -30,6 +30,7 @@
   /* loaded here, after the page works, so a slow or failed CDN can't hold anything up */
   function loadLenis() {
     if (reduce || coarse || motionOff) return;
+    if (playing && !revealed) return;   // nothing to scroll behind the entrance, and it would animate scrollTo
     if (window.Lenis) return startLenis();
     if (d.getElementById('lenisJs')) return;
     var sc = d.createElement('script');
@@ -45,7 +46,7 @@
     (function raf(t) { if (lenis !== own) return; own.raf(t); requestAnimationFrame(raf); })(performance.now());
   }
   function stopLenis() { if (!lenis) return; var l = lenis; lenis = null; l.destroy(); }
-  loadLenis();
+  // started from applyStill() at the end of this file, once playing/revealed are known
   function scrollToEl(el) {
     if (lenis) lenis.scrollTo(el, { offset: -10 });
     else el.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth' });
@@ -397,6 +398,7 @@
     revealed = true;
     h.classList.add('revealing');
     h.classList.remove('intro-on');
+    loadLenis();
     setTimeout(function () { h.classList.remove('revealing'); shine($('#heroTitle')); }, 1400);
     measure(); onScroll();
   }
@@ -450,12 +452,16 @@
     requestAnimationFrame(tick);
   }
   if (playing) {
+    var scrollArmed = false;
+    function holdTop() { if ((window.scrollY || 0) > 0) window.scrollTo(0, 0); }
+    holdTop();
+    afterFirstFrame(function () { holdTop(); setTimeout(function () { holdTop(); scrollArmed = true; }, 300); });
     on(intro, 'click', skip);
     on($('#introSkip'), 'click', function (e) { e.stopPropagation(); skip(); });
     on(window, 'wheel', function (e) { if (Math.abs(e.deltaY) > 4) skip(); });
     on(window, 'touchmove', skip);
     on(window, 'keydown', function (e) { if (['Tab', 'Escape', 'Enter', ' ', 'ArrowDown', 'PageDown', 'End'].indexOf(e.key) > -1) skip(); });
-    on(window, 'scroll', function () { if ((window.scrollY || 0) > 10) skip(); });
+    on(window, 'scroll', function () { if (!scrollArmed) return holdTop(); if ((window.scrollY || 0) > 10) skip(); });
     // opened in a background tab: the entrance waits until someone is looking;
     // hidden once it is running, it hands the page straight back
     on(d, 'visibilitychange', function () {
