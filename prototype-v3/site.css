@@ -437,7 +437,10 @@ html.js .tl-row.active .tl-what h3{color:var(--ink)}
   .xp-grid{grid-template-columns:28px minmax(0,1fr);column-gap:18px}
   .xp-side{grid-column:1 / -1}
   .xp-sticky{position:static}
-  .xp .sec-head{padding-block:clamp(72px,8.4vw,132px) 22px}
+  /* no longer sticky here, so the heading carries the ordinary symmetric band
+     and the section stops adding a second helping of space above it */
+  .sec.xp{padding-top:0}
+  .xp .sec-head{padding-block:clamp(72px,8.4vw,132px)}
   .xp-count{display:none}
   .xp-axis{grid-column:1}
   .xp-star{width:26px;height:26px;top:calc(50vh - 13px)}
