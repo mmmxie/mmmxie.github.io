@@ -17,9 +17,13 @@
   /* every load replays the entrance: no session gate, only an explicit opt-out */
   if(!reduce&&m!=='off'&&!location.hash&&!/[?&]nointro/.test(location.search)){
     h.classList.add('intro-on');
-    /* reloading from half way down restores the old scroll position, and any scroll
-       skips the entrance. Hold the page at the top for the entrance, then hand
-       restoration back so Back still returns you where you were. */
+    /* Reloading from half way down restores the old scroll position, and any scroll
+       skips the entrance. Turning restoration off holds every load at the top, which is
+       what "the entrance plays every time" means. It is NOT handed back afterwards, so
+       Back also lands at the top and replays the entrance instead of returning you to
+       where you were. Deliberate, and only in effect when the entrance is going to play:
+       with a #hash, ?nointro, reduced motion or Pause motion this line never runs and
+       restoration behaves normally. */
     try{history.scrollRestoration='manual'}catch(e){}
   }
   /* failsafe: if the page script never reports in, drop every JS-only hiding
