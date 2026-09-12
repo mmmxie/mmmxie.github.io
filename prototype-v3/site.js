@@ -77,7 +77,7 @@
   var nav = $('.nav'), prog = $('.progress'), toTop = $('#toTop');
   var navSecs = $$('main section[id]');
   var links = $$('.nav-link');
-  var formMap = { ring: 1, lattice: 2, line: 3, cluster: 4, logo: 5 };
+  var formMap = { ring: 1, lattice: 2, helix: 3, line: 4, cluster: 5, logo: 6 };
   var secTops = [], pageH = 0, active = '', pastHero = false;
   var rvs = $$('.rv'), pend = reduce || rejoined ? [] : rvs.slice(), rvTops = [];
   if (reduce || rejoined) rvs.forEach(function (el) { el.classList.add('in'); });
@@ -190,13 +190,15 @@
   }
 
   /* ---------- experience: the row crossing the star lights up ---------- */
-  var xpNow = $('#xpNow'), star = $('.xp-star'), flip = false;
+  var xpNow = $('#xpNow'), star = $('.xp-star'), turn = 0;
   function setRow(r) {
+    var first = rowNow == null;
     rowNow = r;
     rows.forEach(function (x) { x.classList.toggle('active', x === r); });
     var i = rows.indexOf(r) + 1;
     if (xpNow) xpNow.textContent = (i < 10 ? '0' : '') + i;
-    flip = !flip; if (star) star.classList.toggle('spin', flip);
+    // always the same way round, whichever way the page is scrolling
+    if (!first && star) { turn += 90; star.style.setProperty('--turn', turn + 'deg'); }
   }
   if (!rowNow) setRow(rows[0]);
 
@@ -395,7 +397,6 @@
     revealed = true;
     h.classList.add('revealing');
     h.classList.remove('intro-on');
-    try { sessionStorage.setItem('ce_intro_seen', '1'); } catch (e) { /* private mode */ }
     setTimeout(function () { h.classList.remove('revealing'); shine($('#heroTitle')); }, 1400);
     measure(); onScroll();
   }

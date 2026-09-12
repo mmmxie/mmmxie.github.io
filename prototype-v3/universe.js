@@ -9,8 +9,9 @@
  *              the pieces fly out into the cloud
  *   ambient    the galaxy, expanded around the viewer and turning slowly; scroll
  *              pulls the camera back and orbits it, so near dust crosses faster
- *   sections   about → orbit · work → data floor · experience → the axis and
- *              the star · capabilities → constellations · contact → the logo
+ *   sections   about → orbit · work → data sphere · side projects → twin helix ·
+ *              experience → the axis and the star · capabilities → constellations ·
+ *              contact → the logo
  *
  * The pointer pushes particles aside; each carries its own spring back home.
  */
@@ -22,6 +23,10 @@ const easeOut = x => 1 - Math.pow(1 - x, 3);
 const easeInOut = x => (x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2);
 const smooth = (a, b, x) => { const t = clamp01((x - a) / (b - a)); return t * t * (3 - 2 * t); };
 
+// glyph tiles are drawn this much larger than their grid step. Point size and
+// position land on fractional device pixels, so tiles cut exactly to the grid
+// leave hairline gaps that read as black lines across the name.
+const TILE_OVER = 1.34;
 const INK = [0.925, 0.933, 0.945];
 const CLUSTERS = [[0.1, 0.24], [0.9, 0.2], [0.07, 0.74], [0.93, 0.78], [0.3, 0.93], [0.7, 0.07]];
 const GOLD = [0.80, 0.72, 0.54];
@@ -153,8 +158,10 @@ export function createUniverse(opts) {
     const dyn = g.createBuffer(), stat = g.createBuffer();
     const tex = g.createTexture();
     g.bindTexture(g.TEXTURE_2D, tex);
-    g.texParameteri(g.TEXTURE_2D, g.TEXTURE_MIN_FILTER, g.NEAREST);
-    g.texParameteri(g.TEXTURE_2D, g.TEXTURE_MAG_FILTER, g.NEAREST);
+    // the glyph tiles are magnified on screen; LINEAR keeps the letter edges smooth
+    // instead of printing the tile grid back onto the name
+    g.texParameteri(g.TEXTURE_2D, g.TEXTURE_MIN_FILTER, g.LINEAR);
+    g.texParameteri(g.TEXTURE_2D, g.TEXTURE_MAG_FILTER, g.LINEAR);
     g.texParameteri(g.TEXTURE_2D, g.TEXTURE_WRAP_S, g.CLAMP_TO_EDGE);
     g.texParameteri(g.TEXTURE_2D, g.TEXTURE_WRAP_T, g.CLAMP_TO_EDGE);
     g.texImage2D(g.TEXTURE_2D, 0, g.RGBA, 1, 1, 0, g.RGBA, g.UNSIGNED_BYTE, new Uint8Array(4));
@@ -248,11 +255,12 @@ export function createUniverse(opts) {
     T = Math.min(N, tiles.length / 2);
     let s = 4211;
     const rnd = () => { s = (s * 1664525 + 1013904223) >>> 0; return s / 4294967296; };
+    const pad = ((TILE_OVER - 1) / 2) * tileCSS * ratio;
     for (let i = 0; i < N; i++) {
       if (i < T) {
         const x = tiles[i * 2], y = tiles[i * 2 + 1];
         P.tile[i] = 1; P.nx[i] = x + tileCSS / 2; P.ny[i] = y + tileCSS / 2;
-        P.tu[i] = x * ratio; P.tv[i] = y * ratio;
+        P.tu[i] = x * ratio - pad; P.tv[i] = y * ratio - pad;
         P.delay[i] = (x / gw) * 0.26 + rnd() * 0.22;
       } else {
         const k = (i * 7919) % (pts.length / 2);
@@ -369,29 +377,45 @@ export function createUniverse(opts) {
         tmp.a = (0.1 + (1 - qz2) * 0.22) * (r3 < 0.12 ? 0.6 : 1);
         return;
       }
-      case 3: { // experience: the axis, with dust orbiting the star
-        if (r3 < 0.16) {
-          const rr = 16 + r2 * 58, a = sd * TAU + time * (0.5 + r2 * 0.7) * (r3 < 0.08 ? 1 : -1);
+      case 3: { // side projects: two strands winding round each other, rising
+        const cx = wide ? W * 0.76 : W * 0.5;
+        const amp = Math.min(W * (wide ? 0.135 : 0.29), H * 0.21);
+        let v = sd + time * 0.03; v -= Math.floor(v);
+        const ph = v * TAU * 2.3 + (r3 < 0.5 ? 0 : Math.PI) + time * 0.32;
+        const depth = Math.cos(ph);
+        tmp.x = cx + Math.sin(ph) * amp * (r2 < 0.14 ? 1.28 : 1) + (r2 - 0.5) * 7;
+        tmp.y = H * 0.11 + v * H * 0.78;
+        tmp.s = (0.95 + (depth + 1) * 0.62) * (r2 < 0.05 ? 2 : 1) + P.scale[i] * 0.45;
+        tmp.a = (0.16 + (depth + 1) * 0.21) * smooth(0, 0.05, v) * (1 - smooth(0.95, 1, v));
+        return;
+      }
+      case 4: { // experience: the axis, with dust orbiting the star
+        if (r3 < 0.3) {
+          const near = r3 < 0.12;
+          const rr = near ? 12 + r2 * 44 : 36 + r2 * 104;
+          const a = sd * TAU + time * (0.45 + r2 * 0.8) * (near ? 1 : -1);
           tmp.x = lineX + Math.cos(a) * rr; tmp.y = H * 0.5 + Math.sin(a) * rr * 0.62;
-          tmp.s = 1.2 + P.scale[i]; tmp.a = 0.5 + 0.4 * (1 - r2);
+          tmp.s = (near ? 1.75 : 1.3) + P.scale[i] * 1.2;
+          tmp.a = (near ? 0.85 : 0.5) + 0.35 * (1 - r2);
         } else {
-          let v = sd + time * 0.018; v -= Math.floor(v);
-          tmp.x = lineX + (r2 - 0.5) * 7 + Math.sin(time * 0.9 + sd * 40) * 1.2;
+          let v = sd + time * 0.022; v -= Math.floor(v);
+          tmp.x = lineX + (r2 - 0.5) * 9 + Math.sin(time * 0.9 + sd * 40) * 1.6;
           tmp.y = -H * 0.05 + v * H * 1.1;
           const pulse = Math.pow(0.5 + 0.5 * Math.sin(tmp.y * 0.018 - time * 2.4), 6);
-          tmp.s = 1 + P.scale[i] * 0.8; tmp.a = (0.16 + 0.6 * pulse) * smooth(0, 0.08, v) * (1 - smooth(0.92, 1, v));
+          tmp.s = 1.15 + P.scale[i]; tmp.a = (0.26 + 0.74 * pulse) * smooth(0, 0.08, v) * (1 - smooth(0.92, 1, v));
         }
         return;
       }
-      case 4: { // capabilities: six constellations around the edges
+      case 5: { // capabilities: six constellations around the edges
         const k = Math.floor(sd * 6);
         const C = CLUSTERS[k];
-        const rr = Math.pow(r2, 1.8) * Math.min(W, H) * 0.1, a = r3 * TAU + time * 0.05 * (k % 2 ? 1 : -1);
+        const rr = Math.pow(r2, 1.6) * Math.min(W, H) * 0.15, a = r3 * TAU + time * 0.05 * (k % 2 ? 1 : -1);
         tmp.x = C[0] * W + Math.cos(a) * rr; tmp.y = C[1] * H + Math.sin(a) * rr * 0.8;
-        tmp.s = r2 < 0.05 ? 3.2 : 1 + P.scale[i]; tmp.a = r2 < 0.05 ? 0.85 : 0.35 + 0.3 * (1 - r2);
+        tmp.s = r2 < 0.05 ? 3.6 : 1.2 + P.scale[i] * 1.1;
+        tmp.a = r2 < 0.05 ? 0.95 : 0.48 + 0.34 * (1 - r2);
         return;
       }
-      case 5: { // contact: the CH mark
+      case 6: { // contact: the CH mark
         if (!markBox || !logoPts) { tmp.a = 0; tmp.x = W / 2; tmp.y = H / 2; tmp.s = 1; return; }
         const bx = markBox.x, by = markBox.top - scrollY0;
         tmp.x = bx + P.lx[i] * markBox.w + (r2 - 0.5) * 1.5 + Math.sin(time * 0.8 + sd * 30) * 0.6;
@@ -435,7 +459,7 @@ export function createUniverse(opts) {
     sceneTarget = target;
     sceneS += (sceneTarget - sceneS) * (1 - Math.exp(-dt * 2.4));
     if (Math.abs(sceneTarget - sceneS) < 0.0005) sceneS = sceneTarget;
-    const nowForm = cfg.forms && sceneS > 4.55;
+    const nowForm = cfg.forms && sceneS > 5.55;
     if (nowForm !== formOn) { formOn = nowForm; onForm && onForm(formOn); }
 
     cam = camera(par);
@@ -456,12 +480,15 @@ export function createUniverse(opts) {
     const usePtr = cfg.pointer && ptr.has && ptr.energy > 0.01 && introDone;
     const PR = 92, PR2 = PR * PR;
 
-    const s0 = Math.floor(sceneS), s1 = Math.min(s0 + 1, 5), sf = sceneS - s0;
+    const s0 = Math.floor(sceneS), s1 = Math.min(s0 + 1, 6), sf = sceneS - s0;
     // a shape is at full strength while its section heading is in view, then
     // steps back so it never sits on top of the reading
     let depthIn = 0;
     for (const sc of sections) if (sc.scene === sceneTarget && scrollY0 + H * 0.5 >= sc.top) depthIn = (scrollY0 + H * 0.5 - sc.top) / H;
-    const shapeFade = sceneTarget === 3 || sceneTarget === 5 ? 1 : 1 - 0.72 * smooth(0.55, 1.35, depthIn);
+    // the axis and the mark hold; the constellations sit at the edges so they only
+    // step back a little; the shapes that share space with the reading step back fully
+    const fadeDepth = sceneTarget === 4 || sceneTarget === 6 ? 0 : sceneTarget === 5 ? 0.3 : 0.72;
+    const shapeFade = 1 - fadeDepth * smooth(0.55, 1.35, depthIn);
     const readAlpha = 1 - 0.46 * smooth(0.05, 0.6, Math.min(sceneS, 1));
     // break progress on the same wall clock as the page; a late skip compresses the rest into 0.5 s
     if (introPhase && it >= Tl.brk) {
@@ -482,7 +509,7 @@ export function createUniverse(opts) {
         const nmv = clamp01((conv - P.seed[i] * 0.42) / 0.58);
         const nx = glyph ? glyph.ox + P.nx[i] : tmp.x, ny = glyph ? glyph.oy + P.ny[i] : tmp.y;
         x = tmp.x + (nx - tmp.x) * nmv; y = tmp.y + (ny - tmp.y) * nmv;
-        s = tmp.s + ((P.tile[i] ? tileCSS * 0.8 : 1.4) - tmp.s) * nmv;
+        s = tmp.s + ((P.tile[i] ? tileCSS * TILE_OVER : 1.4) - tmp.s) * nmv;
         a = (tmp.a * galA) + (0.95 - tmp.a * galA) * nmv;
         a *= 1 - dotsOut;
       } else if (introPhase && skipK < 0 && glyph) {
@@ -501,7 +528,7 @@ export function createUniverse(opts) {
         if (P.tile[i]) {
           const tm = 1 - smooth(0.22, 0.42, rel);
           mix = tm;
-          s = tm > 0 ? tileCSS * (1 - rel * 0.6) * tm + tmp.s * (1 - tm) : tmp.s;
+          s = tm > 0 ? tileCSS * TILE_OVER * tm + tmp.s * (1 - tm) : tmp.s;
           a = 1 + (cloudA - 1) * smooth(0.15, 1, rel);
         } else {
           s = 1.2 + (tmp.s - 1.2) * rel; a = cloudA * rel;
@@ -605,7 +632,7 @@ export function createUniverse(opts) {
     g.uniform1f(res.u.layer, layer);
     g.uniform1i(res.u.glyph, 0);
     g.uniform2f(res.u.glyphSize, glyph ? glyph.w : 1, glyph ? glyph.h : 1);
-    g.uniform1f(res.u.tileTex, tileCSS * (glyph ? glyph.ratio : 1));
+    g.uniform1f(res.u.tileTex, tileCSS * TILE_OVER * (glyph ? glyph.ratio : 1));
     g.activeTexture(g.TEXTURE0); g.bindTexture(g.TEXTURE_2D, res.tex);
     g.drawArrays(g.POINTS, 0, drawN);
   }
@@ -617,7 +644,7 @@ export function createUniverse(opts) {
       const a = A[i]; if (a < 0.01) continue;
       c.globalAlpha = a;
       if (M[i] > 0.5 && glyph) {
-        const t = tileCSS * glyph.ratio;
+        const t = tileCSS * TILE_OVER * glyph.ratio;
         c.drawImage(glyph.canvas, P.tu[i], P.tv[i], t, t, X[i] - S[i] / 2, Y[i] - S[i] / 2, S[i], S[i]);
       } else {
         c.fillStyle = P.tone[i] ? '#CDB88A' : '#ECEEF1';

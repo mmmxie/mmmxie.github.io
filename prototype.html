@@ -6,15 +6,16 @@
 <meta name="google-site-verification" content="ofwrxtXsVwe7Dk4jibKsFmR4aLXEg1dRM9mNlYV2814" />
 <script>
 /* Runs before first paint: decide whether the entrance plays, so the hero never
-   flashes up and then vanishes behind it. Plays once per browser session. */
+   flashes up and then vanishes behind it. Plays on every load. */
 (function(d){
-  var h=d.documentElement,s=null,m=null;
+  var h=d.documentElement,m=null;
   h.classList.remove('no-js');h.classList.add('js');
-  try{s=sessionStorage.getItem('ce_intro_seen');m=localStorage.getItem('ce_motion');}catch(e){}
+  try{m=localStorage.getItem('ce_motion');}catch(e){}
   var reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
   if(m==='off')h.classList.add('motion-off');
   if(reduce||m==='off')h.classList.add('still');
-  if(!reduce&&m!=='off'&&!s&&!location.hash&&!/[?&]nointro/.test(location.search))h.classList.add('intro-on');
+  /* every load replays the entrance: no session gate, only an explicit opt-out */
+  if(!reduce&&m!=='off'&&!location.hash&&!/[?&]nointro/.test(location.search))h.classList.add('intro-on');
   /* failsafe: if the page script never reports in, drop every JS-only hiding
      state so the content shows as it would without JavaScript */
   setTimeout(function(){if(!window.__ceReady){h.classList.remove('js','intro-on');h.classList.add('no-js');}},4000);
@@ -149,7 +150,7 @@
     <span class="hero-name">Cheng En Hsieh ｜ Product Manager ｜ EN &amp; ZH Bilingual ｜ London</span>
     <span class="hero-statement metal" id="heroTitle">Building products that deliver real impact</span>
   </h1>
-  <p class="hero-sub">Six years of experience in AI, SaaS and e-commerce (APAC &amp; UK), building recommendation engines, LLM-powered workflows and end-to-end B2B2C platforms.</p>
+  <p class="hero-sub">Six years of experience in AI, SaaS and e-commerce (APAC &amp; UK), <br class="sub-br">building recommendation engines, LLM-powered workflows and end-to-end B2B2C platforms.</p>
   <div class="hero-cta-row">
     <a href="#work" class="btn solid">View selected work <span class="ar">↓</span></a>
     <a href="mailto:chengen.hsieh197@gmail.com" class="btn ghost">Get in touch</a>
@@ -185,7 +186,6 @@
 <!-- ============ ABOUT ============ -->
 <section id="about" class="wrap sec" data-form="ring">
   <div class="sec-head rv">
-    <span class="sec-idx">01</span>
     <h2 class="sec-title"><span>About</span></h2>
     <p class="sec-note">What I do, and how I decide what's worth building</p>
   </div>
@@ -215,7 +215,6 @@
 <!-- ============ WORK ============ -->
 <section id="work" class="wrap sec" data-form="lattice">
   <div class="sec-head rv">
-    <span class="sec-idx">02</span>
     <h2 class="sec-title"><span>Selected Work</span></h2>
     <p class="sec-note">Three case studies across AI, SaaS and e-commerce ｜ Tap any project to open the full case</p>
   </div>
@@ -359,9 +358,8 @@
 </section>
 
 <!-- ============ SIDE PROJECTS ============ -->
-<section id="projects" class="wrap sec" data-form="lattice">
+<section id="projects" class="wrap sec" data-form="helix">
   <div class="sec-head rv">
-    <span class="sec-idx">+</span>
     <h2 class="sec-title"><span>Side Projects</span></h2>
     <p class="sec-note">Products I scoped, built and shipped on my own</p>
   </div>
@@ -505,7 +503,6 @@
     <div class="xp-side">
       <div class="xp-sticky">
         <div class="sec-head rv">
-          <span class="sec-idx">03</span>
           <h2 class="sec-title"><span>Professional Experience</span></h2>
         </div>
         <p class="xp-count" aria-hidden="true"><b id="xpNow">01</b><span> / 06</span></p>
@@ -571,7 +568,7 @@
 <!-- ============ CAPABILITIES ============ -->
 <section id="capabilities" class="wrap sec" data-form="cluster">
   <div class="sec-head rv">
-    <span class="sec-idx">04</span><h2 class="sec-title"><span>Capabilities</span></h2>
+    <h2 class="sec-title"><span>Capabilities</span></h2>
     <p class="sec-note">Product judgement, AI fluency and the technical depth to ship with engineering</p>
   </div>
   <div class="caps rv">
