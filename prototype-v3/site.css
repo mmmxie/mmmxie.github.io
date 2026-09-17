@@ -475,10 +475,14 @@ html.js .tl-row.active .tl-what h3{color:var(--ink)}
 @media (min-width:881px){.cap li{white-space:nowrap}}
 @media (min-width:1400px){.caps{grid-template-columns:repeat(6,auto)}}
 @media (max-width:880px){.caps{grid-template-columns:repeat(2,minmax(0,1fr))}.cap li{text-wrap:balance}}
-@media (max-width:640px){.caps{gap:8px}.cap{padding:13px 13px 9px}.cap li{font-size:.76rem}}
+/* (a .cap padding and .cap li size used to sit in this query too, but the .cap rules below
+   come later in the file and always won, so phones have only ever had the desktop values;
+   dropped rather than switched on, which would change how the cards look) */
+@media (max-width:640px){.caps{gap:8px}}
 /* two cards side by side stop holding the longest item ("Mandarin and Taiwanese (native)",
-   189 px) on one line below 480 px, and nearly every item would break: one card a row */
-@media (max-width:480px){.caps{grid-template-columns:minmax(0,1fr)}}
+   189 px) on one line below 520 px, with the webfont or without it (measured at 481-640):
+   one card a row there, so no item breaks */
+@media (max-width:519.98px){.caps{grid-template-columns:minmax(0,1fr)}}
 .cap{border:1px solid var(--line-2);border-radius:14px;padding:16px 18px 12px;background:linear-gradient(180deg,rgba(23,26,31,.8),rgba(12,13,16,.8));box-shadow:inset 0 1px 0 rgba(255,255,255,.05);transition:transform .45s var(--ease-out),border-color .3s}
 .cap:hover{transform:translateY(-3px);border-color:var(--line)}
 .cap h4{font-family:var(--f-display);font-size:.9rem;font-weight:600;margin-bottom:8px;display:flex;align-items:center;gap:9px}

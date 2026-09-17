@@ -262,7 +262,9 @@
   function unstubPage() {
     if (innerWidth === stubW) return;
     stubW = innerWidth;
-    queueUnstub($$(PROSE), remeasure);
+    // an open case dialog re-breaks too: its paragraphs were fitted when it opened, and a
+    // resize or a late font changes them just as it does the page's
+    queueUnstub($$(PROSE).concat(lbOpen ? $$('p', lbBody) : []), remeasure);
   }
   afterFirstFrame(function () {
     if (d.fonts && d.fonts.ready) d.fonts.ready.then(function () { (window.requestIdleCallback || setTimeout)(unstubPage, { timeout: 600 }); });

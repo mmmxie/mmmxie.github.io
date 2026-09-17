@@ -299,7 +299,7 @@ export function createUniverse(opts) {
   }
 
   /* ---------- state ---------- */
-  let spin = 0, spinI = 0, curSpin = 0, sceneS = 0, sceneTarget = 0, scrollY0 = 0;
+  let spin = 0, spinI = 0, curSpin = 0, sceneS = 0, sceneTarget = 0, scrollY0 = 0, heldScene = null;
   let time = 0, last = 0, frameId = 0, paused = false, hidden = document.hidden, still = false, disposed = false;
   let draws = 0, formOn = false, frameCost = 0, slow = 0, drawN = 0, lastNow = 0, ivEMA = 0, refresh = 40;
   const sceneFade = new Float32Array(7).fill(1);   // one dimmer per scene, indexed by scene number
@@ -471,6 +471,7 @@ export function createUniverse(opts) {
     sceneTarget = target;
     sceneS += (sceneTarget - sceneS) * (1 - Math.exp(-dt * 2.4));
     if (Math.abs(sceneTarget - sceneS) < 0.0005) sceneS = sceneTarget;
+    if (heldScene != null) sceneS = heldScene;   // tests only: a transition held at one point
     const nowForm = cfg.forms && sceneS > 5.55;
     if (nowForm !== formOn) { formOn = nowForm; onForm && onForm(formOn); }
 
@@ -599,6 +600,8 @@ export function createUniverse(opts) {
       }
 
       /* the pointer pushes; a spring brings each particle home */
+      // on the way into Contact a shaped particle hands over from the loose cloud's push to
+      // the mark's scatter in proportion to logoK, so neither switches off at the boundary
       const inLogo = logoK > 0 && P.form[i] === 1;
       if (inLogo) {
         if (scatter) {
@@ -614,11 +617,13 @@ export function createUniverse(opts) {
             VX[i] += (ux * kick + ptr.vx * drag) * dt; VY[i] += (uy * kick + ptr.vy * drag) * dt;
           }
         }
-      } else if (usePtr && !P.stable[i]) {
+      }
+      const loose = inLogo ? 1 - logoK : 1;
+      if (usePtr && loose > 0 && !P.stable[i]) {
         const dx = x + OX[i] - ptr.x, dy = y + OY[i] - ptr.y, d2 = dx * dx + dy * dy;
         if (d2 < PR2 && d2 > 0.01) {
           const d = Math.sqrt(d2), q = 1 - d / PR;
-          const push = q * q * ptr.energy * 2600 * (0.55 + P.scale[i] * 0.6);
+          const push = q * q * ptr.energy * 2600 * (0.55 + P.scale[i] * 0.6) * loose;
           VX[i] += (dx / d) * push * dt; VY[i] += (dy / d) * push * dt;
         }
       }
@@ -854,6 +859,9 @@ export function createUniverse(opts) {
       off.sort((a, b) => a - b);
       return { near, shaped, displaced: off.length, p90: off.length ? Math.round(off[Math.floor(off.length * 0.9)]) : 0 };
     },
+    // hold the scene blend at s (null lets it follow the scroll again), so a test can
+    // measure the pointer in the middle of a transition that normally lasts a second
+    holdScene(s) { heldScene = s == null ? null : +s; },
     motes() {
       if (!P) return [];
       const out = [];
