@@ -30,6 +30,9 @@ const TILE_OVER = 1.34;
 const INK = [0.925, 0.933, 0.945];
 const CLUSTERS = [[0.1, 0.24], [0.9, 0.2], [0.07, 0.74], [0.93, 0.78], [0.3, 0.93], [0.7, 0.07]];
 const GOLD = [0.80, 0.72, 0.54];
+// share of the shaped particles that drift by the Experience star: 7 of ~2,800 at the full
+// tier (counted by replaying alloc()'s random sequence; a lower tier draws no shapes at all)
+const MOTES = 0.0035;
 
 export function createUniverse(opts) {
   let { back } = opts;
@@ -301,7 +304,7 @@ export function createUniverse(opts) {
   let draws = 0, formOn = false, frameCost = 0, slow = 0, drawN = 0, lastNow = 0, ivEMA = 0, refresh = 40;
   const sceneFade = new Float32Array(7).fill(1);   // one dimmer per scene, indexed by scene number
   const ring = new Float32Array(240); let ringI = 0;
-  const ptr = { x: -1e4, y: -1e4, tx: -1e4, ty: -1e4, energy: 0, has: false };
+  const ptr = { x: -1e4, y: -1e4, tx: -1e4, ty: -1e4, energy: 0, has: false, vx: 0, vy: 0 };
   let brkProgress = 0, brkSkipAt = -1, brkSkipProg = 0, skipT = -1, introDone = !intro;
 
   /* camera for the ambient cloud */
@@ -390,21 +393,27 @@ export function createUniverse(opts) {
         tmp.a = (0.16 + (depth + 1) * 0.21) * smooth(0, 0.05, v) * (1 - smooth(0.95, 1, v));
         return;
       }
-      case 4: { // experience: the axis, with dust orbiting the star
-        if (r3 < 0.3) {
-          const near = r3 < 0.12;
-          const rr = near ? 12 + r2 * 44 : 36 + r2 * 104;
-          const a = sd * TAU + time * (0.45 + r2 * 0.8) * (near ? 1 : -1);
-          tmp.x = lineX + Math.cos(a) * rr; tmp.y = H * 0.5 + Math.sin(a) * rr * 0.62;
-          tmp.s = (near ? 1.75 : 1.3) + P.scale[i] * 1.2;
-          tmp.a = (near ? 0.85 : 0.5) + 0.35 * (1 - r2);
-        } else {
-          let v = sd + time * 0.022; v -= Math.floor(v);
-          tmp.x = lineX + (r2 - 0.5) * 9 + Math.sin(time * 0.9 + sd * 40) * 1.6;
-          tmp.y = -H * 0.05 + v * H * 1.1;
-          const pulse = Math.pow(0.5 + 0.5 * Math.sin(tmp.y * 0.018 - time * 2.4), 6);
-          tmp.s = 1.15 + P.scale[i]; tmp.a = (0.26 + 0.74 * pulse) * smooth(0, 0.08, v) * (1 - smooth(0.92, 1, v));
+      case 4: { // experience: the axis, and a few motes drifting slowly by the star
+        if (r3 < MOTES) {
+          // a few of the shaped particles (Mark, 2026-09-13: a few, slow, near the star,
+          // where there used to be 840 on fast orbits). Each wanders on its own slow
+          // ellipse whose radius breathes, some one way round and some the other, outside
+          // the star's glow, and large and bright enough to read as motes, not as dust
+          const k = r3 / MOTES;
+          const a = sd * TAU + time * (0.05 + r2 * 0.06) * (k < 0.5 ? 1 : -1);
+          const rr = 38 + r2 * 56 + Math.sin(time * 0.21 + sd * 17) * 9;
+          tmp.x = lineX + Math.cos(a) * rr;
+          tmp.y = H * 0.5 + Math.sin(a) * rr * 0.78 + Math.sin(time * 0.15 + sd * 9) * 6;
+          tmp.s = 3 + P.scale[i] * 1.4;
+          tmp.a = 0.8 + 0.15 * (1 - r2);
+          return;
         }
+        let v = sd + time * 0.022; v -= Math.floor(v);
+        tmp.x = lineX + (r2 - 0.5) * 9 + Math.sin(time * 0.9 + sd * 40) * 1.6;
+        tmp.y = -H * 0.05 + v * H * 1.1;
+        if (r3 < 0.3) { tmp.s = 1; tmp.a = 0; return; }   // the old orbiters: they join the axis and fade out there
+        const pulse = Math.pow(0.5 + 0.5 * Math.sin(tmp.y * 0.018 - time * 2.4), 6);
+        tmp.s = 1.15 + P.scale[i]; tmp.a = (0.26 + 0.74 * pulse) * smooth(0, 0.08, v) * (1 - smooth(0.92, 1, v));
         return;
       }
       case 5: { // capabilities: six constellations around the edges
@@ -443,9 +452,11 @@ export function createUniverse(opts) {
     if (introPhase) {
       it = (now - intro.t0) / 1000;
       if (it < Tl.brk && skipT < 0) {
-        const spawn = 1 - easeOut(seg(it, 0, 4.2));
+        // the galaxy settles in step with the collapse onto the name (conv[0]), so moving
+        // the entrance timings in site.js moves this with them
+        const spawn = 1 - easeOut(seg(it, 0, Tl.conv[0] - 0.6));
         intr = { spawn };
-        spinI += (0.35 * (1 - seg(it, 0, 5)) + 0.07) * dt;
+        spinI += (0.35 * (1 - seg(it, 0, Tl.conv[0] + 0.2)) + 0.07) * dt;
         if (it > Tl.conv[0] - 0.3 && glyph == null) rasterName();
       }
     }
@@ -465,7 +476,7 @@ export function createUniverse(opts) {
 
     cam = camera(par);
     tilt = cam.tilt;
-    if (intr) { tilt = 1.38 * (1 - easeInOut(seg(it, 0.4, 5.4))); cam = { z: 3, y: 0, yaw: 0 }; }
+    if (intr) { tilt = 1.38 * (1 - easeInOut(seg(it, 0.4, Tl.conv[0] + 0.6))); cam = { z: 3, y: 0, yaw: 0 }; }
     const cT = Math.cos(tilt), sT = Math.sin(tilt), cY = Math.cos(cam.yaw), sY = Math.sin(cam.yaw);
     // during the break the cloud eases from edge-on to its resting tilt
     let cTb = cT, sTb = sT;
@@ -476,10 +487,26 @@ export function createUniverse(opts) {
 
     /* pointer */
     const kP = 1 - Math.exp(-dt * 18);
+    const px0 = ptr.x, py0 = ptr.y;
     if (ptr.has) { ptr.x += (ptr.tx - ptr.x) * kP; ptr.y += (ptr.ty - ptr.y) * kP; }
+    // the pointer's own velocity, smoothed: it drives the scatter at Contact, so the push
+    // stops the moment the pointer rests instead of holding a hole open under it
+    if (ptr.has && dt > 0.001) { const kv = 1 - Math.exp(-dt * 14); ptr.vx += ((ptr.x - px0) / dt - ptr.vx) * kv; ptr.vy += ((ptr.y - py0) / dt - ptr.vy) * kv; }
+    else { ptr.vx = 0; ptr.vy = 0; }
     ptr.energy *= Math.exp(-dt / 0.42);
     const usePtr = cfg.pointer && ptr.has && ptr.energy > 0.01 && introDone;
     const PR = 92, PR2 = PR * PR;
+    // Contact (Mark, 2026-09-13): the mark scatters like smoke, further than the loose cloud,
+    // and floats home. A plain radial push swept every particle it reached out to the same
+    // edge, so the mark opened a clean black disc ringed with dots, which is what read as a
+    // dark patch under the pointer. Here every particle of the mark takes part (the stable
+    // 20% left dots standing in the hole), each leaves on its own bent heading with a
+    // heavy-tailed strength (most are nudged, a few are thrown), one already flying is not
+    // pushed harder, and a soft, lightly damped spring brings the pieces back.
+    const logoK = cfg.forms && sceneS > 5 ? smooth(5, 6, sceneS) : 0;
+    const LR = PR + 48 * logoK, LR2 = LR * LR;
+    const stroke = Math.min(1, Math.hypot(ptr.vx, ptr.vy) / 420);
+    const scatter = cfg.pointer && ptr.has && introDone && logoK > 0 && stroke > 0.01;
 
     const s0 = Math.floor(sceneS), s1 = Math.min(s0 + 1, 6), sf = sceneS - s0;
     // A shape is at full strength while its section heading is in view, then steps
@@ -572,7 +599,22 @@ export function createUniverse(opts) {
       }
 
       /* the pointer pushes; a spring brings each particle home */
-      if (usePtr && !P.stable[i]) {
+      const inLogo = logoK > 0 && P.form[i] === 1;
+      if (inLogo) {
+        if (scatter) {
+          const dx = x + OX[i] - ptr.x, dy = y + OY[i] - ptr.y, d2 = dx * dx + dy * dy;
+          if (d2 < LR2 && d2 > 0.01) {
+            const d = Math.sqrt(d2), q = 1 - d / LR;
+            const sw = (P.r2[i] - 0.5) * 3.6 + 1.2 * Math.sin(time * 2.3 + P.seed[i] * 40);
+            const cs = Math.cos(sw), sn = Math.sin(sw), ox = dx / d, oy = dy / d;
+            const ux = ox * cs - oy * sn, uy = ox * sn + oy * cs;
+            const sp0 = Math.hypot(VX[i], VY[i]), room = sp0 < 820 ? 1 - sp0 / 820 : 0;
+            const kick = q * stroke * 4400 * (0.1 + 2.6 * P.r4[i] * P.r4[i]) * room * logoK;
+            const drag = q * 0.6 * room * logoK;
+            VX[i] += (ux * kick + ptr.vx * drag) * dt; VY[i] += (uy * kick + ptr.vy * drag) * dt;
+          }
+        }
+      } else if (usePtr && !P.stable[i]) {
         const dx = x + OX[i] - ptr.x, dy = y + OY[i] - ptr.y, d2 = dx * dx + dy * dy;
         if (d2 < PR2 && d2 > 0.01) {
           const d = Math.sqrt(d2), q = 1 - d / PR;
@@ -581,7 +623,9 @@ export function createUniverse(opts) {
         }
       }
       if (OX[i] !== 0 || OY[i] !== 0 || VX[i] !== 0 || VY[i] !== 0) {
-        VX[i] += (-26 * OX[i] - 7.2 * VX[i]) * dt; VY[i] += (-26 * OY[i] - 7.2 * VY[i]) * dt;
+        // the mark's pieces float home on a soft spring; everything else snaps back
+        const kS = inLogo ? 26 - 20 * logoK : 26, kD = inLogo ? 7.2 - 4.7 * logoK : 7.2;
+        VX[i] += (-kS * OX[i] - kD * VX[i]) * dt; VY[i] += (-kS * OY[i] - kD * VY[i]) * dt;
         OX[i] += VX[i] * dt; OY[i] += VY[i] * dt;
         if (Math.abs(OX[i]) + Math.abs(OY[i]) < 0.02 && Math.abs(VX[i]) + Math.abs(VY[i]) < 0.05) { OX[i] = OY[i] = VX[i] = VY[i] = 0; }
         else { x += OX[i]; y += OY[i]; }
@@ -776,6 +820,7 @@ export function createUniverse(opts) {
   const api = {
     get renderer() { return gl ? 'webgl' : ctx2d ? '2d' : 'none'; },
     get tilesReady() { return !!glyph && (!!R || !!ctx2d); },
+    get forms() { return !!cfg.forms; },
     fontsChanged() {
       if (!intro || introDone || intro.t0 == null || !glyph) return;
       if ((performance.now() - intro.t0) / 1000 < intro.T.brk) rasterName();
@@ -793,6 +838,28 @@ export function createUniverse(opts) {
     setStill(v) { still = v; if (!v) run(); else if (!frameId) frame(performance.now()); },
     start() { run(); },
     destroy,
+    // debug reads for the tests: how many shaped particles are drawn within r of a point
+    // this frame, how many are pushed off their spot and how far (90th percentile), and
+    // where the Experience motes are
+    probe(x, y, r) {
+      if (!P) return null;
+      let near = 0, shaped = 0; const off = [];
+      for (let i = 0; i < drawN; i++) {
+        if (!P.form[i]) continue;
+        shaped++;
+        const dx = X[i] - x, dy = Y[i] - y;
+        if (dx * dx + dy * dy < r * r && A[i] > 0.05) near++;
+        const o = Math.hypot(OX[i], OY[i]); if (o > 6) off.push(o);
+      }
+      off.sort((a, b) => a - b);
+      return { near, shaped, displaced: off.length, p90: off.length ? Math.round(off[Math.floor(off.length * 0.9)]) : 0 };
+    },
+    motes() {
+      if (!P) return [];
+      const out = [];
+      for (let i = 0; i < drawN; i++) if (P.form[i] && P.r3[i] < MOTES) out.push([+X[i].toFixed(1), +Y[i].toFixed(1), +A[i].toFixed(2), +S[i].toFixed(2)]);
+      return out;
+    },
     inspect() {
       // meanAlpha is what the section shapes actually add up to on screen this frame;
       // the smoothness check sweeps a section boundary and watches it for a step

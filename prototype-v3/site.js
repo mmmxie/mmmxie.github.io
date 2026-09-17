@@ -86,7 +86,24 @@
   var rows = $$('.tl-row'), rowTops = [], rowNow = null;
   var geo = null;
 
+  /* Every heading has --pad of air under the content above it plus its own band (Mark,
+     2026-09-13: match Side Projects). A case or a grid ends where its content ends, but the
+     last Experience row centres its text in the row's min-height, so the row runs on below
+     the text by an amount that depends on the text. Measure that slack and set the section's
+     bottom margin so exactly --pad is left under the last line (negative on desktop, where
+     the slack is larger; positive on phones, where the rows have no min-height). */
+  var xpSec = $('#experience'), padRef = $('.caps');
+  function tailXp() {
+    var last = rows[rows.length - 1];
+    if (!last || !xpSec || !padRef) return;
+    var ink = -Infinity;
+    for (var k = 0; k < last.children.length; k++) ink = Math.max(ink, last.children[k].getBoundingClientRect().bottom);
+    var fix = (parseFloat(getComputedStyle(padRef).paddingTop) || 0) - (last.getBoundingClientRect().bottom - ink);
+    if (Math.abs(fix - (parseFloat(xpSec.style.marginBottom) || 0)) > 0.5) xpSec.style.marginBottom = fix.toFixed(1) + 'px';
+  }
+
   function measure() {
+    tailXp();
     var y = window.scrollY || 0, vh = innerHeight;
     secTops = navSecs.map(function (s) { return [s.id, s.getBoundingClientRect().top + y]; });
     pageH = d.documentElement.scrollHeight - vh;
@@ -156,6 +173,110 @@
     if (d.fonts && d.fonts.ready) d.fonts.ready.then(function () { remeasure(); if (universe && !finished && state.t0 != null) universe.fontsChanged(); });
     if ('ResizeObserver' in window) { var ro = new ResizeObserver(remeasure); ro.observe(d.body); }
   });
+  /* ---------- no stub lines: text never ends on a short line ----------
+     Mark's rule (2026-09-13): a last line of four words or fewer joins the line above.
+     Tried in order, least visible first, and the first that works is kept:
+       1. widen the text box, up to what its container allows, to the narrowest width
+          that takes the short line up into the one above;
+       2. let the browser re-break the last lines (text-wrap: pretty, no width change);
+       3. balance the lines (browsers balance at most six);
+       4. narrow the box (up to 30%, same number of lines) so words come down to join it;
+       5. take a hair off the word spacing so the short line fits up into the one above;
+       6. narrow on, accepting one more line, then two, until the last line is long enough.
+     If none of those works the text is left exactly as the stylesheet set it.
+     "Short" is four words or fewer that also reach less than two thirds of the widest
+     line. On desktop every four-word last line is well under that; the width test only
+     matters on phones, where a column holds four long words edge to edge ("reporting to
+     C-suite stakeholders.") and no width would ever put five on the last line.
+     Headings, labels and the footer lines are balanced in the stylesheet, and come
+     through here too, for the cases balancing leaves one word on its own ("Product
+     Operations / Specialist"). Two-word section titles are left alone: any break in them
+     is one word a line. It runs in idle slices once the webfonts settle, again whenever
+     a batch of fonts lands or the width changes, and never from its own ResizeObserver,
+     which it would feed. */
+  var PROSE = '.about-copy p, .princ p, .case-lead, .case-notes p, .metrics-note, .sec-note, .tl-note, .princ h4, .case h3, .case-sub, .tl-what h3, .tl-where, .cap li, .foot-avail > span, footer > span:not(.foot-r)';
+  var stubRange = d.createRange(), stubQ = [], stubBusy = false, stubW = -1;
+  function tailOf(el) {
+    var nodes = [], text = '', n, w = d.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+    while ((n = w.nextNode())) { nodes.push([n, text.length]); text += n.textContent; }
+    var words = [], re = /\S+/g, m;
+    // across <b> and the "." after it the characters still run on: one word, not two
+    while ((m = re.exec(text))) words.push([m.index, m.index + m[0].length - 1]);
+    if (words.length < 2) return { lines: 1, last: words.length, fill: 1 };
+    var rect = null;
+    function top(pos) {
+      for (var i = nodes.length - 1; i > 0; i--) if (nodes[i][1] <= pos && pos < nodes[i][1] + nodes[i][0].length) break;
+      stubRange.setStart(nodes[i][0], pos - nodes[i][1]); stubRange.setEnd(nodes[i][0], pos - nodes[i][1] + 1);
+      rect = stubRange.getClientRects()[0] || stubRange.getBoundingClientRect();
+      return rect.top;
+    }
+    var lh = parseFloat(getComputedStyle(el).lineHeight) || 20, left = el.getBoundingClientRect().left;
+    // a word's LAST character decides its line: "editor-day." may break at the hyphen
+    var lastTop = top(words[words.length - 1][1]), right = rect.right;
+    var lines = Math.round((lastTop - top(words[0][0])) / lh) + 1, last = 1;
+    for (var k = words.length - 2; k >= 0 && last < 6; k--) { if (Math.abs(top(words[k][1]) - lastTop) < lh / 2) last++; else break; }
+    stubRange.selectNodeContents(el);
+    var widest = 0, all = stubRange.getClientRects();
+    for (var j = 0; j < all.length; j++) widest = Math.max(widest, all[j].right - left);
+    return { lines: lines, last: last, fill: widest > 0 ? +((right - left) / widest).toFixed(3) : 1 };
+  }
+  function isStub(r) { return r.lines > 1 && r.last <= 4 && r.fill < 0.66; }
+  function unstub(el) {
+    var st = el.style;
+    st.maxWidth = ''; st.wordSpacing = ''; st.textWrap = '';
+    if (!el.isConnected || !el.getClientRects().length || getComputedStyle(el).whiteSpace === 'nowrap') return;
+    var t = tailOf(el);
+    if (!isStub(t)) return;
+    var cur = el.offsetWidth, p = el.parentElement, pcs = getComputedStyle(p);
+    var room = Math.floor(p.clientWidth - parseFloat(pcs.paddingLeft) - parseFloat(pcs.paddingRight));
+    function at(px, ws, wrap) { st.maxWidth = px ? px + 'px' : ''; st.wordSpacing = ws ? ws + 'em' : ''; st.textWrap = wrap || ''; return tailOf(el); }
+    var r, k, j;
+    if (room > cur + 1 && at(room).lines < t.lines) {                                                                   // 1
+      var lo = cur, hi = room;
+      while (hi - lo > 2) { var mid = (lo + hi) / 2; if (at(mid).lines < t.lines) hi = mid; else lo = mid; }
+      if (!isStub(at(Math.ceil(hi)))) return;
+    }
+    if (CSS.supports('text-wrap', 'pretty') && !isStub(at(0, 0, 'pretty'))) return;                                       // 2
+    if (t.lines <= 6 && !isStub(at(0, 0, 'balance'))) return;                                                              // 3
+    for (k = 1; k <= 30; k++) { r = at(Math.floor(cur * (1 - k / 100))); if (r.lines > t.lines) break; if (!isStub(r)) return; }   // 4
+    for (j = 1; j <= 4; j++) { r = at(0, -0.01 * j); if (r.lines <= t.lines && !isStub(r)) return; }                         // 5
+    for (j = 1; j <= 2; j++)                                                                                                // 6
+      for (; k <= 30; k++) { r = at(Math.floor(cur * (1 - k / 100))); if (r.lines > t.lines + j) break; if (!isStub(r)) return; }
+    // nothing within those limits clears the rule (a long paragraph in a phone column):
+    // keep the browser's own re-break if it at least takes the line from one word to more
+    if (CSS.supports('text-wrap', 'pretty')) { r = at(0, 0, 'pretty'); if (r.lines === t.lines && r.last > t.last) return; }
+    at(0, 0, '');
+  }
+  function queueUnstub(list, after) {
+    list.forEach(function (el) { if (stubQ.indexOf(el) < 0) stubQ.push(el); });
+    if (stubBusy) return;
+    stubBusy = true;
+    (function slice() {
+      var t0 = performance.now();
+      while (stubQ.length && performance.now() - t0 < 8) unstub(stubQ.shift());
+      if (stubQ.length) return (window.requestIdleCallback || setTimeout)(slice, { timeout: 400 });
+      stubBusy = false;
+      if (after) after();
+    })();
+  }
+  function unstubPage() {
+    if (innerWidth === stubW) return;
+    stubW = innerWidth;
+    queueUnstub($$(PROSE), remeasure);
+  }
+  afterFirstFrame(function () {
+    if (d.fonts && d.fonts.ready) d.fonts.ready.then(function () { (window.requestIdleCallback || setTimeout)(unstubPage, { timeout: 600 }); });
+    else unstubPage();
+  });
+  // fonts.ready can settle before a webfont has even started to load (a face is fetched
+  // only once some text needs it), so the pass above may have measured fallback glyphs.
+  // Every webfont moves the line breaks: measure again whenever a batch of fonts lands.
+  var stubFonts = 0;
+  if (d.fonts && 'onloadingdone' in d.fonts) on(d.fonts, 'loadingdone', function () { clearTimeout(stubFonts); stubFonts = setTimeout(function () { stubW = -1; unstubPage(); }, 120); });
+  var stubRz = 0;
+  on(window, 'resize', function () { clearTimeout(stubRz); stubRz = setTimeout(unstubPage, 220); });
+  if (new URLSearchParams(location.search).has('debug')) window.__unstub = { tailOf: tailOf, isStub: isStub, run: function () { stubW = -1; unstubPage(); }, busy: function () { return stubBusy; } };
+
   on(toTop, 'click', function () { if (lenis) lenis.scrollTo(0); else window.scrollTo({ top: 0, behavior: reduce ? 'auto' : 'smooth' }); });
 
   /* ---------- covers only animate on screen ---------- */
@@ -193,13 +314,15 @@
   /* ---------- experience: the row crossing the star lights up ---------- */
   var xpNow = $('#xpNow'), star = $('.xp-star'), turn = 0;
   function setRow(r) {
-    var first = rowNow == null;
+    var prev = rowNow == null ? -1 : rows.indexOf(rowNow);
     rowNow = r;
     rows.forEach(function (x) { x.classList.toggle('active', x === r); });
     var i = rows.indexOf(r) + 1;
     if (xpNow) xpNow.textContent = (i < 10 ? '0' : '') + i;
-    // always the same way round, whichever way the page is scrolling
-    if (!first && star) { turn += 90; star.style.setProperty('--turn', turn + 'deg'); }
+    // the star turns with the reading: clockwise on to a later role, anticlockwise back
+    // to an earlier one (Mark, 2026-09-13). The angle accumulates, so every step turns
+    // a quarter the right way instead of unwinding.
+    if (prev > -1 && star) { turn += i - 1 > prev ? 90 : -90; star.style.setProperty('--turn', turn + 'deg'); }
   }
   if (!rowNow) setRow(rows[0]);
 
@@ -255,6 +378,7 @@
     lbBody.scrollTop = 0; lbMain.scrollTop = 0;
     lbOpen = true;
     show(lb);
+    queueUnstub($$('p', lbBody));
     main.inert = true; nav.inert = true;
     if (universe) universe.setPaused(true);
     if (lenis) lenis.stop();
@@ -322,7 +446,7 @@
         b.style.setProperty('--hx', ((e.clientX - r.left) / r.width * 100).toFixed(1) + '%');
         b.style.setProperty('--hy', ((e.clientY - r.top) / r.height * 100).toFixed(1) + '%');
       });
-      on(b, 'pointerleave', function () { b.style.removeProperty('--hx'); b.style.removeProperty('--hy'); });
+      // no reset on leave: the light fades out where the pointer left it instead of jumping
     });
   }
 
@@ -354,6 +478,7 @@
     // SMIL isn't touched by CSS animation rules: pause the flight path explicitly
     $$('.route-map').forEach(function (svg) { try { if (still) svg.pauseAnimations(); else svg.unpauseAnimations(); } catch (e) { /* no SMIL */ } });
     if (universe) universe.setStill(still);
+    paintForms();
     if (still) { stopLenis(); h.classList.remove('cursor-on'); visuals.forEach(function (v) { v.style.removeProperty('--py'); }); }
     else loadLenis();
   }
@@ -373,7 +498,10 @@
   /* ---------- entrance ---------- */
   var intro = $('#intro'), introName = $('#introName'), role = $('.intro-role'), quote = $('.intro-quote'), bar = $('.intro-prog i');
   var playing = h.classList.contains('intro-on');
-  var T = { type1: [0.35, 1.55], type2: [1.6, 3.15], qOut: [4.7, 5.2], conv: [4.8, 5.9], nameIn: [5.45, 5.9], roleIn: [5.7, 6.15], brk: 6.9, brkDur: 2.45, roleOut: [6.75, 7.05], reveal: 8.2 };
+  // the quote types in 2.1 s (0.35 → 2.45) and then holds for 1.85 s before it fades
+  // (Mark, 2026-09-13: typing 0.7 s quicker, a 0.3 s longer hold); everything after it
+  // keeps its old spacing, 0.4 s earlier. universe.js times the galaxy from conv[0].
+  var T = { type1: [0.35, 1.25], type2: [1.3, 2.45], qOut: [4.3, 4.8], conv: [4.4, 5.5], nameIn: [5.05, 5.5], roleIn: [5.3, 5.75], brk: 6.5, brkDur: 2.45, roleOut: [6.35, 6.65], reveal: 7.8 };
   var state = { t0: null, T: T, done: false };
   if (new URLSearchParams(location.search).has('debug')) window.__intro = state;   // exposed before the module loads, so tests can see the real start
   var revealed = !playing, finished = !playing, skipped = false, nameGone = false, watchdog = 0;
@@ -484,7 +612,10 @@
     if (coarse || innerWidth < 700) return 'mid';
     return 'high';
   }
-  var booting = false;
+  var booting = false, rendererOk = false;
+  // gl-forms: the particles can draw the contact mark (a live renderer, a tier with
+  // shapes, motion running), so the solid mark stays hidden and they gather into it
+  function paintForms() { h.classList.toggle('gl-forms', !!(universe && universe.forms && rendererOk && !reduce && !motionOff)); }
   function boot() {
     if (booting || universe) return;
     booting = true;
@@ -504,8 +635,9 @@
         logoPath: logo ? logo.getAttribute('d') : '',
         onForm: function (v) { h.classList.toggle('gl-form', v); },
         // a lost or failed renderer hands the stage back to the static stars and the solid logo
-        onRenderer: function (r) { var ok = r === 'webgl' || r === '2d'; h.classList.toggle('gl-on', ok); if (!ok) h.classList.remove('gl-form'); }
+        onRenderer: function (r) { rendererOk = r === 'webgl' || r === '2d'; h.classList.toggle('gl-on', rendererOk); if (!rendererOk) h.classList.remove('gl-form'); paintForms(); }
       });
+      paintForms();
       if (geo) universe.setSections(geo.list, geo.mark, geo.axis);
       if (reduce || motionOff) universe.setStill(true);
       if (lbOpen) universe.setPaused(true);
@@ -521,7 +653,7 @@
   if (!reduce) { if (playing) boot(); else (window.requestIdleCallback || setTimeout)(boot, { timeout: 700 }); }
 
   /* bfcache and unload: give GPU memory back */
-  on(window, 'pagehide', function (e) { if (!e.persisted && universe) { universe.destroy(); universe = null; } });
+  on(window, 'pagehide', function (e) { if (!e.persisted && universe) { universe.destroy(); universe = null; paintForms(); } });
   applyStill();
   window.__ceReady = true;
 })();
