@@ -253,6 +253,10 @@
     stubBusy = true;
     (function slice() {
       var t0 = performance.now();
+      // the width moved while the queue was still running: whatever this slice fits is fitted
+      // to the new width, so the pass is stale even if the window comes back to where it was
+      // before the resize settles. Forget the width and the settled resize redoes it all.
+      if (stubQ.length && innerWidth !== stubW) stubW = -1;
       while (stubQ.length && performance.now() - t0 < 8) unstub(stubQ.shift());
       if (stubQ.length) return (window.requestIdleCallback || setTimeout)(slice, { timeout: 400 });
       stubBusy = false;
