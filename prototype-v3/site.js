@@ -194,7 +194,7 @@
      is one word a line. It runs in idle slices once the webfonts settle, again whenever
      a batch of fonts lands or the width changes, and never from its own ResizeObserver,
      which it would feed. */
-  var PROSE = '.about-copy p, .princ p, .case-lead, .case-notes p, .metrics-note, .sec-note, .tl-note, .princ h4, .case h3, .case-sub, .tl-what h3, .tl-where, .cap li, .foot-avail > span, footer > span:not(.foot-r)';
+  var PROSE = '.about-copy p, .princ p, .case-lead, .case-notes p, .metrics-note, .sec-note, .tl-note, .princ h4, .case h3, .case-sub, .tl-what h3, .tl-where, .cap li, .lede-copy, .foot-avail > span, footer > span:not(.foot-r)';
   var stubRange = d.createRange(), stubQ = [], stubBusy = false, stubW = -1;
   function tailOf(el) {
     var nodes = [], text = '', n, w = d.createTreeWalker(el, NodeFilter.SHOW_TEXT);
@@ -454,6 +454,29 @@
       });
       // no reset on leave: the light fades out where the pointer left it instead of jumping
     });
+    /* the line under the ticker: the pointer carries a window across the words. One custom
+       property write per frame, on one element; the mask repaints, nothing reflows. */
+    var lede = $('#ledeStack');
+    if (lede) {
+      var lx = 0, ly = 0, ledeQueued = false;
+      var paintLede = function () {
+        ledeQueued = false;
+        lede.style.setProperty('--hx', lx.toFixed(1) + 'px');
+        lede.style.setProperty('--hy', ly.toFixed(1) + 'px');
+      };
+      on(lede, 'pointermove', function (e) {
+        var r = lede.getBoundingClientRect();
+        lx = e.clientX - r.left; ly = e.clientY - r.top;
+        if (!ledeQueued) { ledeQueued = true; requestAnimationFrame(paintLede); }
+      });
+      on(lede, 'pointerenter', function (e) {
+        var r = lede.getBoundingClientRect();
+        lx = e.clientX - r.left; ly = e.clientY - r.top;
+        paintLede();
+        lede.classList.add('lit');
+      });
+      on(lede, 'pointerleave', function () { lede.classList.remove('lit'); });
+    }
   }
 
   /* ---------- chrome title: one reflection after the entrance, again on hover ---------- */
@@ -474,8 +497,13 @@
 
   /* ---------- motion switch (WCAG 2.2.2) ---------- */
   var motionBtn = $('#motionBtn');
-  // the label itself says what pressing does next, so no aria-pressed on top of it
-  function paintMotion() { motionBtn.textContent = motionOff ? 'Resume motion' : 'Pause motion'; }
+  // the icon says what pressing does next, and so does the label it carries for anyone
+  // who cannot see the icon; no aria-pressed on top of that
+  function paintMotion() {
+    var label = motionOff ? 'Resume motion' : 'Pause motion';
+    motionBtn.setAttribute('aria-label', label);
+    motionBtn.setAttribute('title', label);
+  }
   paintMotion();
   function applyStill() {
     var still = reduce || motionOff;

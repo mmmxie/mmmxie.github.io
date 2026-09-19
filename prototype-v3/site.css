@@ -144,14 +144,14 @@ html.intro-on .intro{display:grid}
 .intro.leaving .intro-skip,.intro.leaving .intro-prog{opacity:0;transition:opacity .4s}
 
 /* everything behind the entrance waits for it, then staggers in */
-html.intro-on .nav,html.intro-on .hero-statement,html.intro-on .hero-sub,html.intro-on .hero-cta-row,html.intro-on .hero .ticker{opacity:0;transform:translateY(18px)}
+html.intro-on .nav,html.intro-on .hero-statement,html.intro-on .hero-cta-row,html.intro-on .hero .ticker{opacity:0;transform:translateY(18px)}
 html.intro-on .nav{transform:none}
 html.intro-on .totop,html.intro-on .progress{opacity:0}
-.hero-statement,.hero-sub,.hero-cta-row,.hero .ticker,.nav{transition:opacity 1s var(--ease),transform 1s var(--ease)}
-html.revealing .hero-sub{transition-delay:.14s}
-html.revealing .hero-cta-row{transition-delay:.26s}
-html.revealing .hero .ticker{transition-delay:.38s}
-html.revealing .nav{transition-delay:.5s}
+.hero-statement,.hero-cta-row,.hero .ticker,.nav{transition:opacity 1s var(--ease),transform 1s var(--ease)}
+/* the sub-line left the hero (Mark, 2026-09-18), so the buttons and the ticker take its slots */
+html.revealing .hero-cta-row{transition-delay:.14s}
+html.revealing .hero .ticker{transition-delay:.26s}
+html.revealing .nav{transition-delay:.38s}
 
 /* ---------- cursor (fine pointers only, created by JS) ---------- */
 .cur-ring{position:fixed;top:0;left:0;z-index:100;width:38px;height:38px;margin:-19px 0 0 -19px;border-radius:50%;border:1px solid rgba(236,238,241,.35);pointer-events:none;opacity:0;transform:translate3d(-100px,-100px,0);transition:opacity .3s,width .3s var(--ease-out),height .3s var(--ease-out),margin .3s var(--ease-out),background-color .3s,border-color .3s;display:grid;place-items:center;will-change:transform}
@@ -194,23 +194,23 @@ html.cursor-on .cur-ring{opacity:1}
 
 /* ---------- hero ---------- */
 .hero{position:relative;min-height:100svh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding-top:110px;padding-bottom:28px}
-.hero h1{font-weight:inherit;margin:0;line-height:1}
+/* Mark, 2026-09-18: the whole group sits a little lower than dead centre. The free space in
+   a centred column is split above and below, so a top margin of 2x moves the group down by x;
+   --hero-drop is that x, and it shrinks with the viewport so the ticker stays on the first
+   screen on a 1280x720 laptop. This is the one number to turn if he wants it lower again. */
+.hero{--hero-drop:clamp(0px,4.5svh,64px)}
+.hero h1{font-weight:inherit;margin:calc(var(--hero-drop) * 2) 0 0;line-height:1}
 .hero-statement{display:block;font-family:var(--f-display);font-weight:500;line-height:1.1;letter-spacing:-.052em;font-size:clamp(2.45rem,9.8vw,6.8rem);text-wrap:balance;padding:.04em .06em .1em}
 /* one line on desktop, as large as the width allows. 18.8 is the line's own width in ems
    for the WIDEST font in the stack (Helvetica Neue 16.84em with the webfont blocked, plus
    the .12em side padding), with a margin; Archivo itself is 16.04em */
 @media (min-width:900px){.hero-statement{white-space:nowrap;font-size:min(6.8rem,calc((100vw - 2 * var(--gutter)) / 18.8))}}
-.hero-sub{max-width:62ch;margin:clamp(22px,2.8vw,32px) auto 0;color:var(--ink-2);font-size:clamp(.95rem,1.1vw,1rem);line-height:1.65;text-wrap:balance}
-.sub-br{display:none}
-/* wide enough for one line: shrink the type to fit rather than wrap it.
-   The sentence is 72.327em in the WIDEST font in the stack (Helvetica Neue, measured with
-   the webfont blocked). 81.6 fits that with a margin and sets the line about 9% smaller
-   than the old 74.2 at every width (Mark, 2026-09-13: smaller), so it shrinks between 1200
-   and 1310 px too, where the 1rem cap never bites. */
-@media (min-width:1200px){.hero-sub{max-width:none;white-space:nowrap;font-size:min(1rem,calc((100vw - 2 * var(--gutter)) / 81.6))}}
-/* narrower desktops: exactly two lines, breaking before "building" */
-@media (min-width:900px) and (max-width:1199.98px){.hero-sub{max-width:none;text-wrap:initial}.sub-br{display:inline}}
 .hero-cta-row{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;margin-top:clamp(28px,3.2vw,40px)}
+/* both buttons the same width, so the gap between them sits on the centre line and one
+   reads as the mirror of the other (Mark, 2026-09-18). The width is the wider label's own
+   width, measured with the webfont blocked, rounded up. */
+.hero-cta-row .btn{min-width:15.1rem}
+@media (max-width:539.98px){.hero-cta-row .btn{min-width:min(15.1rem,100%)}}
 
 .ticker{width:100%;align-self:stretch;margin-top:clamp(60px,7.6vw,112px);overflow:hidden;position:relative;
   -webkit-mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent);mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent)}
@@ -221,6 +221,35 @@ html.cursor-on .cur-ring{opacity:1}
 @keyframes scrollx{to{transform:translateX(calc(-100% / 3))}}
 .ticker:hover .ticker-track{animation-play-state:paused}
 html.past-hero .ticker-track{animation-play-state:paused}
+
+/* ---------- the line (Mark, 2026-09-18) ----------
+   The sentence that used to sit under the hero title, on its own now and set large. His
+   name lies underneath it, as wide as the text box, and only the piece of it under the
+   pointer is ever lit: the words turn translucent inside a circle that follows the pointer
+   and the name shows through that circle. Reading it whole means moving across it.
+   Nothing animates by itself, so there is nothing here for reduced motion to stop; without
+   a fine pointer (touch, no JS) the sentence is simply solid type and the name never shows.
+   --reveal-r is registered below so it can be transitioned; where @property is unsupported
+   the circle appears and disappears instead of growing, which is a fade less, not a break. */
+@property --reveal-r{syntax:"<length>";inherits:true;initial-value:0px}
+.lede{padding-block:var(--pad)}
+.lede-stack{--reveal-r:0px;position:relative;display:flex;align-items:center;justify-content:center;text-align:center;min-height:calc(var(--lede-name) * 1.12)}
+/* the name is as wide as the text box: 9.407em in the WIDEST font of the stack (Archivo at
+   500 with .06em tracking; Helvetica Neue falls back narrower at 9.303em), 9.6 for margin */
+.lede-stack{--lede-name:min(9rem,calc((100vw - 2 * var(--gutter)) / 9.6))}
+.lede-name{position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);z-index:0;font-family:var(--f-display);font-weight:500;font-size:var(--lede-name);line-height:1;letter-spacing:.06em;text-transform:uppercase;white-space:nowrap;color:rgba(205,184,138,.92);pointer-events:none}
+.lede-copy{position:relative;z-index:1;margin:0;color:var(--ink);font-size:clamp(1.18rem,3.7vw,1.5rem);line-height:1.5;letter-spacing:-.01em;text-wrap:balance}
+.lede-br{display:none}
+/* desktop: exactly two lines, breaking before "building". The longer half is 42.324em in
+   the widest font, so 43.4 sets it to the width of the box with a margin. */
+@media (min-width:860px){.lede-copy{font-size:min(2.25rem,calc((100vw - 2 * var(--gutter)) / 43.4));line-height:1.45;text-wrap:initial;max-width:none}.lede-br{display:inline}}
+/* the pointer window: translucent words, and the name painted only inside the circle */
+.lede-name{-webkit-mask-image:radial-gradient(circle var(--reveal-r) at var(--hx,50%) var(--hy,50%),#000,#000 52%,transparent 100%);mask-image:radial-gradient(circle var(--reveal-r) at var(--hx,50%) var(--hy,50%),#000,#000 52%,transparent 100%)}
+@media (hover:hover) and (pointer:fine){
+  html.js .lede-stack{transition:--reveal-r .4s var(--ease-out)}
+  html.js .lede-stack.lit{--reveal-r:clamp(120px,13vw,210px)}
+  html.js .lede-copy{-webkit-mask-image:radial-gradient(circle var(--reveal-r) at var(--hx,50%) var(--hy,50%),rgba(0,0,0,.14),rgba(0,0,0,.18) 42%,#000 100%);mask-image:radial-gradient(circle var(--reveal-r) at var(--hx,50%) var(--hy,50%),rgba(0,0,0,.14),rgba(0,0,0,.18) 42%,#000 100%)}
+}
 
 /* ---------- section heads ---------- */
 .sec{padding-top:0}
@@ -518,13 +547,21 @@ footer{position:relative;z-index:1;border-top:1px solid var(--line-2);padding-bl
 /* availability (Mark, 2026-09-13: moved here from under the Contact heading): one line of
    small type across the top of the footer where it fits, one part a line where it doesn't.
    row-gap only: a column gap would sit beside every " ｜ " and widen it. */
-.foot-avail{flex:1 0 100%;display:flex;flex-direction:column;align-items:center;row-gap:6px;text-align:center;color:var(--ink-2);padding-bottom:14px}
+.foot-avail{flex:1 1 auto;display:flex;flex-direction:column;align-items:center;row-gap:6px;text-align:center;color:var(--ink-2);margin:0}
 .foot-avail>span{text-wrap:balance}
 .foot-avail .keep-case{text-transform:none}
-@media (min-width:1100px){.foot-avail{flex-direction:row;justify-content:center;white-space:nowrap}.foot-avail>span+span::before{content:" ｜ ";white-space:pre;color:var(--ink-3)}}
-.foot-r{display:inline-flex;align-items:center;gap:18px;flex-wrap:wrap}
-.motion-btn{font-family:var(--f-mono);font-size:.64rem;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-2);border-bottom:1px solid var(--line);padding:4px 0;transition:color .25s,border-color .25s}
-.motion-btn:hover{color:var(--ink);border-color:var(--accent)}
+/* one line from 1320 px (Mark, 2026-09-18: the copyright joins the availability line). The
+   whole string is 113.562em in the widest font of the stack, measured with the webfont
+   blocked; at .64rem that is 1163 px, which clears the gutters from 1320 px up. Below that
+   it stacks, one part a line, and a part never begins with "｜" because every "｜" inside a
+   part is glued to the word before it with &nbsp;. */
+@media (min-width:1320px){.foot-avail{flex-direction:row;justify-content:center;white-space:nowrap}.foot-avail>span+span::before{content:" ｜ ";white-space:pre;color:var(--ink-3)}}
+/* the motion switch is an icon now: one shape for what pressing it does next */
+.motion-btn{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;margin:-14px -10px -14px 0;color:var(--ink-2);border-radius:999px;transition:color .25s,background-color .25s}
+.motion-btn:hover{color:var(--accent);background:rgba(255,255,255,.05)}
+.motion-btn .mi-play{display:none}
+html.motion-off .motion-btn .mi-play{display:block}
+html.motion-off .motion-btn .mi-pause{display:none}
 html:not(.js) .motion-btn{display:none}
 
 /* ---------- back to top ---------- */

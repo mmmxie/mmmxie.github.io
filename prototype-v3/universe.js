@@ -505,7 +505,7 @@ export function createUniverse(opts) {
     // heavy-tailed strength (most are nudged, a few are thrown), one already flying is not
     // pushed harder, and a soft, lightly damped spring brings the pieces back.
     const logoK = cfg.forms && sceneS > 5 ? smooth(5, 6, sceneS) : 0;
-    const LR = PR + 48 * logoK, LR2 = LR * LR;
+    const LR = PR + 38 * logoK, LR2 = LR * LR;
     const stroke = Math.min(1, Math.hypot(ptr.vx, ptr.vy) / 420);
     const scatter = cfg.pointer && ptr.has && introDone && logoK > 0 && stroke > 0.01;
 
@@ -612,7 +612,7 @@ export function createUniverse(opts) {
             const cs = Math.cos(sw), sn = Math.sin(sw), ox = dx / d, oy = dy / d;
             const ux = ox * cs - oy * sn, uy = ox * sn + oy * cs;
             const sp0 = Math.hypot(VX[i], VY[i]), room = sp0 < 820 ? 1 - sp0 / 820 : 0;
-            const kick = q * stroke * 4400 * (0.1 + 2.6 * P.r4[i] * P.r4[i]) * room * logoK;
+            const kick = q * stroke * 1000 * (0.12 + 2 * P.r4[i] * P.r4[i]) * room * logoK;
             const drag = q * 0.6 * room * logoK;
             VX[i] += (ux * kick + ptr.vx * drag) * dt; VY[i] += (uy * kick + ptr.vy * drag) * dt;
           }
@@ -629,7 +629,7 @@ export function createUniverse(opts) {
       }
       if (OX[i] !== 0 || OY[i] !== 0 || VX[i] !== 0 || VY[i] !== 0) {
         // the mark's pieces float home on a soft spring; everything else snaps back
-        const kS = inLogo ? 26 - 20 * logoK : 26, kD = inLogo ? 7.2 - 4.7 * logoK : 7.2;
+        const kS = inLogo ? 26 - 18 * logoK : 26, kD = inLogo ? 7.2 - 4.2 * logoK : 7.2;
         VX[i] += (-kS * OX[i] - kD * VX[i]) * dt; VY[i] += (-kS * OY[i] - kD * VY[i]) * dt;
         OX[i] += VX[i] * dt; OY[i] += VY[i] * dt;
         if (Math.abs(OX[i]) + Math.abs(OY[i]) < 0.02 && Math.abs(VX[i]) + Math.abs(VY[i]) < 0.05) { OX[i] = OY[i] = VX[i] = VY[i] = 0; }
