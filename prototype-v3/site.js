@@ -194,7 +194,7 @@
      is one word a line. It runs in idle slices once the webfonts settle, again whenever
      a batch of fonts lands or the width changes, and never from its own ResizeObserver,
      which it would feed. */
-  var PROSE = '.about-copy p, .princ p, .case-lead, .case-notes p, .metrics-note, .sec-note, .tl-note, .princ h4, .case h3, .case-sub, .tl-what h3, .tl-where, .cap li, .lede-copy, .foot-avail > span, footer > span:not(.foot-r)';
+  var PROSE = '.about-copy p, .princ p, .case-lead, .case-notes p, .metrics-note, .sec-note, .tl-note, .princ h4, .case h3, .case-sub, .tl-what h3, .tl-where, .cap li, .lede-copy, .foot-avail > span';
   var stubRange = d.createRange(), stubQ = [], stubBusy = false, stubW = -1;
   function tailOf(el) {
     var nodes = [], text = '', n, w = d.createTreeWalker(el, NodeFilter.SHOW_TEXT);

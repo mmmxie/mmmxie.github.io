@@ -543,24 +543,33 @@ html.gl-form .contact-mark,html.gl-forms .contact-mark{opacity:0}
 .cgrid a:hover .ar{transform:translate(3px,-3px)}
 @media (max-width:760px){.cgrid{grid-template-columns:1fr;gap:10px;background:none;border:0;border-radius:0;overflow:visible}.cgrid a{border:1px solid var(--line-2);border-radius:14px}}
 
-footer{position:relative;z-index:1;border-top:1px solid var(--line-2);padding-block:26px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;font-size:.64rem;letter-spacing:.08em;color:var(--ink-3)}
+/* below the single-line width the footer is a centred column: the parts stack, and the
+   motion button sits under them on the centre line instead of being pulled to one side by
+   space-between (which also dragged the stack 22 px off centre) */
+footer{position:relative;z-index:1;border-top:1px solid var(--line-2);padding-block:26px;display:flex;flex-direction:column;justify-content:center;align-items:center;flex-wrap:wrap;gap:14px;font-size:.64rem;letter-spacing:.08em;color:var(--ink-3)}
 /* availability (Mark, 2026-09-13: moved here from under the Contact heading): one line of
    small type across the top of the footer where it fits, one part a line where it doesn't.
    row-gap only: a column gap would sit beside every " ｜ " and widen it. */
 .foot-avail{flex:1 1 auto;display:flex;flex-direction:column;align-items:center;row-gap:6px;text-align:center;color:var(--ink-2);margin:0}
 .foot-avail>span{text-wrap:balance}
 .foot-avail .keep-case{text-transform:none}
-/* one line from 1320 px (Mark, 2026-09-18: the copyright joins the availability line). The
+/* one line from 1375 px (Mark, 2026-09-18: the copyright joins the availability line). The
    whole string is 113.562em in the widest font of the stack, measured with the webfont
-   blocked; at .64rem that is 1163 px, which clears the gutters from 1320 px up. Below that
-   it stacks, one part a line, and a part never begins with "｜" because every "｜" inside a
-   part is glued to the word before it with &nbsp;. */
-@media (min-width:1320px){
+   blocked; at .64rem that is 1163 px. It CLEARS THE GUTTERS from 1320 px, but the motion
+   button has to fit beside it as well, and it only does from 1375: between the two the line
+   stayed on one row, the button dropped to a row of its own on the left, and the line sat
+   22 px right of centre. Below 1375 the parts stack, one to a line (four lines), and a part
+   never begins with "｜" because every "｜" inside a part is glued to the word before it
+   with &nbsp;. */
+@media (min-width:1375px){
+  footer{flex-direction:row;justify-content:space-between;gap:10px}
   .foot-avail{flex-direction:row;justify-content:center;white-space:nowrap}
   .foot-avail>span+span::before{content:" ｜ ";white-space:pre;color:var(--ink-3)}
   /* a spacer the width of the motion button's margin box (44px wide, pulled 10px into the
-     gutter), so the line is centred on the page and not pushed left by the button */
-  footer::before{content:"";flex:0 0 34px}
+     gutter), so the line is centred on the page and not pushed left by the button. Only
+     where the button exists: without JavaScript it is hidden, and the spacer would then
+     push the line 22 px the other way. */
+  html.js footer::before{content:"";flex:0 0 34px}
 }
 /* the motion switch is an icon now: one shape for what pressing it does next */
 .motion-btn{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;margin:-14px -10px -14px 0;color:var(--ink-2);border-radius:999px;transition:color .25s,background-color .25s}
