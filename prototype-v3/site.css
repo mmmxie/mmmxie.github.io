@@ -555,7 +555,13 @@ footer{position:relative;z-index:1;border-top:1px solid var(--line-2);padding-bl
    blocked; at .64rem that is 1163 px, which clears the gutters from 1320 px up. Below that
    it stacks, one part a line, and a part never begins with "｜" because every "｜" inside a
    part is glued to the word before it with &nbsp;. */
-@media (min-width:1320px){.foot-avail{flex-direction:row;justify-content:center;white-space:nowrap}.foot-avail>span+span::before{content:" ｜ ";white-space:pre;color:var(--ink-3)}}
+@media (min-width:1320px){
+  .foot-avail{flex-direction:row;justify-content:center;white-space:nowrap}
+  .foot-avail>span+span::before{content:" ｜ ";white-space:pre;color:var(--ink-3)}
+  /* a spacer the width of the motion button's margin box (44px wide, pulled 10px into the
+     gutter), so the line is centred on the page and not pushed left by the button */
+  footer::before{content:"";flex:0 0 34px}
+}
 /* the motion switch is an icon now: one shape for what pressing it does next */
 .motion-btn{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;margin:-14px -10px -14px 0;color:var(--ink-2);border-radius:999px;transition:color .25s,background-color .25s}
 .motion-btn:hover{color:var(--accent);background:rgba(255,255,255,.05)}
