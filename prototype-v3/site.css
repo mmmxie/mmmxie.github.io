@@ -222,35 +222,6 @@ html.cursor-on .cur-ring{opacity:1}
 .ticker:hover .ticker-track{animation-play-state:paused}
 html.past-hero .ticker-track{animation-play-state:paused}
 
-/* ---------- the line (Mark, 2026-09-18) ----------
-   The sentence that used to sit under the hero title, on its own now and set large. His
-   name lies underneath it, as wide as the text box, and only the piece of it under the
-   pointer is ever lit: the words turn translucent inside a circle that follows the pointer
-   and the name shows through that circle. Reading it whole means moving across it.
-   Nothing animates by itself, so there is nothing here for reduced motion to stop; without
-   a fine pointer (touch, no JS) the sentence is simply solid type and the name never shows.
-   --reveal-r is registered below so it can be transitioned; where @property is unsupported
-   the circle appears and disappears instead of growing, which is a fade less, not a break. */
-@property --reveal-r{syntax:"<length>";inherits:true;initial-value:0px}
-.lede{padding-block:var(--pad)}
-.lede-stack{--reveal-r:0px;position:relative;display:flex;align-items:center;justify-content:center;text-align:center;min-height:calc(var(--lede-name) * 1.12)}
-/* the name is as wide as the text box: 9.407em in the WIDEST font of the stack (Archivo at
-   500 with .06em tracking; Helvetica Neue falls back narrower at 9.303em), 9.6 for margin */
-.lede-stack{--lede-name:min(9rem,calc((100vw - 2 * var(--gutter)) / 9.6))}
-.lede-name{position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);z-index:0;font-family:var(--f-display);font-weight:500;font-size:var(--lede-name);line-height:1;letter-spacing:.06em;text-transform:uppercase;white-space:nowrap;color:rgba(205,184,138,.92);pointer-events:none}
-.lede-copy{position:relative;z-index:1;margin:0;color:var(--ink);font-size:clamp(1.18rem,3.7vw,1.5rem);line-height:1.5;letter-spacing:-.01em;text-wrap:balance}
-.lede-br{display:none}
-/* desktop: exactly two lines, breaking before "building". The longer half is 42.324em in
-   the widest font, so 43.4 sets it to the width of the box with a margin. */
-@media (min-width:860px){.lede-copy{font-size:min(2.25rem,calc((100vw - 2 * var(--gutter)) / 43.4));line-height:1.45;text-wrap:initial;max-width:none}.lede-br{display:inline}}
-/* the pointer window: translucent words, and the name painted only inside the circle */
-.lede-name{-webkit-mask-image:radial-gradient(circle var(--reveal-r) at var(--hx,50%) var(--hy,50%),#000,#000 52%,transparent 100%);mask-image:radial-gradient(circle var(--reveal-r) at var(--hx,50%) var(--hy,50%),#000,#000 52%,transparent 100%)}
-@media (hover:hover) and (pointer:fine){
-  html.js .lede-stack{transition:--reveal-r .4s var(--ease-out)}
-  html.js .lede-stack.lit{--reveal-r:clamp(120px,13vw,210px)}
-  html.js .lede-copy{-webkit-mask-image:radial-gradient(circle var(--reveal-r) at var(--hx,50%) var(--hy,50%),rgba(0,0,0,.14),rgba(0,0,0,.18) 42%,#000 100%);mask-image:radial-gradient(circle var(--reveal-r) at var(--hx,50%) var(--hy,50%),rgba(0,0,0,.14),rgba(0,0,0,.18) 42%,#000 100%)}
-}
-
 /* ---------- section heads ---------- */
 .sec{padding-top:0}
 /* the heading sits at the centre of its own band: the same air above it as below */
