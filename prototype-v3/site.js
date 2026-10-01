@@ -79,7 +79,7 @@
   var navSecs = $$('main section[id]');
   var links = $$('.nav-link');
   var formMap = { ring: 1, lattice: 2, helix: 3, line: 4, cluster: 5, logo: 6 };
-  var secTops = [], pageH = 0, active = '', pastHero = false;
+  var secTops = [], pageH = 0, footTop = 0, active = '', pastHero = false;
   var rvs = $$('.rv'), pend = reduce || rejoined ? [] : rvs.slice(), rvTops = [];
   if (reduce || rejoined) rvs.forEach(function (el) { el.classList.add('in'); });
   var visuals = $$('.case .visual'), visTops = [];
@@ -107,6 +107,7 @@
     var y = window.scrollY || 0, vh = innerHeight;
     secTops = navSecs.map(function (s) { return [s.id, s.getBoundingClientRect().top + y]; });
     pageH = d.documentElement.scrollHeight - vh;
+    var ft = $('footer'); footTop = ft ? ft.getBoundingClientRect().top + y : 0;
     rvTops = pend.map(function (el) { return el.getBoundingClientRect().top + y; });
     visTops = visuals.map(function (v) { var r = v.getBoundingClientRect(); return [r.top + y - (parseFloat(v.style.getPropertyValue('--py')) || 0), r.height]; });
     var list = [{ top: 0, scene: 0 }];
@@ -142,6 +143,9 @@
       var y = window.scrollY || 0;
       nav.classList.toggle('scrolled', y > 40);
       toTop.classList.toggle('show', y > innerHeight * 0.8);
+      // once the footer scrolls in, ride up with it so the button never sits on the
+      // footer line or the Pause motion button inside it
+      toTop.style.setProperty('--lift', footTop ? Math.max(0, y + innerHeight - footTop).toFixed(0) + 'px' : '0px');
       prog.style.transform = 'scaleX(' + (pageH > 0 ? Math.min(1, y / pageH) : 0).toFixed(4) + ')';
       var away = y > innerHeight;
       if (away !== pastHero) { pastHero = away; h.classList.toggle('past-hero', away); }
@@ -194,7 +198,7 @@
      is one word a line. It runs in idle slices once the webfonts settle, again whenever
      a batch of fonts lands or the width changes, and never from its own ResizeObserver,
      which it would feed. */
-  var PROSE = '.about-copy p, .princ p, .case-lead, .case-notes p, .metrics-note, .sec-note, .tl-note, .princ h4, .case h3, .case-sub, .tl-what h3, .tl-where, .cap li, .foot-avail > span';
+  var PROSE = '.about-copy p, .princ p, .case-lead, .case-notes p, .metrics-note, .sec-note, .tl-note, .princ h3, .case h3, .case-sub, .tl-what h3, .tl-where, .tl-promo, .cap li, .foot-avail > span';
   var stubRange = d.createRange(), stubQ = [], stubBusy = false, stubW = -1;
   function tailOf(el) {
     var nodes = [], text = '', n, w = d.createTreeWalker(el, NodeFilter.SHOW_TEXT);
